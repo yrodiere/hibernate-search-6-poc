@@ -7,11 +7,13 @@
 package org.hibernate.search.v6poc.entity.pojo.model.spi;
 
 
+import java.util.stream.Stream;
+
 /**
  * @author Yoann Rodiere
  */
-public interface PojoModelElementAccessor<T> {
+public interface PojoModelMultiValueElementAccessor<T> {
 
-	T read(PojoState bridgedElement);
+	Stream<T> read(PojoState bridgedElement);
 
 }

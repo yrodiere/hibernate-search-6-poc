@@ -7,28 +7,31 @@
 package org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.hibernate.search.v6poc.entity.pojo.bridge.spi.FunctionBridge;
+import org.hibernate.search.v6poc.entity.pojo.model.unwrap.spi.UnwrapperFactory;
 
 /**
  * @author Yoann Rodiere
  */
 @Documented
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Target({}) // Only used as a component in other annotations
 @Retention(RetentionPolicy.RUNTIME)
 // TODO repeatable
-public @interface Field {
+public @interface UnwrapperFactoryBeanReference {
 
 	String name() default "";
 
-	FunctionBridgeBeanReference bridge() default @FunctionBridgeBeanReference;
+	Class<? extends UnwrapperFactory> type() default UndefinedImplementationType.class;
 
-	UnwrapperFactoryBeanReference[] unwrapper() default {};
-
-	// TODO index, analyze, store, norms, termVector
-	// TODO analyzer, normalizer
-	// TODO indexNullAs? => Maybe we should rather use "missing" queries?
-
+	/**
+	 * Class used as a marker for the default value of the {@link #type()} attribute.
+	 */
+	abstract class UndefinedImplementationType implements UnwrapperFactory {
+		private UndefinedImplementationType() {
+		}
+	}
 }

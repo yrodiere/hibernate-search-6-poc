@@ -17,6 +17,16 @@ public interface PojoModelElement {
 	// FIXME what if I want a PojoModelElementAccessor<List<MyType>>?
 	<T> PojoModelElementAccessor<T> createAccessor(Class<T> type);
 
+	<T> PojoModelMultiValueElementAccessor<T> unwrapArrayElements(Class<T> elementType);
+
+	<T> PojoModelMultiValueElementAccessor<T> unwrapIterableElements(Class<T> elementType);
+
+	<T> PojoModelMultiValueElementAccessor<T> unwrapMapKeys(Class<T> elementType);
+
+	<T> PojoModelMultiValueElementAccessor<T> unwrapMapValues(Class<T> elementType);
+
+	<T> PojoModelElementAccessor<T> createAccessor(Class<T> elementType, Supplier<Unwrapper<T>>);
+
 	PojoModelElementAccessor<?> createAccessor();
 
 	boolean isAssignableTo(Class<?> clazz);

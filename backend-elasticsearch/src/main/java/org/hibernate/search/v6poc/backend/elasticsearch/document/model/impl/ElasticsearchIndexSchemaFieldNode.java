@@ -6,10 +6,15 @@
  */
 package org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl;
 
+import org.hibernate.search.v6poc.backend.elasticsearch.logging.impl.Log;
+import org.hibernate.search.v6poc.util.spi.LoggerFactory;
+
 /**
  * @author Yoann Rodiere
  */
-public class ElasticsearchIndexSchemaFieldNode {
+public class ElasticsearchIndexSchemaFieldNode implements ElasticsearchIndexSchemaNode {
+
+	private static final Log log = LoggerFactory.make( Log.class );
 
 	private final ElasticsearchIndexSchemaObjectNode parent;
 
@@ -24,8 +29,13 @@ public class ElasticsearchIndexSchemaFieldNode {
 		return parent;
 	}
 
+	@Override
 	public ElasticsearchFieldFormatter getFormatter() {
 		return formatter;
 	}
 
+	@Override
+	public void checkSuitableForNestedQuery() {
+		throw log.nonObjectFieldForNestedPredicate();
+	}
 }

@@ -271,7 +271,8 @@ public class JavaBeanElasticsearchObjectFieldIT {
 	@Test
 	public void nestedPredicate_error_missingField() {
 		thrown.expect( SearchException.class );
-		thrown.expectMessage( "Unknown field 'doesNotExist'" );
+		thrown.expectMessage( "'doesNotExist'" );
+		thrown.expectMessage( "this field does not exist" );
 		try (PojoSearchManager manager = mapping.createSearchManager()) {
 			manager.search( IndexedEntity.class )
 					.predicate().nested().onObjectField( "doesNotExist" );

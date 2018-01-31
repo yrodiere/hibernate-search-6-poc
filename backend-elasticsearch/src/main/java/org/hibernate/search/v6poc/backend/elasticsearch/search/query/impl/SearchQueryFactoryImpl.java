@@ -15,8 +15,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.ElasticsearchIndexSchemaFieldNode;
+import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.ElasticsearchFieldFormatter;
 import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.ElasticsearchIndexModel;
+import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.ElasticsearchIndexSchemaNode;
 import org.hibernate.search.v6poc.backend.elasticsearch.impl.ElasticsearchBackend;
 import org.hibernate.search.v6poc.backend.elasticsearch.logging.impl.Log;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.dsl.impl.ElasticsearchSearchPredicateCollector;
@@ -29,6 +30,7 @@ import org.hibernate.search.v6poc.search.query.spi.LoadingHitCollector;
 import org.hibernate.search.v6poc.search.query.spi.ProjectionHitCollector;
 import org.hibernate.search.v6poc.search.query.spi.SearchQueryBuilder;
 import org.hibernate.search.v6poc.search.query.spi.SearchQueryFactory;
+import org.hibernate.search.v6poc.util.SearchException;
 import org.hibernate.search.v6poc.util.spi.LoggerFactory;
 
 class SearchQueryFactoryImpl implements SearchQueryFactory<ElasticsearchSearchPredicateCollector> {
@@ -119,10 +121,17 @@ class SearchQueryFactoryImpl implements SearchQueryFactory<ElasticsearchSearchPr
 					extractors.add( new DocumentReferenceHitExtractor<>( Function.identity() ) );
 					break;
 				default:
-					ElasticsearchIndexSchemaFieldNode node = indexModel.getFieldNode( projection );
-					if ( node != null ) {
+					ElasticsearchIndexSchemaNode schemaNode = indexModel.getSchemaNode( projection );
+					if ( schemaNode != null ) {
 						projectionFound.set( i );
-						extractors.add( new SourceHitExtractor( projection, node.getFormatter() ) );
+						ElasticsearchFieldFormatter formatter;
+						try {
+							formatter = schemaNode.getFormatter();
+						}
+						catch (SearchException e) {
+							throw log.cannotProjectOnField( indexModel.getIndexName(), projection, e.getMessage(), e );
+						}
+						extractors.add( new SourceHitExtractor( projection, formatter ) );
 					}
 					else {
 						// Make sure that the result list will have the correct indices and size

@@ -18,22 +18,11 @@ public class ElasticsearchIndexModel {
 
 	private final String indexName;
 	private final TypeMapping mapping;
-	private final Map<String, ElasticsearchIndexSchemaObjectNode> objectNodes = new HashMap<>();
-	private final Map<String, ElasticsearchIndexSchemaFieldNode> fieldNodes = new HashMap<>();
+	private final Map<String, ElasticsearchIndexSchemaNode> schemaNodes = new HashMap<>();
 
 	public ElasticsearchIndexModel(String indexName, ElasticsearchRootIndexSchemaCollectorImpl collector) {
 		this.indexName = indexName;
-		this.mapping = collector.contribute( new ElasticsearchIndexSchemaNodeCollector() {
-			@Override
-			public void collect(String absolutePath, ElasticsearchIndexSchemaObjectNode node) {
-				objectNodes.put( absolutePath, node );
-			}
-
-			@Override
-			public void collect(String absolutePath, ElasticsearchIndexSchemaFieldNode node) {
-				fieldNodes.put( absolutePath, node );
-			}
-		} );
+		this.mapping = collector.contribute( schemaNodes::put );
 	}
 
 	public String getIndexName() {
@@ -44,12 +33,8 @@ public class ElasticsearchIndexModel {
 		return mapping;
 	}
 
-	public ElasticsearchIndexSchemaObjectNode getObjectNode(String absolutePath) {
-		return objectNodes.get( absolutePath );
-	}
-
-	public ElasticsearchIndexSchemaFieldNode getFieldNode(String absolutePath) {
-		return fieldNodes.get( absolutePath );
+	public ElasticsearchIndexSchemaNode getSchemaNode(String absolutePath) {
+		return schemaNodes.get( absolutePath );
 	}
 
 	@Override

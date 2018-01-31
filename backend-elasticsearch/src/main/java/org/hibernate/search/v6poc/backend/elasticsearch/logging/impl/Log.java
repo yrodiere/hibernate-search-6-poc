@@ -19,6 +19,7 @@ import org.hibernate.search.v6poc.util.SearchException;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger.Level;
+import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
@@ -38,8 +39,8 @@ public interface Log extends BasicLogger {
 			+ " First target was: '%1$s', other target was: '%2$s'" )
 	SearchException cannotMixElasticsearchSearchTargetWithOtherBackend(IndexSearchTargetBuilder firstTarget, ElasticsearchIndexManager otherTarget);
 
-	@Message(id = 4, value = "Unknown field '%1$s' in indexes %2$s." )
-	SearchException unknownFieldForSearch(String absoluteFieldPath, List<String> indexNames);
+	@Message(id = 4, value = "Cannot use predicate '%2$s' on field '%3$s' in indexes %1$s: this field does not exist." )
+	SearchException unknownFieldForSearch(List<String> indexNames, String predicateName, String absoluteFieldPath);
 
 	@Message(id = 5, value = "Multiple conflicting types for field '%1$s': '%2$s' in index '%3$s', but '%4$s' in index '%5$s'." )
 	SearchException conflictingFieldFormattersForSearch(String absoluteFieldPath,
@@ -57,10 +58,21 @@ public interface Log extends BasicLogger {
 			+ " Given predicate was: '%1$s'" )
 	SearchException cannotMixElasticsearchSearchQueryWithOtherPredicates(SearchPredicate predicate);
 
-	@Message(id = 9, value = "Field '%2$s' is not an object field in index '%1$s'." )
-	SearchException nonObjectFieldForNestedQuery(String indexName, String absoluteFieldPath);
+	@Message(id = 9, value = "This field is not an object field." )
+	SearchException nonObjectFieldForNestedPredicate();
 
-	@Message(id = 10, value = "Object field '%2$s' is not stored as nested in index '%1$s'." )
-	SearchException nonNestedFieldForNestedQuery(String indexName, String absoluteFieldPath);
+	@Message(id = 10, value = "This object field is not stored as nested." )
+	SearchException nonNestedFieldForNestedPredicate();
+
+	@Message(id = 11, value = "This field is an object field, and object fields cannot be filtered on nor projected on." )
+	SearchException objectFieldForSearchFormatting();
+
+	@Message(id = 12, value = "Cannot use predicate '%2$s' on field '%3$s' in index '%1$s': %4$s" )
+	SearchException cannotUsePredicateOnField(String indexName, String predicateName, String absoluteFieldPath,
+			String errorMessage, @Cause Exception e);
+
+	@Message(id = 13, value = "Cannot project on field '%2$s' in index '%1$s': %3$s" )
+	SearchException cannotProjectOnField(String indexName, String absoluteFieldPath,
+			String errorMessage, @Cause Exception e);
 
 }

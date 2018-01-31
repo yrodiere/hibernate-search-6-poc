@@ -7,11 +7,15 @@
 package org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl;
 
 import org.hibernate.search.v6poc.backend.document.model.ObjectFieldStorage;
+import org.hibernate.search.v6poc.backend.elasticsearch.logging.impl.Log;
+import org.hibernate.search.v6poc.util.spi.LoggerFactory;
 
 /**
  * @author Yoann Rodiere
  */
-public class ElasticsearchIndexSchemaObjectNode {
+public class ElasticsearchIndexSchemaObjectNode implements ElasticsearchIndexSchemaNode {
+
+	private static final Log log = LoggerFactory.make( Log.class );
 
 	private static final ElasticsearchIndexSchemaObjectNode ROOT =
 			new ElasticsearchIndexSchemaObjectNode( null, null, null );
@@ -45,7 +49,15 @@ public class ElasticsearchIndexSchemaObjectNode {
 		return absolutePath == null ? relativeName : absolutePath + "." + relativeName;
 	}
 
-	public ObjectFieldStorage getStorage() {
-		return storage;
+	@Override
+	public ElasticsearchFieldFormatter getFormatter() {
+		throw log.objectFieldForSearchFormatting();
+	}
+
+	@Override
+	public void checkSuitableForNestedQuery() {
+		if ( !ObjectFieldStorage.NESTED.equals( storage ) ) {
+			throw log.nonNestedFieldForNestedPredicate();
+		}
 	}
 }

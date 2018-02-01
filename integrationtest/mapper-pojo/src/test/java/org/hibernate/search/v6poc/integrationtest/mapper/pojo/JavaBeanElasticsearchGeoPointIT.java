@@ -6,29 +6,32 @@
  */
 package org.hibernate.search.v6poc.integrationtest.mapper.pojo;
 
-import static org.hibernate.search.v6poc.integrationtest.util.common.StubAssert.assertRequest;
-
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.search.v6poc.backend.elasticsearch.client.impl.StubElasticsearchClient;
-import org.hibernate.search.v6poc.backend.elasticsearch.client.impl.StubElasticsearchClient.Request;
-import org.hibernate.search.v6poc.backend.elasticsearch.impl.ElasticsearchBackendFactory;
 import org.hibernate.search.v6poc.backend.spatial.GeoPoint;
+import org.hibernate.search.v6poc.engine.SearchMappingRepository;
+import org.hibernate.search.v6poc.engine.SearchMappingRepositoryBuilder;
+import org.hibernate.search.v6poc.entity.javabean.JavaBeanMapping;
+import org.hibernate.search.v6poc.entity.javabean.JavaBeanMappingContributor;
 import org.hibernate.search.v6poc.entity.pojo.bridge.builtin.spatial.GeoPointBridgeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.bridge.builtin.spatial.LatitudeMarkerBuilder;
 import org.hibernate.search.v6poc.entity.pojo.bridge.builtin.spatial.LongitudeMarkerBuilder;
-import org.hibernate.search.v6poc.engine.SearchMappingRepository;
-import org.hibernate.search.v6poc.engine.SearchMappingRepositoryBuilder;
-import org.hibernate.search.v6poc.entity.javabean.JavaBeanMappingContributor;
-import org.hibernate.search.v6poc.entity.javabean.JavaBeanMapping;
 import org.hibernate.search.v6poc.entity.pojo.mapping.PojoSearchManager;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.programmatic.ProgrammaticMappingDefinition;
-import org.json.JSONException;
+import org.hibernate.search.v6poc.integrationtest.util.common.StubClientElasticsearchBackendFactory;
+import org.hibernate.search.v6poc.integrationtest.util.common.StubElasticsearchClient;
+import org.hibernate.search.v6poc.integrationtest.util.common.StubElasticsearchClient.Request;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import org.json.JSONException;
+
+import static org.hibernate.search.v6poc.integrationtest.util.common.StubAssert.assertDropAndCreateIndexRequests;
+import static org.hibernate.search.v6poc.integrationtest.util.common.StubAssert.assertIndexDocumentRequest;
+
 
 /**
  * @author Yoann Rodiere
@@ -44,7 +47,7 @@ public class JavaBeanElasticsearchGeoPointIT {
 	@Before
 	public void setup() throws JSONException {
 		SearchMappingRepositoryBuilder mappingRepositoryBuilder = SearchMappingRepository.builder()
-				.setProperty( "backend.elasticsearchBackend.type", ElasticsearchBackendFactory.class.getName() )
+				.setProperty( "backend.elasticsearchBackend.type", StubClientElasticsearchBackendFactory.class.getName() )
 				.setProperty( "backend.elasticsearchBackend.host", HOST )
 				.setProperty( "index.default.backend", "elasticsearchBackend" );
 
@@ -102,38 +105,32 @@ public class JavaBeanElasticsearchGeoPointIT {
 
 		Map<String, List<Request>> requests = StubElasticsearchClient.drainRequestsByIndex();
 
-		assertRequest( requests, GeoPointOnTypeEntity.INDEX, 0, HOST, "createIndex", null,
+		assertDropAndCreateIndexRequests( requests, GeoPointOnTypeEntity.INDEX, HOST,
 				"{"
-					+ "'mapping': {"
-						+ "'properties': {"
-							+ "'homeLocation': {"
-								+ "'type': 'geo_point'"
-							+ "},"
-							+ "'workLocation': {"
-								+ "'type': 'geo_point'"
-							+ "}"
+					+ "'properties': {"
+						+ "'homeLocation': {"
+							+ "'type': 'geo_point'"
+						+ "},"
+						+ "'workLocation': {"
+							+ "'type': 'geo_point'"
 						+ "}"
 					+ "}"
 				+ "}" );
 
-		assertRequest( requests, GeoPointOnCoordinatesPropertyEntity.INDEX, 0, HOST, "createIndex", null,
+		assertDropAndCreateIndexRequests( requests, GeoPointOnCoordinatesPropertyEntity.INDEX, HOST,
 				"{"
-					+ "'mapping': {"
-						+ "'properties': {"
-							+ "'location': {"
-								+ "'type': 'geo_point'"
-							+ "}"
+					+ "'properties': {"
+						+ "'location': {"
+							+ "'type': 'geo_point'"
 						+ "}"
 					+ "}"
 				+ "}" );
 
-		assertRequest( requests, GeoPointOnCustomCoordinatesPropertyEntity.INDEX, 0, HOST, "createIndex", null,
+		assertDropAndCreateIndexRequests( requests, GeoPointOnCustomCoordinatesPropertyEntity.INDEX, HOST,
 				"{"
-					+ "'mapping': {"
-						+ "'properties': {"
-							+ "'location': {"
-								+ "'type': 'geo_point'"
-							+ "}"
+					+ "'properties': {"
+						+ "'location': {"
+							+ "'type': 'geo_point'"
 						+ "}"
 					+ "}"
 				+ "}" );
@@ -178,7 +175,7 @@ public class JavaBeanElasticsearchGeoPointIT {
 		}
 
 		Map<String, List<Request>> requests = StubElasticsearchClient.drainRequestsByIndex();
-		assertRequest( requests, GeoPointOnTypeEntity.INDEX, 0, HOST, "add", "1",
+		assertIndexDocumentRequest( requests, GeoPointOnTypeEntity.INDEX, 0, HOST, "1",
 				"{"
 					+ "'homeLocation': {"
 						+ "'lat': 1.1,"
@@ -189,14 +186,14 @@ public class JavaBeanElasticsearchGeoPointIT {
 						+ "'lon': 1.4"
 					+ "}"
 				+ "}" );
-		assertRequest( requests, GeoPointOnCoordinatesPropertyEntity.INDEX, 0, HOST, "add", "2",
+		assertIndexDocumentRequest( requests, GeoPointOnCoordinatesPropertyEntity.INDEX, 0, HOST, "2",
 				"{"
 					+ "'location': {"
 						+ "'lat': 2.1,"
 						+ "'lon': 2.2"
 					+ "}"
 				+ "}" );
-		assertRequest( requests, GeoPointOnCustomCoordinatesPropertyEntity.INDEX, 0, HOST, "add", "3",
+		assertIndexDocumentRequest( requests, GeoPointOnCustomCoordinatesPropertyEntity.INDEX, 0, HOST, "3",
 				"{"
 					+ "'location': {"
 						+ "'lat': 3.1,"

@@ -14,6 +14,7 @@
         <module>util-orm</module>
         <module>mapper-pojo</module>
         <module>orm</module>
+        <module>showcase/library</module>
     </modules>
 
     <dependencyManagement>

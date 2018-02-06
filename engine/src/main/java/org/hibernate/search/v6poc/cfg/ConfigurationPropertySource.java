@@ -14,6 +14,7 @@ import org.hibernate.search.v6poc.cfg.impl.FallbackConfigurationPropertySource;
 import org.hibernate.search.v6poc.cfg.impl.MaskedConfigurationPropertySource;
 import org.hibernate.search.v6poc.cfg.impl.PrefixedConfigurationPropertySource;
 import org.hibernate.search.v6poc.cfg.impl.PropertiesConfigurationPropertySource;
+import org.hibernate.search.v6poc.cfg.impl.SystemConfigurationPropertySource;
 
 public interface ConfigurationPropertySource {
 
@@ -54,6 +55,13 @@ public interface ConfigurationPropertySource {
 	 */
 	static ConfigurationPropertySource fromProperties(Properties properties) {
 		return new PropertiesConfigurationPropertySource( properties );
+	}
+
+	/**
+	 * @return An source containing properties from {@link System#getProperty(String)}.
+	 */
+	static ConfigurationPropertySource fromSystem() {
+		return SystemConfigurationPropertySource.get();
 	}
 
 	/**

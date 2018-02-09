@@ -12,6 +12,8 @@
     <modules>
         <module>util-common</module>
         <module>util-orm</module>
+        <module>backend-tck</module>
+        <module>backend-elasticsearch</module>
         <module>mapper-pojo</module>
         <module>orm</module>
         <module>showcase/library</module>
@@ -27,6 +29,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>hibernate-search-integrationtest-util-orm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>hibernate-search-integrationtest-backend-tck</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

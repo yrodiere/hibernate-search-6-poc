@@ -8,23 +8,17 @@ package org.hibernate.search.v6poc.entity.orm.model.impl;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.ManagedType;
 
-import org.hibernate.AssertionFailure;
-import org.hibernate.EntityMode;
-import org.hibernate.MappingException;
 import org.hibernate.annotations.common.reflection.ReflectionManager;
 import org.hibernate.annotations.common.reflection.XAnnotatedElement;
 import org.hibernate.annotations.common.reflection.XClass;
@@ -33,13 +27,6 @@ import org.hibernate.annotations.common.reflection.java.JavaReflectionManager;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.persister.entity.EntityPersister;
-import org.hibernate.property.access.spi.Getter;
-import org.hibernate.property.access.spi.GetterFieldImpl;
-import org.hibernate.property.access.spi.GetterMethodImpl;
-import org.hibernate.property.access.spi.PropertyAccess;
-import org.hibernate.property.access.spi.PropertyAccessStrategy;
-import org.hibernate.property.access.spi.PropertyAccessStrategyResolver;
 import org.hibernate.search.v6poc.entity.orm.util.impl.XClassOrdering;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.GenericContextAwarePojoGenericTypeModel.RawTypeDeclaringContext;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoBootstrapIntrospector;
@@ -58,7 +45,6 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 	private final ReflectionManager reflectionManager;
 	private final AnnotationHelper annotationHelper;
 	private final SessionFactoryImplementor sessionFactoryImplementor;
-	private final PropertyAccessStrategyResolver accessStrategyResolver;
 	private final HibernateOrmGenericContextHelper genericContextHelper;
 	private final RawTypeDeclaringContext<?> missingRawTypeDeclaringContext;
 
@@ -71,7 +57,7 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 	 * Also, this cache allows to not care at all about implementing equals and hashcode,
 	 * since type models are presumably instantiated only once per type.
 	 *
-	 * @see AbstractHibernateOrmTypeModel#propertyModelCache
+	 * @see HibernateOrmRawTypeModel#propertyModelCache
 	 */
 	private final Map<Class<?>, PojoRawTypeModel<?>> typeModelCache = new HashMap<>();
 
@@ -92,8 +78,6 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 		// TODO get the user lookup from Hibernate ORM?
 		this.annotationHelper = new AnnotationHelper( MethodHandles.publicLookup() );
 		this.sessionFactoryImplementor = sessionFactoryImplementor;
-		this.accessStrategyResolver = sessionFactoryImplementor.getServiceRegistry()
-				.getService( PropertyAccessStrategyResolver.class );
 		this.genericContextHelper = new HibernateOrmGenericContextHelper( this );
 		this.missingRawTypeDeclaringContext = new RawTypeDeclaringContext<>(
 				genericContextHelper, Object.class
@@ -112,35 +96,31 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 	}
 
 	@SuppressWarnings( "unchecked" )
-	<T> Stream<PojoRawTypeModel<? super T>> getAscendingSuperTypes(XClass xClass) {
+	<T> Stream<HibernateOrmRawTypeModel<? super T>> getAscendingSuperTypes(XClass xClass) {
 		return XClassOrdering.get().getAscendingSuperTypes( xClass )
-				.map( superType -> (PojoRawTypeModel<? super T>) getTypeModel( superType ) );
+				.map( superType -> (HibernateOrmRawTypeModel<? super T>) getTypeModel( superType ) );
 	}
 
 	@SuppressWarnings( "unchecked" )
-	<T> Stream<PojoRawTypeModel<? super T>> getDescendingSuperTypes(XClass xClass) {
+	<T> Stream<HibernateOrmRawTypeModel<? super T>> getDescendingSuperTypes(XClass xClass) {
 		return XClassOrdering.get().getDescendingSuperTypes( xClass )
-				.map( superType -> (PojoRawTypeModel<? super T>) getTypeModel( superType ) );
+				.map( superType -> (HibernateOrmRawTypeModel<? super T>) getTypeModel( superType ) );
 	}
 
 	XClass toXClass(Class<?> type) {
 		return reflectionManager.toXClass( type );
 	}
 
-	Map<String, XProperty> getFieldAccessPropertiesByName(XClass xClass) {
+	Map<String, XProperty> getDeclaredFieldAccessXPropertiesByName(XClass xClass) {
+		// TODO HSEARCH-3056 remove lambdas if possible
 		return xClass.getDeclaredProperties( XClass.ACCESS_FIELD ).stream()
-				.collect( StreamHelper.toMap(
-						XProperty::getName, Function.identity(),
-						TreeMap::new // Sort properties by name for deterministic iteration
-				) );
+				.collect( xPropertiesByNameNoDuplicate() );
 	}
 
-	Map<String, XProperty> getMethodAccessPropertiesByName(XClass xClass) {
+	Map<String, XProperty> getDeclaredMethodAccessXPropertiesByName(XClass xClass) {
+		// TODO HSEARCH-3056 remove lambdas if possible
 		return xClass.getDeclaredProperties( XClass.ACCESS_PROPERTY ).stream()
-				.collect( StreamHelper.toMap(
-						XProperty::getName, Function.identity(),
-						TreeMap::new // Sort properties by name for deterministic iteration
-				) );
+				.collect( xPropertiesByNameNoDuplicate() );
 	}
 
 	<A extends Annotation> Optional<A> getAnnotationByType(XAnnotatedElement xAnnotated, Class<A> annotationType) {
@@ -161,96 +141,22 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 				.filter( annotation -> annotationHelper.isMetaAnnotated( annotation, metaAnnotationType ) );
 	}
 
-	PojoPropertyModel<?> createMemberPropertyModel(AbstractHibernateOrmTypeModel<?> holderTypeModel,
-			String propertyName, Member member, List<XProperty> declaredXProperties) {
-		Class<?> holderType = holderTypeModel.getJavaClass();
-		Getter getter;
-		if ( member instanceof Method ) {
-			getter = new GetterMethodImpl( holderType, propertyName, (Method) member );
-		}
-		else if ( member instanceof Field ) {
-			getter = new GetterFieldImpl( holderType, propertyName, (Field) member );
-		}
-		else {
-			throw new AssertionFailure( "Unexpected type for a " + Member.class.getName() + ": " + member );
-		}
-		return new HibernateOrmPropertyModel<>( this, holderTypeModel, propertyName,
-				declaredXProperties, getter );
-	}
-
-	PojoPropertyModel<?> createFallbackPropertyModel(AbstractHibernateOrmTypeModel<?> holderTypeModel,
-			String explicitAccessStrategyName, EntityMode entityMode, String propertyName,
-			List<XProperty> declaredXProperties) {
-		Class<?> holderType = holderTypeModel.getJavaClass();
-		PropertyAccessStrategy accessStrategy = accessStrategyResolver.resolvePropertyAccessStrategy(
-				holderType, explicitAccessStrategyName, entityMode
-		);
-		PropertyAccess propertyAccess = accessStrategy.buildPropertyAccess(
-				holderType, propertyName
-		);
-		Getter getter = propertyAccess.getGetter();
-		return new HibernateOrmPropertyModel<>( this, holderTypeModel, propertyName,
-				declaredXProperties, getter );
-	}
-
 	@SuppressWarnings( "unchecked" )
 	private PojoTypeModel<?> getTypeModel(XClass xClass) {
 		return getTypeModel( reflectionManager.toClass( xClass ) );
 	}
 
 	private <T> PojoRawTypeModel<T> createTypeModel(Class<T> type) {
-		PojoRawTypeModel<T> typeModel = tryCreateEntityTypeModel( type );
-		if ( typeModel == null ) {
-			typeModel = tryCreateEmbeddableTypeModel( type );
-		}
-		if ( typeModel == null ) {
-			typeModel = tryCreateMappedSuperclassTypeModel( type );
-		}
-		if ( typeModel == null ) {
-			typeModel = createNonManagedTypeModel( type );
-		}
-		return typeModel;
+		ManagedType<T> managedType = getManagedType( type );
+		return new HibernateOrmRawTypeModel<T>(
+				this, type, managedType,
+				new RawTypeDeclaringContext<>( genericContextHelper, type )
+		);
 	}
 
-	private <T> PojoRawTypeModel<T> tryCreateEntityTypeModel(Class<T> type) {
+	private <T> ManagedType<T> getManagedType(Class<T> type) {
 		try {
-			EntityPersister persister = sessionFactoryImplementor.getMetamodel().entityPersister( type );
-			return new HibernateOrmEntityTypeModel<>(
-					this, type, persister,
-					new RawTypeDeclaringContext<>( genericContextHelper, type )
-			);
-		}
-		catch (MappingException ignored) {
-			// The type is not an entity in the current session factory
-			return null;
-		}
-	}
-
-	private <T> PojoRawTypeModel<T> tryCreateEmbeddableTypeModel(Class<T> type) {
-		try {
-			EmbeddableType<T> embeddableType = sessionFactoryImplementor.getMetamodel().embeddable( type );
-			return new HibernateOrmEmbeddableTypeModel<>(
-					this, embeddableType,
-					new RawTypeDeclaringContext<>( genericContextHelper, type )
-			);
-		}
-		catch (IllegalArgumentException ignored) {
-			// The type is not embeddable in the current session factory
-			return null;
-		}
-	}
-
-	private <T> PojoRawTypeModel<T> tryCreateMappedSuperclassTypeModel(Class<T> type) {
-		try {
-			/*
-			 * We try this after having tried to create an entity type model and an embeddable type model,
-			 * so if the type is managed it must be a mapped superclass.
-			 */
-			ManagedType<T> managedType = sessionFactoryImplementor.getMetamodel().managedType( type );
-			return new HibernateOrmMappedSuperclassTypeModel<>(
-					this, managedType,
-					new RawTypeDeclaringContext<>( genericContextHelper, type )
-			);
+			return sessionFactoryImplementor.getMetamodel().managedType( type );
 		}
 		catch (IllegalArgumentException ignored) {
 			// The type is not managed in the current session factory
@@ -258,10 +164,18 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 		}
 	}
 
-	private <T> PojoRawTypeModel<T> createNonManagedTypeModel(Class<T> type) {
-		return new HibernateOrmNonManagedTypeModel<>(
-				this, type,
-				new RawTypeDeclaringContext<>( genericContextHelper, type )
+	private Collector<XProperty, ?, Map<String, XProperty>> xPropertiesByNameNoDuplicate() {
+		return StreamHelper.toMap(
+				XProperty::getName, Function.identity(),
+				TreeMap::new // Sort properties by name for deterministic iteration
+		);
+	}
+
+	private Collector<XProperty, ?, Map<String, XProperty>> xPropertiesByNameKeepLastDuplicate() {
+		return Collectors.toMap(
+				XProperty::getName, Function.identity(),
+				(oldValue, newValue) -> newValue, // Keep the last value when there are duplicates
+				TreeMap::new // Sort properties by name for deterministic iteration
 		);
 	}
 }

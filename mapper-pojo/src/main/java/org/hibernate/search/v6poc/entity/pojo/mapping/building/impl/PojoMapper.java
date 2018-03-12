@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.cfg.ConfigurationPropertySource;
 import org.hibernate.search.v6poc.engine.spi.BuildContext;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexManagerBuildingState;
@@ -22,6 +23,7 @@ import org.hibernate.search.v6poc.entity.pojo.extractor.impl.ContainerValueExtra
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PojoMappingDelegateImpl;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PojoTypeManagerContainer;
 import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoMappingDelegate;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoIntrospector;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.ProvidedStringIdentifierMapping;
@@ -64,16 +66,14 @@ public class PojoMapper<M extends MappingImplementor> implements Mapper<PojoType
 		if ( !( typeModel instanceof PojoRawTypeModel ) ) {
 			throw new AssertionFailure(
 					"Expected the indexed type model to be an instance of " + PojoRawTypeModel.class
-					+ ", got " + typeModel + " instead. There is probably a bug in the mapper implementation"
+							+ ", got " + typeModel + " instead. There is probably a bug in the mapper implementation"
 			);
 		}
-		PojoRawTypeModel<?> entityTypeModel = (PojoRawTypeModel<?>) typeModel;
-		PojoTypeManagerBuilder<?, ?> builder = new PojoTypeManagerBuilder<>(
-				entityTypeModel, contributorProvider, indexModelBinder, indexManagerBuildingState,
-				implicitProvidedId ? ProvidedStringIdentifierMapping.get() : null );
+		PojoRawTypeModel<?> rawTypeModel = (PojoRawTypeModel<?>) typeModel;
+		PojoTypeManagerBuilder<?, ?> builder = createBuilder( rawTypeModel, indexManagerBuildingState, contributorProvider );
 		PojoTypeNodeMappingCollector collector = builder.asCollector();
 		contributorProvider.forEach(
-				entityTypeModel,
+				rawTypeModel,
 				c -> c.contributeMapping( collector )
 		);
 		typeManagerBuilders.add( builder );
@@ -85,6 +85,16 @@ public class PojoMapper<M extends MappingImplementor> implements Mapper<PojoType
 		typeManagerBuilders.forEach( b -> b.addTo( typeManagersBuilder ) );
 		PojoMappingDelegate mappingImplementor = new PojoMappingDelegateImpl( typeManagersBuilder.build(), introspector );
 		return wrapperFactory.apply( propertySource, mappingImplementor );
+	}
+
+	private <T, D extends DocumentElement> PojoTypeManagerBuilder<T, D> createBuilder(PojoRawTypeModel<T> rawTypeModel,
+			IndexManagerBuildingState<D> indexManagerBuildingState,
+			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> contributorProvider) {
+		PojoGenericTypeModel<T> genericTypeModel = introspector.getGenericTypeModel( rawTypeModel.getJavaClass() );
+		return new PojoTypeManagerBuilder<>(
+				rawTypeModel, genericTypeModel,
+				contributorProvider, indexModelBinder, indexManagerBuildingState,
+				implicitProvidedId ? ProvidedStringIdentifierMapping.get() : null );
 	}
 
 }

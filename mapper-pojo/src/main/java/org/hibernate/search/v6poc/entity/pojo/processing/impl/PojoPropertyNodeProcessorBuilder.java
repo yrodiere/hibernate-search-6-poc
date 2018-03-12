@@ -27,6 +27,7 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoProperty
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeIdentityMappingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoValueNodeMappingCollector;
+import org.hibernate.search.v6poc.entity.pojo.model.PojoModelProperty;
 import org.hibernate.search.v6poc.entity.pojo.model.impl.PojoModelPropertyRootElement;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
@@ -42,7 +43,7 @@ public class PojoPropertyNodeProcessorBuilder<P, T> extends AbstractPojoNodeProc
 	private final PojoTypeModel<P> parentTypeModel;
 	private final PropertyHandle propertyHandle;
 	private final PojoGenericTypeModel<T> propertyTypeModel;
-	private final PojoModelPropertyRootElement pojoModelRootElement;
+	private final PojoModelProperty pojoModelRootElement;
 
 	private final PojoTypeNodeIdentityMappingCollector identityMappingCollector;
 
@@ -63,7 +64,9 @@ public class PojoPropertyNodeProcessorBuilder<P, T> extends AbstractPojoNodeProc
 		this.propertyTypeModel = propertyModel.getTypeModel();
 
 		// FIXME do something more with the pojoModelRootElement, to be able to use it in containedIn processing in particular
-		this.pojoModelRootElement = new PojoModelPropertyRootElement( propertyModel, contributorProvider );
+		this.pojoModelRootElement = new PojoModelPropertyRootElement<>(
+				propertyModel, contributorProvider, indexModelBinder
+		);
 
 		this.identityMappingCollector = identityMappingCollector;
 

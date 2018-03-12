@@ -14,48 +14,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.MarkerBuilder;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.TypeMetadataContributorProvider;
-import org.hibernate.search.v6poc.entity.pojo.model.PojoModelElementAccessor;
+import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.MarkerBuilder;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoPropertyNodeModelCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeMetadataContributor;
-import org.hibernate.search.v6poc.entity.pojo.model.PojoModelProperty;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
+import org.hibernate.search.v6poc.entity.pojo.model.PojoModelMultiValuedElementAccessor;
+import org.hibernate.search.v6poc.entity.pojo.model.PojoModelMultiValuedProperty;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
-import org.hibernate.search.v6poc.util.SearchException;
 
 
 /**
- * @author Yoann Rodiere
+ * The element obtained when getting property values on another element where extractors were applied.
+ *
+ * @see PojoModelPropertyNestedSingleValuedElement
  */
-public class PojoModelNestedElement extends AbstractPojoModelElement
-		implements PojoModelProperty, PojoPropertyNodeModelCollector {
+class PojoModelPropertyNestedMultiValuedElement<T> extends AbstractPojoModelMultiValuedElement<T>
+		implements PojoModelMultiValuedProperty, PojoPropertyNodeModelCollector {
 
-	private final AbstractPojoModelElement parent;
+	private final AbstractPojoModelMultiValuedElement<?> parent;
 
 	private final PojoPropertyModel<?> propertyModel;
 
 	private final Map<Class<?>, List<?>> markers = new HashMap<>();
 
-	PojoModelNestedElement(AbstractPojoModelElement parent, PojoPropertyModel<?> propertyModel,
-			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> modelContributorProvider) {
-		super( modelContributorProvider );
+	PojoModelPropertyNestedMultiValuedElement(AbstractPojoModelMultiValuedElement<?> parent,
+			PojoPropertyModel<T> propertyModel,
+			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> modelContributorProvider,
+			PojoIndexModelBinder binder) {
+		super( propertyModel.getTypeModel(), modelContributorProvider, binder );
 		this.parent = parent;
 		this.propertyModel = propertyModel;
-	}
-
-	@Override
-	public <T> PojoModelElementAccessor<T> createAccessor(Class<T> requestedType) {
-		if ( !isAssignableTo( requestedType ) ) {
-			throw new SearchException( "Requested incompatible type for '" + this.createAccessor() + "': '" + requestedType + "'" );
-		}
-		return new PojoModelPropertyElementAccessor<>( parent.createAccessor(), getHandle() );
-	}
-
-	@Override
-	public PojoModelElementAccessor<?> createAccessor() {
-		return new PojoModelPropertyElementAccessor<>( parent.createAccessor(), getHandle() );
 	}
 
 	@SuppressWarnings("unchecked")
@@ -70,25 +60,23 @@ public class PojoModelNestedElement extends AbstractPojoModelElement
 		doAddMarker( builder.build() );
 	}
 
-	public PropertyHandle getHandle() {
-		return propertyModel.getHandle();
-	}
-
-	@Override
-	public PojoTypeModel<?> getTypeModel() {
-		return propertyModel.getTypeModel();
-	}
-
 	@Override
 	public String getName() {
 		return propertyModel.getName();
+	}
+
+	@Override
+	<U> PojoModelMultiValuedElementAccessor<U> doCreateAccessor(PojoTypeModel<U> typeModel) {
+		return new PojoModelPropertyNestedMultiValuedElementAccessor<>(
+				parent.createAccessor(), propertyModel.getHandle()
+		);
 	}
 
 	@SuppressWarnings("unchecked")
 	private <M> void doAddMarker(M marker) {
 		Class<M> markerType = (Class<M>) (
 				marker instanceof Annotation ? ((Annotation) marker).annotationType()
-				: marker.getClass()
+						: marker.getClass()
 		);
 		List<M> list = (List<M>) markers.computeIfAbsent( markerType, ignored -> new ArrayList<M>() );
 		list.add( marker );

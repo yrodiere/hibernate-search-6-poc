@@ -14,6 +14,7 @@ import org.hibernate.search.v6poc.entity.pojo.bridge.IdentifierBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.RoutingKeyBridge;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PojoTypeManager;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PojoTypeManagerContainer;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
@@ -26,23 +27,24 @@ import org.hibernate.search.v6poc.entity.pojo.processing.impl.RoutingKeyProvider
 import org.hibernate.search.v6poc.util.SearchException;
 
 public class PojoTypeManagerBuilder<E, D extends DocumentElement> {
-	private final PojoRawTypeModel<E> typeModel;
+	private final PojoRawTypeModel<E> rawTypeModel;
 	private final IndexManagerBuildingState<D> indexManagerBuildingState;
 
 	private final PojoTypeNodeIdentityMappingCollectorImpl identityMappingCollector;
 	private final PojoTypeNodeProcessorBuilder<E> processorBuilder;
 
-	PojoTypeManagerBuilder(PojoRawTypeModel<E> typeModel,
+	PojoTypeManagerBuilder(PojoRawTypeModel<E> rawTypeModel,
+			PojoGenericTypeModel<E> genericTypeModel,
 			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> contributorProvider,
 			PojoIndexModelBinder indexModelBinder,
 			IndexManagerBuildingState<D> indexManagerBuildingState,
 			IdentifierMapping<?, E> defaultIdentifierMapping) {
-		this.typeModel = typeModel;
+		this.rawTypeModel = rawTypeModel;
 		this.indexManagerBuildingState = indexManagerBuildingState;
 		this.identityMappingCollector = new PojoTypeNodeIdentityMappingCollectorImpl( defaultIdentifierMapping );
 		IndexModelBindingContext bindingContext = indexManagerBuildingState.getRootBindingContext();
 		this.processorBuilder = new PojoTypeNodeProcessorBuilder<>(
-				null, typeModel, contributorProvider, indexModelBinder, bindingContext, identityMappingCollector
+				null, genericTypeModel, contributorProvider, indexModelBinder, bindingContext, identityMappingCollector
 		);
 	}
 
@@ -53,7 +55,7 @@ public class PojoTypeManagerBuilder<E, D extends DocumentElement> {
 	public void addTo(PojoTypeManagerContainer.Builder builder) {
 		IdentifierMapping<?, E> identifierMapping = identityMappingCollector.identifierMapping;
 		if ( identifierMapping == null ) {
-			throw new SearchException( "Missing identifier mapping for indexed type '" + typeModel + "'" );
+			throw new SearchException( "Missing identifier mapping for indexed type '" + rawTypeModel + "'" );
 		}
 		RoutingKeyBridge routingKeyBridge = identityMappingCollector.routingKeyBridge;
 		RoutingKeyProvider<E> routingKeyProvider;
@@ -64,19 +66,19 @@ public class PojoTypeManagerBuilder<E, D extends DocumentElement> {
 			routingKeyProvider = new RoutingKeyBridgeProvider<>( routingKeyBridge );
 		}
 		PojoTypeManager<?, E, D> typeManager = new PojoTypeManager<>(
-				typeModel,
+				rawTypeModel,
 				identifierMapping, routingKeyProvider,
 				processorBuilder.build().orElseGet( PojoNodeProcessor::noOp ),
 				indexManagerBuildingState.build()
 		);
-		builder.add( indexManagerBuildingState.getIndexName(), typeModel, typeManager );
+		builder.add( indexManagerBuildingState.getIndexName(), rawTypeModel, typeManager );
 	}
 
 	private class PojoTypeNodeIdentityMappingCollectorImpl implements PojoTypeNodeIdentityMappingCollector {
 		private IdentifierMapping<?, E> identifierMapping;
 		private RoutingKeyBridge routingKeyBridge;
 
-		public PojoTypeNodeIdentityMappingCollectorImpl(IdentifierMapping<?, E> identifierMapping) {
+		PojoTypeNodeIdentityMappingCollectorImpl(IdentifierMapping<?, E> identifierMapping) {
 			this.identifierMapping = identifierMapping;
 		}
 

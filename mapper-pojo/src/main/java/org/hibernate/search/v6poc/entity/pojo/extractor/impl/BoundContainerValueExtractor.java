@@ -7,6 +7,7 @@
 package org.hibernate.search.v6poc.entity.pojo.extractor.impl;
 
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
 
 /**
@@ -17,9 +18,9 @@ import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
  */
 public class BoundContainerValueExtractor<C, T> {
 	private final ContainerValueExtractor<C, T> extractor;
-	private final PojoTypeModel<T> extractedType;
+	private final PojoGenericTypeModel<T> extractedType;
 
-	BoundContainerValueExtractor(ContainerValueExtractor<C, T> extractor, PojoTypeModel<T> extractedType) {
+	BoundContainerValueExtractor(ContainerValueExtractor<C, T> extractor, PojoGenericTypeModel<T> extractedType) {
 		this.extractor = extractor;
 		this.extractedType = extractedType;
 	}
@@ -28,7 +29,7 @@ public class BoundContainerValueExtractor<C, T> {
 		return extractor;
 	}
 
-	public PojoTypeModel<T> getExtractedType() {
+	public PojoGenericTypeModel<T> getExtractedType() {
 		return extractedType;
 	}
 }

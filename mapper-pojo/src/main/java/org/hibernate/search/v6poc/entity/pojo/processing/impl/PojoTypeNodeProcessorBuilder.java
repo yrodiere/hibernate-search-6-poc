@@ -24,7 +24,9 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoProperty
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeIdentityMappingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeMappingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeMetadataContributor;
+import org.hibernate.search.v6poc.entity.pojo.model.PojoModelType;
 import org.hibernate.search.v6poc.entity.pojo.model.impl.PojoModelTypeRootElement;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
 
@@ -35,7 +37,7 @@ public class PojoTypeNodeProcessorBuilder<T> extends AbstractPojoNodeProcessorBu
 		implements PojoTypeNodeMappingCollector {
 
 	private final PojoTypeModel<T> typeModel;
-	private final PojoModelTypeRootElement pojoModelRootElement;
+	private final PojoModelType pojoModelRootElement;
 
 	private final PojoTypeNodeIdentityMappingCollector identityMappingCollector;
 
@@ -44,7 +46,7 @@ public class PojoTypeNodeProcessorBuilder<T> extends AbstractPojoNodeProcessorBu
 			new HashMap<>();
 
 	public PojoTypeNodeProcessorBuilder(
-			AbstractPojoNodeProcessorBuilder<?> parent, PojoTypeModel<T> typeModel,
+			AbstractPojoNodeProcessorBuilder<?> parent, PojoGenericTypeModel<T> typeModel,
 			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> contributorProvider,
 			PojoIndexModelBinder indexModelBinder, IndexModelBindingContext bindingContext,
 			PojoTypeNodeIdentityMappingCollector identityMappingCollector) {
@@ -52,7 +54,9 @@ public class PojoTypeNodeProcessorBuilder<T> extends AbstractPojoNodeProcessorBu
 		this.typeModel = typeModel;
 
 		// FIXME do something more with the pojoModelRootElement, to be able to use it in containedIn processing in particular
-		this.pojoModelRootElement = new PojoModelTypeRootElement( typeModel, contributorProvider );
+		this.pojoModelRootElement = new PojoModelTypeRootElement<>(
+				typeModel, contributorProvider, indexModelBinder
+		);
 
 		this.identityMappingCollector = identityMappingCollector;
 	}

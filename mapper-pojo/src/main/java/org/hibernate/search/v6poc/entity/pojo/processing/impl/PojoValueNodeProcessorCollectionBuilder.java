@@ -22,6 +22,7 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexMod
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeIdentityMappingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoValueNodeMappingCollector;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
 
 /**
@@ -37,7 +38,7 @@ public class PojoValueNodeProcessorCollectionBuilder<T> implements PojoValueNode
 
 	private final PojoTypeModel<?> parentTypeModel;
 	private final String defaultName;
-	private final PojoTypeModel<T> valueTypeModel;
+	private final PojoGenericTypeModel<T> valueTypeModel;
 
 	private final Collection<FunctionBridgeProcessor<? super T, ?>> bridgeProcessors = new ArrayList<>();
 
@@ -45,7 +46,7 @@ public class PojoValueNodeProcessorCollectionBuilder<T> implements PojoValueNode
 
 	PojoValueNodeProcessorCollectionBuilder(AbstractPojoNodeProcessorBuilder<?> parentBuilder,
 			PojoTypeModel<?> parentTypeModel, String defaultName,
-			PojoTypeModel<T> valueTypeModel,
+			PojoGenericTypeModel<T> valueTypeModel,
 			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> contributorProvider,
 			PojoIndexModelBinder indexModelBinder, IndexModelBindingContext bindingContext) {
 		this.parentBuilder = parentBuilder;

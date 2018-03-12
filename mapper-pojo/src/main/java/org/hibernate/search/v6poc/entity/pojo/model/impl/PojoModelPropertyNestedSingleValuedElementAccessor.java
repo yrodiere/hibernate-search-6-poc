@@ -10,12 +10,12 @@ import org.hibernate.search.v6poc.entity.pojo.model.PojoElement;
 import org.hibernate.search.v6poc.entity.pojo.model.PojoModelElementAccessor;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
 
-class PojoModelPropertyElementAccessor<T> implements PojoModelElementAccessor<T> {
+class PojoModelPropertyNestedSingleValuedElementAccessor<T> implements PojoModelElementAccessor<T> {
 
 	private final PojoModelElementAccessor<?> parent;
 	private final PropertyHandle handle;
 
-	PojoModelPropertyElementAccessor(PojoModelElementAccessor<?> parent, PropertyHandle handle) {
+	PojoModelPropertyNestedSingleValuedElementAccessor(PojoModelElementAccessor<?> parent, PropertyHandle handle) {
 		this.parent = parent;
 		this.handle = handle;
 	}

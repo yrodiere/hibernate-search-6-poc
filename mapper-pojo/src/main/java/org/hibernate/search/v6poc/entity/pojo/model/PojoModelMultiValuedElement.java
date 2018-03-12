@@ -14,11 +14,11 @@ import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 /**
  * @author Yoann Rodiere
  */
-public interface PojoModelElement {
+public interface PojoModelMultiValuedElement {
 
-	PojoModelElementAccessor<?> createAccessor();
+	PojoModelMultiValuedElementAccessor<PojoElement> createAccessor();
 
-	<T> PojoModelElementAccessor<T> createAccessor(Class<T> type);
+	<T> PojoModelMultiValuedElementAccessor<T> createAccessor(Class<T> type);
 
 	PojoModelMultiValuedElement extract(Class<? extends ContainerValueExtractor> extractorClass);
 
@@ -26,8 +26,8 @@ public interface PojoModelElement {
 
 	boolean isAssignableTo(Class<?> clazz);
 
-	PojoModelProperty property(String relativeName);
+	PojoModelMultiValuedProperty property(String relativeName);
 
-	Stream<? extends PojoModelProperty> properties();
+	Stream<? extends PojoModelMultiValuedProperty> properties();
 
 }

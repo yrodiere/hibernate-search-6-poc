@@ -6,48 +6,34 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.model.impl;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.hibernate.search.v6poc.entity.mapping.building.spi.TypeMetadataContributorProvider;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.model.PojoModelElementAccessor;
 import org.hibernate.search.v6poc.entity.pojo.model.PojoModelProperty;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
-import org.hibernate.search.v6poc.util.SearchException;
 
 
 /**
  * @author Yoann Rodiere
  */
-public class PojoModelPropertyRootElement extends AbstractPojoModelElement implements PojoModelProperty {
+public class PojoModelPropertyRootElement<T> extends AbstractPojoModelSingleValuedElement<T> implements PojoModelProperty {
 
 	private final PojoPropertyModel<?> propertyModel;
 
-	public PojoModelPropertyRootElement(PojoPropertyModel<?> propertyModel,
-			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> modelContributorProvider) {
-		super( modelContributorProvider );
+	public PojoModelPropertyRootElement(PojoPropertyModel<T> propertyModel,
+			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> modelContributorProvider,
+			PojoIndexModelBinder binder) {
+		super( propertyModel.getTypeModel(), modelContributorProvider, binder );
 		this.propertyModel = propertyModel;
 	}
 
 	@Override
 	public String toString() {
 		return propertyModel.toString();
-	}
-
-	@Override
-	public <T> PojoModelElementAccessor<T> createAccessor(Class<T> requestedType) {
-		Optional<PojoTypeModel<T>> superTypeModel = getTypeModel().getSuperType( requestedType );
-		if ( !superTypeModel.isPresent() ) {
-			throw new SearchException( "Requested incompatible type for '" + createAccessor() + "': '" + requestedType + "'" );
-		}
-		return new PojoModelRootElementAccessor<>( superTypeModel.get() );
-	}
-
-	@Override
-	public PojoModelElementAccessor<?> createAccessor() {
-		return new PojoModelRootElementAccessor<>( getTypeModel() );
 	}
 
 	@Override
@@ -61,7 +47,7 @@ public class PojoModelPropertyRootElement extends AbstractPojoModelElement imple
 	}
 
 	@Override
-	PojoTypeModel<?> getTypeModel() {
-		return propertyModel.getTypeModel();
+	<U> PojoModelElementAccessor<U> doCreateAccessor(PojoTypeModel<U> typeModel) {
+		return new PojoModelRootElementAccessor<>( typeModel );
 	}
 }

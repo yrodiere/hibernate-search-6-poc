@@ -15,6 +15,7 @@ import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeNodeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoValueNodeMappingCollector;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
 
 /**
@@ -29,7 +30,7 @@ public class PojoContainerNodeProcessorBuilder<C, T> extends AbstractPojoNodePro
 	PojoContainerNodeProcessorBuilder(
 			PojoPropertyNodeProcessorBuilder<?, ? extends C> parent,
 			PojoTypeModel<?> parentTypeModel, String propertyName,
-			PojoTypeModel<T> elementTypeModel, ContainerValueExtractor<C, T> extractor,
+			PojoGenericTypeModel<T> elementTypeModel, ContainerValueExtractor<C, T> extractor,
 			TypeMetadataContributorProvider<PojoTypeNodeMetadataContributor> contributorProvider,
 			PojoIndexModelBinder indexModelBinder, IndexModelBindingContext bindingContext) {
 		super( parent, contributorProvider, indexModelBinder, bindingContext );

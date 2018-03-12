@@ -52,7 +52,7 @@ class StreamPojoWorkerImpl extends PojoWorkerImpl implements StreamPojoWorker {
 	}
 
 	@Override
-	protected StreamPojoTypeWorker<?, ?> getDelegate(Class<?> clazz) {
+	StreamPojoTypeWorker<?, ?> getDelegate(Class<?> clazz) {
 		return delegates.computeIfAbsent( clazz, c -> getTypeManager( clazz ).createStreamWorker( sessionContext ) );
 	}
 

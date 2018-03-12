@@ -9,7 +9,6 @@ package org.hibernate.search.v6poc.entity.pojo.mapping.impl;
 import java.util.function.Supplier;
 
 import org.hibernate.search.v6poc.backend.document.DocumentElement;
-import org.hibernate.search.v6poc.backend.index.spi.DocumentContributor;
 import org.hibernate.search.v6poc.backend.index.spi.DocumentReferenceProvider;
 import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
 import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
@@ -75,12 +74,14 @@ public class PojoTypeManager<I, E, D extends DocumentElement> implements AutoClo
 		return new PojoDocumentReferenceProvider<>( routingKeyProvider, tenantId, identifier, documentIdentifier, entitySupplier );
 	}
 
-	public DocumentContributor<D> toDocumentContributor(Supplier<E> entitySupplier) {
+	public PojoDocumentContributor<D, E> toDocumentContributor(Supplier<E> entitySupplier) {
 		return new PojoDocumentContributor<>( processor, entitySupplier );
 	}
 
 	public ChangesetPojoTypeWorker<D, E> createWorker(PojoSessionContext sessionContext) {
-		return new ChangesetPojoTypeWorker<>( this, sessionContext, indexManager.createWorker( sessionContext ) );
+		return new ChangesetPojoTypeWorker<>(
+				this, sessionContext, indexManager.createWorker( sessionContext )
+		);
 	}
 
 	public StreamPojoTypeWorker<D, E> createStreamWorker(PojoSessionContext sessionContext) {

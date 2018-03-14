@@ -11,31 +11,30 @@ import java.util.Optional;
 
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexModelBindingContext;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.TypeMetadataContributorProvider;
-import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinder;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorValueNode;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
-import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessorContainerElementNode;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeMetadataContributor;
+import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathContainerElementNode;
+import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathPropertyNode;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
+import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessorContainerElementNode;
 
 public class PojoIndexingProcessorContainerElementNodeBuilder<C, T> extends AbstractPojoProcessorNodeBuilder<C> {
 
-	private final ContainerValueExtractor<C, T> extractor;
+	private final PojoModelPathContainerElementNode<?, C, T> modelPath;
 
 	private final PojoIndexingProcessorValueNodeBuilderDelegate<T> valueNodeProcessorCollectionBuilder;
 
-	PojoIndexingProcessorContainerElementNodeBuilder(
-			PojoIndexingProcessorPropertyNodeBuilder<?, ? extends C> parent,
-			PojoTypeModel<?> parentTypeModel, String propertyName,
-			PojoTypeModel<T> elementTypeModel, ContainerValueExtractor<C, T> extractor,
+	PojoIndexingProcessorContainerElementNodeBuilder(PojoModelPathContainerElementNode<?, C, T> modelPath,
 			TypeMetadataContributorProvider<PojoTypeMetadataContributor> contributorProvider,
 			PojoIndexModelBinder indexModelBinder, IndexModelBindingContext bindingContext) {
-		super( parent, contributorProvider, indexModelBinder, bindingContext );
-		this.extractor = extractor;
+		super( contributorProvider, indexModelBinder, bindingContext );
+		this.modelPath = modelPath;
+
+		PojoModelPathPropertyNode<?, ? extends C> propertyPath = modelPath.parent();
 
 		valueNodeProcessorCollectionBuilder = new PojoIndexingProcessorValueNodeBuilderDelegate<>(
-				this, parentTypeModel, propertyName, elementTypeModel,
+				modelPath, propertyPath.getPropertyHandle().getName(),
 				contributorProvider, indexModelBinder, bindingContext
 		);
 	}
@@ -45,8 +44,8 @@ public class PojoIndexingProcessorContainerElementNodeBuilder<C, T> extends Abst
 	}
 
 	@Override
-	protected void appendSelfPath(StringBuilder builder) {
-		builder.append( "[" ).append( extractor ).append( "]" );
+	PojoModelPathContainerElementNode<?, C, T> getModelPath() {
+		return modelPath;
 	}
 
 	@Override
@@ -63,7 +62,7 @@ public class PojoIndexingProcessorContainerElementNodeBuilder<C, T> extends Abst
 		}
 		else {
 			return Optional.of( new PojoIndexingProcessorContainerElementNode<>(
-					extractor, immutableNestedProcessors
+					modelPath.getExtractor(), immutableNestedProcessors
 			) );
 		}
 	}

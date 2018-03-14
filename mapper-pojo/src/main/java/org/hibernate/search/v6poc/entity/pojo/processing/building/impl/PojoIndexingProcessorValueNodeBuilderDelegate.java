@@ -18,48 +18,42 @@ import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexModelBindingC
 import org.hibernate.search.v6poc.entity.mapping.building.spi.TypeMetadataContributorProvider;
 import org.hibernate.search.v6poc.entity.pojo.bridge.ValueBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuilder;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIdentityMappingCollector;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeMetadataContributor;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorValueNode;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
-import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessorValueBridgeNode;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeMetadataContributor;
+import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathTypeNode;
+import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathValueNode;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
+import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessorValueBridgeNode;
 
 public class PojoIndexingProcessorValueNodeBuilderDelegate<T> implements PojoMappingCollectorValueNode {
 
-	private final AbstractPojoProcessorNodeBuilder<?> parentBuilder;
+	private final PojoModelPathValueNode<?, T> modelPath;
+	private final String defaultName;
 
 	private final PojoIndexModelBinder indexModelBinder;
 	private final TypeMetadataContributorProvider<PojoTypeMetadataContributor> contributorProvider;
 	private final IndexModelBindingContext bindingContext;
 
-	private final PojoTypeModel<?> parentTypeModel;
-	private final String defaultName;
-	private final PojoTypeModel<T> valueTypeModel;
-
 	private final Collection<PojoIndexingProcessorValueBridgeNode<? super T, ?>> bridgeNodes = new ArrayList<>();
 
 	private final Collection<PojoIndexingProcessorTypeNodeBuilder<? super T>> typeNodeBuilders = new ArrayList<>();
 
-	PojoIndexingProcessorValueNodeBuilderDelegate(AbstractPojoProcessorNodeBuilder<?> parentBuilder,
-			PojoTypeModel<?> parentTypeModel, String defaultName,
-			PojoTypeModel<T> valueTypeModel,
+	PojoIndexingProcessorValueNodeBuilderDelegate(
+			PojoModelPathValueNode<?, T> modelPath, String defaultName,
 			TypeMetadataContributorProvider<PojoTypeMetadataContributor> contributorProvider,
 			PojoIndexModelBinder indexModelBinder, IndexModelBindingContext bindingContext) {
-		this.parentBuilder = parentBuilder;
+		this.modelPath = modelPath;
+		this.defaultName = defaultName;
 		this.indexModelBinder = indexModelBinder;
 		this.contributorProvider = contributorProvider;
 		this.bindingContext = bindingContext;
-
-		this.parentTypeModel = parentTypeModel;
-		this.defaultName = defaultName;
-		this.valueTypeModel = valueTypeModel;
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[" + parentBuilder.toString() + "]";
+		return getClass().getSimpleName() + "[" + modelPath + "]";
 	}
 
 	@Override
@@ -71,7 +65,7 @@ public class PojoIndexingProcessorValueNodeBuilderDelegate<T> implements PojoMap
 		}
 
 		indexModelBinder.addValueBridge(
-				bindingContext, valueTypeModel, builder, defaultedFieldName,
+				bindingContext, modelPath.type().getTypeModel(), builder, defaultedFieldName,
 				fieldModelContributor
 		)
 				.ifPresent( bridgeNodes::add );
@@ -86,16 +80,19 @@ public class PojoIndexingProcessorValueNodeBuilderDelegate<T> implements PojoMap
 		}
 
 		Optional<IndexModelBindingContext> nestedBindingContextOptional = bindingContext.addIndexedEmbeddedIfIncluded(
-				parentTypeModel.getRawType(), defaultedRelativePrefix, storage, maxDepth, includePaths );
+				modelPath.parentType().getTypeModel().getRawType(),
+				defaultedRelativePrefix, storage, maxDepth, includePaths
+		);
 		nestedBindingContextOptional.ifPresent( nestedBindingContext -> {
+			PojoModelPathTypeNode<T> embeddedTypeModelPath = modelPath.type();
 			PojoIndexingProcessorTypeNodeBuilder<T> nestedProcessorBuilder = new PojoIndexingProcessorTypeNodeBuilder<>(
-					parentBuilder, valueTypeModel, contributorProvider, indexModelBinder, nestedBindingContext,
+					embeddedTypeModelPath, contributorProvider, indexModelBinder, nestedBindingContext,
 					// Do NOT propagate the identity mapping collector to IndexedEmbeddeds
 					PojoIdentityMappingCollector.noOp()
 			);
 			typeNodeBuilders.add( nestedProcessorBuilder );
 			contributorProvider.forEach(
-					valueTypeModel.getRawType(),
+					embeddedTypeModelPath.getTypeModel().getRawType(),
 					c -> c.contributeMapping( nestedProcessorBuilder )
 			);
 		} );

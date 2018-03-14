@@ -22,25 +22,23 @@ import org.hibernate.search.v6poc.entity.pojo.bridge.PropertyBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 import org.hibernate.search.v6poc.entity.pojo.extractor.impl.BoundContainerValueExtractor;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIdentityMappingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorPropertyNode;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIdentityMappingCollector;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorValueNode;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.model.impl.PojoModelPropertyRootElement;
+import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPath;
+import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathContainerElementNode;
+import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathPropertyNode;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessorPropertyNode;
 
 public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojoProcessorNodeBuilder<P>
 		implements PojoMappingCollectorPropertyNode {
 
-	private final PojoTypeModel<P> parentTypeModel;
-	private final PropertyHandle propertyHandle;
-	private final PojoGenericTypeModel<T> propertyTypeModel;
+	private final PojoModelPathPropertyNode<P, T> modelPath;
 	private final PojoModelPropertyRootElement pojoModelRootElement;
 
 	private final PojoIdentityMappingCollector identityMappingCollector;
@@ -51,23 +49,21 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 			PojoIndexingProcessorContainerElementNodeBuilder<? super T, ?>> containerElementNodeBuilders = new HashMap<>();
 
 	PojoIndexingProcessorPropertyNodeBuilder(
-			PojoIndexingProcessorTypeNodeBuilder<P> parent, PojoTypeModel<P> parentTypeModel,
-			PojoPropertyModel<T> propertyModel, PropertyHandle propertyHandle,
+			PojoModelPathPropertyNode<P, T> modelPath,
 			TypeMetadataContributorProvider<PojoTypeMetadataContributor> contributorProvider,
 			PojoIndexModelBinder indexModelBinder, IndexModelBindingContext bindingContext,
 			PojoIdentityMappingCollector identityMappingCollector) {
-		super( parent, contributorProvider, indexModelBinder, bindingContext );
-		this.parentTypeModel = parentTypeModel;
-		this.propertyHandle = propertyHandle;
-		this.propertyTypeModel = propertyModel.getTypeModel();
+		super( contributorProvider, indexModelBinder, bindingContext );
+
+		this.modelPath = modelPath;
 
 		// FIXME do something more with the pojoModelRootElement, to be able to use it in containedIn processing in particular
-		this.pojoModelRootElement = new PojoModelPropertyRootElement( propertyModel, contributorProvider );
+		this.pojoModelRootElement = new PojoModelPropertyRootElement( modelPath.getPropertyModel(), contributorProvider );
 
 		this.identityMappingCollector = identityMappingCollector;
 
 		this.valueWithoutExtractorBuilderDelegate = new PojoIndexingProcessorValueNodeBuilderDelegate<>(
-				this, parentTypeModel, propertyHandle.getName(), propertyTypeModel,
+				modelPath, modelPath.getPropertyHandle().getName(),
 				contributorProvider, indexModelBinder, bindingContext
 		);
 	}
@@ -81,8 +77,11 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 	@Override
 	@SuppressWarnings( {"rawtypes", "unchecked"} )
 	public void identifierBridge(BridgeBuilder<? extends IdentifierBridge<?>> builder) {
-		IdentifierBridge<T> bridge = indexModelBinder.createIdentifierBridge( pojoModelRootElement, propertyTypeModel, builder );
-		identityMappingCollector.identifierBridge( propertyTypeModel, propertyHandle, bridge );
+		PojoGenericTypeModel<T> propertyTypeModel = modelPath.getPropertyModel().getTypeModel();
+		IdentifierBridge<T> bridge = indexModelBinder.createIdentifierBridge(
+				pojoModelRootElement, propertyTypeModel, builder
+		);
+		identityMappingCollector.identifierBridge( propertyTypeModel, modelPath.getPropertyHandle(), bridge );
 	}
 
 	@Override
@@ -103,7 +102,7 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 				containerElementNodeBuilders.get( null );
 		if ( containerElementNodeBuilder == null && !containerElementNodeBuilders.containsKey( null ) ) {
 			Optional<BoundContainerValueExtractor<? super T, ?>> boundExtractorOptional =
-					indexModelBinder.createDefaultExtractors( propertyTypeModel );
+					indexModelBinder.createDefaultExtractors( modelPath.getPropertyModel().getTypeModel() );
 			if ( boundExtractorOptional.isPresent() ) {
 				containerElementNodeBuilder = createContainerElementNodeBuilder( boundExtractorOptional.get() );
 			}
@@ -123,17 +122,13 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 		PojoIndexingProcessorContainerElementNodeBuilder<? super T, ?> containerElementNodeBuilder =
 				containerElementNodeBuilders.get( extractorClasses );
 		if ( containerElementNodeBuilder == null ) {
-			BoundContainerValueExtractor<? super T, ?> boundExtractor =
-					indexModelBinder.<T>createExplicitExtractors( propertyTypeModel, extractorClasses );
+			BoundContainerValueExtractor<? super T, ?> boundExtractor = indexModelBinder.<T>createExplicitExtractors(
+					modelPath.getPropertyModel().getTypeModel(), extractorClasses
+			);
 			containerElementNodeBuilder = createContainerElementNodeBuilder( boundExtractor );
 			containerElementNodeBuilders.put( extractorClasses, containerElementNodeBuilder );
 		}
 		return containerElementNodeBuilder.value();
-	}
-
-	@Override
-	protected void appendSelfPath(StringBuilder builder) {
-		builder.append( "." ).append( propertyHandle.getName() );
 	}
 
 	/*
@@ -142,11 +137,17 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 	 */
 	private <V> PojoIndexingProcessorContainerElementNodeBuilder<? super T, V> createContainerElementNodeBuilder(
 			BoundContainerValueExtractor<? super T, V> boundExtractor) {
-		return new PojoIndexingProcessorContainerElementNodeBuilder<>(
-				this, parentTypeModel, propertyHandle.getName(),
-				boundExtractor.getExtractedType(), boundExtractor.getExtractor(),
-				contributorProvider, indexModelBinder, bindingContext
+		PojoModelPathContainerElementNode<P, ? super T, V> containerElementPath = modelPath.containerElement(
+				boundExtractor.getExtractor(), boundExtractor.getExtractedType()
 		);
+		return new PojoIndexingProcessorContainerElementNodeBuilder<>(
+				containerElementPath, contributorProvider, indexModelBinder, bindingContext
+		);
+	}
+
+	@Override
+	PojoModelPath getModelPath() {
+		return modelPath;
 	}
 
 	@Override
@@ -177,7 +178,7 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 		}
 		else {
 			return Optional.of( new PojoIndexingProcessorPropertyNode<>(
-					propertyHandle, immutableBridges, immutableNestedNodes
+					modelPath.getPropertyHandle(), immutableBridges, immutableNestedNodes
 			) );
 		}
 	}

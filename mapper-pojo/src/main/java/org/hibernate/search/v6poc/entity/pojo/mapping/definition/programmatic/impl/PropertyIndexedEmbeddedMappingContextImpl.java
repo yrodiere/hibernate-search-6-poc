@@ -17,7 +17,7 @@ import org.hibernate.search.v6poc.backend.document.model.ObjectFieldStorage;
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorPropertyNode;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoModelCollectorPropertyNode;
+import org.hibernate.search.v6poc.entity.pojo.model.augmented.building.impl.PojoAugmentedModelCollectorPropertyNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorValueNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.programmatic.PropertyIndexedEmbeddedMappingContext;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.programmatic.PropertyMappingContext;
@@ -28,7 +28,7 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.definition.programmatic.Pr
  */
 public class PropertyIndexedEmbeddedMappingContextImpl extends DelegatingPropertyMappingContext
 		implements PropertyIndexedEmbeddedMappingContext,
-		PojoMetadataContributor<PojoModelCollectorPropertyNode, PojoMappingCollectorPropertyNode> {
+		PojoMetadataContributor<PojoAugmentedModelCollectorPropertyNode, PojoMappingCollectorPropertyNode> {
 
 	private String prefix;
 
@@ -45,7 +45,7 @@ public class PropertyIndexedEmbeddedMappingContextImpl extends DelegatingPropert
 	}
 
 	@Override
-	public void contributeModel(PojoModelCollectorPropertyNode collector) {
+	public void contributeModel(PojoAugmentedModelCollectorPropertyNode collector) {
 		// Nothing to do
 	}
 

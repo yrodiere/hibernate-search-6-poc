@@ -31,9 +31,14 @@ import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoBootstrapIntrospecto
 import org.hibernate.search.v6poc.entity.pojo.model.typepattern.impl.TypePatternMatcher;
 import org.hibernate.search.v6poc.entity.pojo.model.typepattern.impl.TypePatternMatcherFactory;
 import org.hibernate.search.v6poc.entity.pojo.util.impl.GenericTypeContext;
+import org.hibernate.search.v6poc.util.AssertionFailure;
 import org.hibernate.search.v6poc.util.impl.common.LoggerFactory;
 
-public class ContainerValueExtractorResolver {
+/**
+ * Binds container value extractors to a given type,
+ * i.e. ensures that they can be applied to the type, instantiate them, and computes the resulting type.
+ */
+public class ContainerValueExtractorBinder {
 
 	private static final Log log = LoggerFactory.make( Log.class, MethodHandles.lookup() );
 
@@ -47,7 +52,7 @@ public class ContainerValueExtractorResolver {
 	private Map<Class<? extends ContainerValueExtractor>, ExtractorContributor> extractorContributorCache =
 			new HashMap<>();
 
-	public ContainerValueExtractorResolver(BuildContext buildContext) {
+	public ContainerValueExtractorBinder(BuildContext buildContext) {
 		this.beanResolver = buildContext.getServiceManager().getBeanResolver();
 		addDefaultExtractor( MapValueExtractor.class );
 		addDefaultExtractor( CollectionElementExtractor.class );
@@ -59,30 +64,127 @@ public class ContainerValueExtractorResolver {
 		addDefaultExtractor( ArrayElementExtractor.class );
 	}
 
+	/**
+	 * Try to bind a container extractor path to a given source type,
+	 * i.e. to resolve the possibly implicit extractro path ({@link ContainerValueExtractorPath#defaultExtractors()})
+	 * and to validate that all extractors in the path can be applied.
+	 *
+	 * @param introspector An introspector, to retrieve type models.
+	 * @param sourceType A model of the source type to apply extractors to.
+	 * @param extractorPath The list of extractors to apply.
+	 * @param <C> The source type.
+	 * @return The resolved extractor path, or an empty optional if
+	 * one of the extractors in the path cannot be applied.
+	 */
 	@SuppressWarnings("unchecked") // Checks are implemented using reflection
-	public <C> Optional<BoundContainerValueExtractor<? super C, ?>> resolveDefaultContainerValueExtractors(
-			PojoBootstrapIntrospector introspector, PojoGenericTypeModel<C> sourceType) {
+	public <C> Optional<BoundContainerValueExtractorPath<C, ?>> tryBindPath(
+			PojoBootstrapIntrospector introspector, PojoGenericTypeModel<C> sourceType,
+			ContainerValueExtractorPath extractorPath) {
 		ExtractorResolutionState<C> state = new ExtractorResolutionState<>( introspector, sourceType );
-		if ( firstMatchingExtractorContributor.tryAppend( state ) ) {
-			return Optional.of( state.build() );
+		if ( extractorPath.isDefault() ) {
+			firstMatchingExtractorContributor.tryAppend( state );
 		}
 		else {
-			return Optional.empty();
+			for ( Class<? extends ContainerValueExtractor> extractorClass
+					: extractorPath.getExplicitExtractorClasses() ) {
+				ExtractorContributor extractorContributor = getExtractorContributorForClass( extractorClass );
+				if ( !extractorContributor.tryAppend( state ) ) {
+					/*
+					 * Assume failure, even if a previous extractor was applied successfully:
+					 * we want either every extractor to be applied, or none.
+					 */
+					return Optional.empty();
+				}
+			}
 		}
+		return Optional.of( state.build() );
 	}
 
+	/**
+	 * Bind a container extractor path to a given source type,
+	 * i.e. resolve the possibly implicit extractro path ({@link ContainerValueExtractorPath#defaultExtractors()})
+	 * and validate that all extractors in the path can be applied,
+	 * or fail.
+	 *
+	 * @param introspector An introspector, to retrieve type models.
+	 * @param sourceType A model of the source type to apply extractors to.
+	 * @param extractorPath The list of extractors to apply.
+	 * @param <C> The source type.
+	 * @return The bound extractor path.
+	 * @throws org.hibernate.search.v6poc.util.SearchException if
+	 * one of the extractors in the path cannot be applied.
+	 */
 	@SuppressWarnings("unchecked") // Checks are implemented using reflection
-	public <C> BoundContainerValueExtractor<? super C, ?> resolveExplicitContainerValueExtractors(
+	public <C> BoundContainerValueExtractorPath<C, ?> bindPath(
 			PojoBootstrapIntrospector introspector, PojoGenericTypeModel<C> sourceType,
-			List<? extends Class<? extends ContainerValueExtractor>> extractorClasses) {
+			ContainerValueExtractorPath extractorPath) {
 		ExtractorResolutionState<C> state = new ExtractorResolutionState<>( introspector, sourceType );
-		for ( Class<? extends ContainerValueExtractor> extractorClass : extractorClasses ) {
-			ExtractorContributor extractorContributor = getExtractorContributorForClass( extractorClass );
-			if ( !extractorContributor.tryAppend( state ) ) {
-				throw log.invalidContainerValueExtractorForType( extractorClass, state.extractedType );
+		if ( extractorPath.isDefault() ) {
+			firstMatchingExtractorContributor.tryAppend( state );
+		}
+		else {
+			for ( Class<? extends ContainerValueExtractor> extractorClass
+					: extractorPath.getExplicitExtractorClasses() ) {
+				ExtractorContributor extractorContributor = getExtractorContributorForClass( extractorClass );
+				if ( !extractorContributor.tryAppend( state ) ) {
+					throw log.invalidContainerValueExtractorForType( extractorClass, state.extractedType );
+				}
 			}
 		}
 		return state.build();
+	}
+
+	/**
+	 * Attempts to create a container value extractor from a bound path.
+	 *
+	 * @param boundPath The bound path to create the extractor from.
+	 * @param <C> The source type.
+	 * @param <T> The extracted type.
+	 * @return The extractor, or an empty optional if the bound path was empty.
+	 */
+	// Checks are performed using reflection when building the resolved path
+	@SuppressWarnings( {"rawtypes", "unchecked"} )
+	public <C, T> Optional<ContainerValueExtractor<? super C, T>> tryCreate(
+			BoundContainerValueExtractorPath<C, T> boundPath) {
+		ContainerValueExtractor<? super C, ?> extractor = null;
+		for ( Class<? extends ContainerValueExtractor> extractorClass :
+				boundPath.getExtractorPath().getExplicitExtractorClasses() ) {
+			ContainerValueExtractor<?, ?> newExtractor =
+					beanResolver.resolve( extractorClass, ContainerValueExtractor.class );
+			if ( extractor == null ) {
+				// First extractor: must be able to process type C
+				extractor = (ContainerValueExtractor<? super C, ?>) newExtractor;
+			}
+			else {
+				extractor = new ChainingContainerValueExtractor( extractor, newExtractor );
+			}
+		}
+		if ( extractor == null ) {
+			return Optional.empty();
+		}
+		else {
+			return Optional.of( (ContainerValueExtractor<C, T>) extractor );
+		}
+	}
+
+	/**
+	 * Create a container value extractor from a bound path, or fail.
+	 *
+	 * @param boundPath The bound path to create the extractor from.
+	 * @param <C> The source type.
+	 * @param <T> The extracted type.
+	 * @return The extractor, or an empty optional if the bound path was empty.
+	 */
+	@SuppressWarnings("unchecked") // Checks are implemented using reflection
+	public <C, T> ContainerValueExtractor<? super C, T> create(BoundContainerValueExtractorPath<C, T> boundPath) {
+		if ( boundPath.getExtractorPath().isEmpty() ) {
+			throw new AssertionFailure(
+					"Received a request to create extractors, but the extractor path was empty."
+					+ " There is probably a bug in Hibernate Search."
+			);
+		}
+		// tryCreate will always return a non-empty result in this case, since the resolved path is non-empty
+		return tryCreate( boundPath ).get();
 	}
 
 	@SuppressWarnings( "rawtypes" ) // Checks are implemented using reflection
@@ -140,9 +242,7 @@ public class ContainerValueExtractorResolver {
 			Optional<? extends PojoGenericTypeModel<?>> resultTypeOptional =
 					typePatternMatcher.match( state.introspector, state.extractedType );
 			if ( resultTypeOptional.isPresent() ) {
-				ContainerValueExtractor<?, ?> extractor =
-						beanResolver.resolve( extractorClass, ContainerValueExtractor.class );
-				state.append( extractor, resultTypeOptional.get() );
+				state.append( extractorClass, resultTypeOptional.get() );
 				return true;
 			}
 			else {
@@ -175,27 +275,27 @@ public class ContainerValueExtractorResolver {
 	private static class ExtractorResolutionState<C> {
 
 		private final PojoBootstrapIntrospector introspector;
-		private ContainerValueExtractor<? super C, ?> extractor;
+		private final List<Class<? extends ContainerValueExtractor>> extractorClasses = new ArrayList<>();
+		private final PojoGenericTypeModel<C> sourceType;
 		private PojoGenericTypeModel<?> extractedType;
 
-		ExtractorResolutionState(PojoBootstrapIntrospector introspector, PojoGenericTypeModel<?> extractedType) {
+		ExtractorResolutionState(PojoBootstrapIntrospector introspector, PojoGenericTypeModel<C> sourceType) {
 			this.introspector = introspector;
+			this.sourceType = sourceType;
+			this.extractedType = sourceType;
+		}
+
+		void append(Class<? extends ContainerValueExtractor> extractorClass, PojoGenericTypeModel<?> extractedType) {
+			extractorClasses.add( extractorClass );
 			this.extractedType = extractedType;
 		}
 
-		void append(ContainerValueExtractor<?, ?> extractor, PojoGenericTypeModel<?> extractedType) {
-			this.extractedType = extractedType;
-			if ( this.extractor == null ) {
-				// Initial calls: T == ? super C
-				this.extractor = (ContainerValueExtractor) extractor;
-			}
-			else {
-				this.extractor = new ChainingContainerValueExtractor( this.extractor, extractor );
-			}
-		}
-
-		BoundContainerValueExtractor<? super C, ?> build() {
-			return new BoundContainerValueExtractor( extractor, extractedType );
+		BoundContainerValueExtractorPath<C, ?> build() {
+			return new BoundContainerValueExtractorPath<>(
+					sourceType,
+					ContainerValueExtractorPath.explicitExtractors( extractorClasses ),
+					extractedType
+			);
 		}
 
 	}

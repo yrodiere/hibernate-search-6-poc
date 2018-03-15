@@ -38,10 +38,10 @@ import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.AnnotationMarkerBui
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.logging.impl.Log;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorPropertyNode;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoModelCollectorPropertyNode;
+import org.hibernate.search.v6poc.entity.pojo.model.augmented.building.impl.PojoAugmentedModelCollectorPropertyNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorTypeNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeMetadataContributor;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoModelCollectorTypeNode;
+import org.hibernate.search.v6poc.entity.pojo.model.augmented.building.impl.PojoAugmentedModelCollectorTypeNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorValueNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation.ContainerValueExtractorBeanReference;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation.DocumentId;
@@ -69,7 +69,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 	}
 
 	@Override
-	public void contributeModel(PojoModelCollectorTypeNode collector) {
+	public void contributeModel(PojoAugmentedModelCollectorTypeNode collector) {
 		typeModel.getDeclaredProperties()
 				.forEach( property -> contributePropertyModel( collector, property ) );
 	}
@@ -86,7 +86,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 				.forEach( property -> contributePropertyMapping( collector, property ) );
 	}
 
-	private void contributePropertyModel(PojoModelCollectorTypeNode collector, PojoPropertyModel<?> propertyModel) {
+	private void contributePropertyModel(PojoAugmentedModelCollectorTypeNode collector, PojoPropertyModel<?> propertyModel) {
 		String name = propertyModel.getName();
 		propertyModel.getAnnotationsByMetaAnnotationType( MarkerMapping.class )
 				.forEach( annotation -> addMarker( collector.property( name ), annotation ) );
@@ -104,7 +104,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 				.forEach( annotation -> addIndexedEmbedded( collector.property( handle ), propertyModel, annotation ) );
 	}
 
-	private <A extends Annotation> void addMarker(PojoModelCollectorPropertyNode collector, A annotation) {
+	private <A extends Annotation> void addMarker(PojoAugmentedModelCollectorPropertyNode collector, A annotation) {
 		AnnotationMarkerBuilder<A> builder = createMarkerBuilder( annotation );
 		builder.initialize( annotation );
 		collector.marker( builder );

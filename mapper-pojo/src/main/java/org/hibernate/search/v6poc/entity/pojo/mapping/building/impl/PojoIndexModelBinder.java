@@ -7,7 +7,6 @@
 package org.hibernate.search.v6poc.entity.pojo.mapping.building.impl;
 
 import java.lang.invoke.MethodHandles;
-import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
@@ -28,7 +27,8 @@ import org.hibernate.search.v6poc.entity.pojo.bridge.impl.BridgeResolver;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 import org.hibernate.search.v6poc.entity.pojo.extractor.impl.BoundContainerValueExtractor;
-import org.hibernate.search.v6poc.entity.pojo.extractor.impl.ContainerValueExtractorResolver;
+import org.hibernate.search.v6poc.entity.pojo.extractor.impl.ContainerValueExtractorBinder;
+import org.hibernate.search.v6poc.entity.pojo.extractor.impl.ContainerValueExtractorPath;
 import org.hibernate.search.v6poc.entity.pojo.logging.impl.Log;
 import org.hibernate.search.v6poc.entity.pojo.model.PojoModelElement;
 import org.hibernate.search.v6poc.entity.pojo.model.PojoModelProperty;
@@ -61,27 +61,26 @@ public class PojoIndexModelBinder {
 
 	private final BuildContext buildContext;
 	private final PojoBootstrapIntrospector introspector;
-	private final ContainerValueExtractorResolver extractorResolver;
+	private final ContainerValueExtractorBinder extractorResolver;
 	private final BridgeResolver bridgeResolver;
 
 	PojoIndexModelBinder(BuildContext buildContext, PojoBootstrapIntrospector introspector,
-			ContainerValueExtractorResolver extractorResolver, BridgeResolver bridgeResolver) {
+			ContainerValueExtractorBinder extractorResolver, BridgeResolver bridgeResolver) {
 		this.buildContext = buildContext;
 		this.introspector = introspector;
 		this.extractorResolver = extractorResolver;
 		this.bridgeResolver = bridgeResolver;
 	}
 
-	public <T> Optional<BoundContainerValueExtractor<? super T, ?>> createDefaultExtractors(
-			PojoGenericTypeModel<T> pojoGenericTypeModel) {
-		return extractorResolver.resolveDefaultContainerValueExtractors( introspector, pojoGenericTypeModel );
+	public <T> Optional<BoundContainerValueExtractor<? super T, ?>> tryCreateExtractors(
+			PojoGenericTypeModel<T> pojoGenericTypeModel, ContainerValueExtractorPath extractorPath) {
+		return extractorResolver.tryBind( introspector, pojoGenericTypeModel, extractorPath );
 	}
 
-	public <T> BoundContainerValueExtractor<? super T, ?> createExplicitExtractors(
-			PojoGenericTypeModel<T> pojoGenericTypeModel,
-			List<? extends Class<? extends ContainerValueExtractor>> extractorClasses) {
-		return extractorResolver.<T>resolveExplicitContainerValueExtractors(
-				introspector, pojoGenericTypeModel, extractorClasses
+	public <T> BoundContainerValueExtractor<? super T, ?> createExtractors(
+			PojoGenericTypeModel<T> pojoGenericTypeModel, ContainerValueExtractorPath extractorPath) {
+		return extractorResolver.<T>bind(
+				introspector, pojoGenericTypeModel, extractorPath
 		);
 	}
 

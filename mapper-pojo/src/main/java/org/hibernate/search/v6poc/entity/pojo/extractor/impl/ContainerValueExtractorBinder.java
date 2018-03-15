@@ -31,9 +31,10 @@ import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoBootstrapIntrospecto
 import org.hibernate.search.v6poc.entity.pojo.model.typepattern.impl.TypePatternMatcher;
 import org.hibernate.search.v6poc.entity.pojo.model.typepattern.impl.TypePatternMatcherFactory;
 import org.hibernate.search.v6poc.entity.pojo.util.impl.GenericTypeContext;
+import org.hibernate.search.v6poc.util.AssertionFailure;
 import org.hibernate.search.v6poc.util.spi.LoggerFactory;
 
-public class ContainerValueExtractorResolver {
+public class ContainerValueExtractorBinder {
 
 	private static final Log log = LoggerFactory.make( Log.class, MethodHandles.lookup() );
 
@@ -47,7 +48,7 @@ public class ContainerValueExtractorResolver {
 	private Map<Class<? extends ContainerValueExtractor>, ExtractorContributor> extractorContributorCache =
 			new HashMap<>();
 
-	public ContainerValueExtractorResolver(BuildContext buildContext) {
+	public ContainerValueExtractorBinder(BuildContext buildContext) {
 		this.beanResolver = buildContext.getServiceManager().getBeanResolver();
 		addDefaultExtractor( MapValueExtractor.class );
 		addDefaultExtractor( CollectionElementExtractor.class );
@@ -60,10 +61,34 @@ public class ContainerValueExtractorResolver {
 	}
 
 	@SuppressWarnings("unchecked") // Checks are implemented using reflection
-	public <C> Optional<BoundContainerValueExtractor<? super C, ?>> resolveDefaultContainerValueExtractors(
-			PojoBootstrapIntrospector introspector, PojoGenericTypeModel<C> sourceType) {
+	public <C> Optional<BoundContainerValueExtractor<? super C, ?>> tryBind(
+			PojoBootstrapIntrospector introspector, PojoGenericTypeModel<C> sourceType,
+			ContainerValueExtractorPath extractorPath) {
 		ExtractorResolutionState<C> state = new ExtractorResolutionState<>( introspector, sourceType );
-		if ( firstMatchingExtractorContributor.tryAppend( state ) ) {
+		boolean bound = false;
+
+		if ( extractorPath.isDefault() ) {
+			bound = firstMatchingExtractorContributor.tryAppend( state );
+		}
+		else {
+			for ( Class<? extends ContainerValueExtractor> extractorClass
+					: extractorPath.getExplicitExtractorClasses() ) {
+				ExtractorContributor extractorContributor = getExtractorContributorForClass( extractorClass );
+				if ( extractorContributor.tryAppend( state ) ) {
+					bound = true;
+				}
+				else {
+					/*
+					 * Assume failure, even if a previous extractor was applied successfully:
+					 * we want either every extractor to be applied, or none.
+					 */
+					bound = false;
+					break;
+				}
+			}
+		}
+
+		if ( bound ) {
 			return Optional.of( state.build() );
 		}
 		else {
@@ -72,14 +97,28 @@ public class ContainerValueExtractorResolver {
 	}
 
 	@SuppressWarnings("unchecked") // Checks are implemented using reflection
-	public <C> BoundContainerValueExtractor<? super C, ?> resolveExplicitContainerValueExtractors(
+	public <C> BoundContainerValueExtractor<? super C, ?> bind(
 			PojoBootstrapIntrospector introspector, PojoGenericTypeModel<C> sourceType,
-			List<? extends Class<? extends ContainerValueExtractor>> extractorClasses) {
+			ContainerValueExtractorPath extractorPath) {
 		ExtractorResolutionState<C> state = new ExtractorResolutionState<>( introspector, sourceType );
-		for ( Class<? extends ContainerValueExtractor> extractorClass : extractorClasses ) {
-			ExtractorContributor extractorContributor = getExtractorContributorForClass( extractorClass );
-			if ( !extractorContributor.tryAppend( state ) ) {
-				throw log.invalidContainerValueExtractorForType( extractorClass, state.extractedType );
+		if ( extractorPath.isDefault() ) {
+			if ( !firstMatchingExtractorContributor.tryAppend( state ) ) {
+				throw log.couldNotFindMatchingDefaultContainerValueExtractorForType( state.extractedType );
+			}
+		}
+		else if ( extractorPath.getExplicitExtractorClasses().isEmpty() ) {
+			throw new AssertionFailure(
+					"Received a request to apply extractors, but the extractor class list was empty."
+					+ " There is probably a bug in Hibernate Search."
+			);
+		}
+		else {
+			for ( Class<? extends ContainerValueExtractor> extractorClass
+					: extractorPath.getExplicitExtractorClasses() ) {
+				ExtractorContributor extractorContributor = getExtractorContributorForClass( extractorClass );
+				if ( !extractorContributor.tryAppend( state ) ) {
+					throw log.invalidContainerValueExtractorForType( extractorClass, state.extractedType );
+				}
 			}
 		}
 		return state.build();

@@ -98,4 +98,7 @@ public interface Log extends BasicLogger {
 	@Message(id = 16, value = "Could not apply the requested container value extractor '%1$s' to type '%2$s'")
 	SearchException invalidContainerValueExtractorForType(Class<? extends ContainerValueExtractor> extractorClass,
 			PojoGenericTypeModel<?> extractedType);
+
+	@Message(id = 17, value = "Could not find a matching default container value extractors for type '%1$s'")
+	SearchException couldNotFindMatchingDefaultContainerValueExtractorForType(PojoGenericTypeModel<?> extractedType);
 }

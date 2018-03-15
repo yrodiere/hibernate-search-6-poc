@@ -46,7 +46,7 @@ public class PojoMapper<M extends MappingImplementor> implements Mapper<PojoType
 			BiFunction<ConfigurationPropertySource, PojoMappingDelegate, M> wrapperFactory) {
 		ContainerValueExtractorResolver extractorResolver = new ContainerValueExtractorResolver( buildContext );
 		BridgeResolver bridgeResolver = new BridgeResolver();
-		this.indexModelBinder = new PojoIndexModelBinderImpl(
+		this.indexModelBinder = new PojoIndexModelBinder(
 				buildContext, introspector, extractorResolver, bridgeResolver
 		);
 

@@ -17,7 +17,8 @@ class PojoAugmentedTypeModelBuilder implements PojoAugmentedModelCollectorTypeNo
 
 	@Override
 	public PojoAugmentedModelCollectorPropertyNode property(String propertyName) {
-		return propertyBuilders.computeIfAbsent( propertyName, ignored -> new PojoAugmentedPropertyModelBuilder() );
+		return propertyBuilders.computeIfAbsent( propertyName, ignored -> new PojoAugmentedPropertyModelBuilder(
+				propertyName ) );
 	}
 
 	public PojoAugmentedTypeModel build() {

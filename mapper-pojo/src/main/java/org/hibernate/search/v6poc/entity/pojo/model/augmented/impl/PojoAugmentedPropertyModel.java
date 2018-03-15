@@ -6,19 +6,41 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.model.augmented.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.hibernate.search.v6poc.entity.pojo.extractor.impl.ContainerValueExtractorPath;
+
 public class PojoAugmentedPropertyModel {
 
-	static final PojoAugmentedPropertyModel EMPTY = new PojoAugmentedPropertyModel( Collections.emptyMap() );
-
+	private final String propertyName;
+	private final Map<ContainerValueExtractorPath, PojoAugmentedValueModel> values;
 	private final Map<Class<?>, List<?>> markers;
 
-	public PojoAugmentedPropertyModel(Map<Class<?>, List<?>> markers) {
+	public PojoAugmentedPropertyModel(String propertyName,
+			Map<ContainerValueExtractorPath, PojoAugmentedValueModel> values,
+			Map<Class<?>, List<?>> markers) {
+		this.propertyName = propertyName;
+		this.values = values;
 		this.markers = markers;
+	}
+
+	public PojoAugmentedValueModel getValue(ContainerValueExtractorPath extractorPath) {
+		PojoAugmentedValueModel result = values.get( extractorPath );
+		if ( result == null ) {
+			result = new PojoAugmentedValueModel(
+					new PojoAssociationPath( propertyName, extractorPath ),
+					null
+			);
+		}
+		return result;
+	}
+
+	public Collection<PojoAugmentedValueModel> getAugmentedValues() {
+		return values.values();
 	}
 
 	@SuppressWarnings("unchecked")

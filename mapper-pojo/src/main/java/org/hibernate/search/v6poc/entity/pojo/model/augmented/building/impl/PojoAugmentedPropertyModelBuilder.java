@@ -13,10 +13,27 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.MarkerBuilder;
+import org.hibernate.search.v6poc.entity.pojo.extractor.impl.ContainerValueExtractorPath;
+import org.hibernate.search.v6poc.entity.pojo.model.augmented.impl.PojoAssociationPath;
 import org.hibernate.search.v6poc.entity.pojo.model.augmented.impl.PojoAugmentedPropertyModel;
+import org.hibernate.search.v6poc.entity.pojo.model.augmented.impl.PojoAugmentedValueModel;
 
 class PojoAugmentedPropertyModelBuilder implements PojoAugmentedModelCollectorPropertyNode {
+	private final String propertyName;
+	private final Map<ContainerValueExtractorPath, PojoAugmentedValueModelBuilder> valueBuilders = new HashMap<>();
 	private final Map<Class<?>, List<?>> markers = new HashMap<>();
+
+	PojoAugmentedPropertyModelBuilder(String propertyName) {
+		this.propertyName = propertyName;
+	}
+
+	@Override
+	public PojoAugmentedModelCollectorValueNode value(ContainerValueExtractorPath extractorPath) {
+		return valueBuilders.computeIfAbsent(
+				extractorPath,
+				path -> new PojoAugmentedValueModelBuilder( new PojoAssociationPath( propertyName, path ) )
+		);
+	}
 
 	@Override
 	public final void marker(MarkerBuilder builder) {
@@ -34,7 +51,12 @@ class PojoAugmentedPropertyModelBuilder implements PojoAugmentedModelCollectorPr
 	}
 
 	PojoAugmentedPropertyModel build() {
-		return new PojoAugmentedPropertyModel( markers );
+		Map<ContainerValueExtractorPath, PojoAugmentedValueModel> values = new HashMap<>();
+		for ( Map.Entry<ContainerValueExtractorPath, PojoAugmentedValueModelBuilder> entry : valueBuilders.entrySet() ) {
+			values.put( entry.getKey(), entry.getValue().build() );
+
+		}
+		return new PojoAugmentedPropertyModel( propertyName, values, markers );
 	}
 
 }

@@ -6,6 +6,8 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.model.augmented.impl;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 public class PojoAugmentedTypeModel {
@@ -16,6 +18,16 @@ public class PojoAugmentedTypeModel {
 	}
 
 	public PojoAugmentedPropertyModel getProperty(String name) {
-		return properties.getOrDefault( name, PojoAugmentedPropertyModel.EMPTY );
+		PojoAugmentedPropertyModel result = properties.get( name );
+		if ( result == null ) {
+			result = new PojoAugmentedPropertyModel(
+					name, Collections.emptyMap(), Collections.emptyMap()
+			);
+		}
+		return result;
+	}
+
+	public Collection<PojoAugmentedPropertyModel> getAugmentedProperties() {
+		return properties.values();
 	}
 }

@@ -9,21 +9,20 @@ package org.hibernate.search.v6poc.entity.pojo.mapping.building.impl;
 import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexManagerBuildingState;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexModelBindingContext;
-import org.hibernate.search.v6poc.entity.mapping.building.spi.TypeMetadataContributorProvider;
 import org.hibernate.search.v6poc.entity.pojo.bridge.IdentifierBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.RoutingKeyBridge;
+import org.hibernate.search.v6poc.entity.pojo.mapping.impl.IdentifierMapping;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PojoTypeManager;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PojoTypeManagerContainer;
-import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPath;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
-import org.hibernate.search.v6poc.entity.pojo.mapping.impl.IdentifierMapping;
-import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
-import org.hibernate.search.v6poc.entity.pojo.processing.building.impl.PojoIndexingProcessorTypeNodeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PropertyIdentifierMapping;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.RoutingKeyBridgeRoutingKeyProvider;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.RoutingKeyProvider;
+import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPath;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
+import org.hibernate.search.v6poc.entity.pojo.processing.building.impl.PojoIndexingProcessorTypeNodeBuilder;
+import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
 import org.hibernate.search.v6poc.util.SearchException;
 
 public class PojoTypeManagerBuilder<E, D extends DocumentElement> {
@@ -34,8 +33,7 @@ public class PojoTypeManagerBuilder<E, D extends DocumentElement> {
 	private final PojoIndexingProcessorTypeNodeBuilder<E> processorBuilder;
 
 	PojoTypeManagerBuilder(PojoRawTypeModel<E> typeModel,
-			TypeMetadataContributorProvider<PojoTypeMetadataContributor> contributorProvider,
-			PojoIndexModelBinder indexModelBinder,
+			PojoMappingHelper mappingHelper,
 			IndexManagerBuildingState<D> indexManagerBuildingState,
 			IdentifierMapping<?, E> defaultIdentifierMapping) {
 		this.typeModel = typeModel;
@@ -44,7 +42,7 @@ public class PojoTypeManagerBuilder<E, D extends DocumentElement> {
 		IndexModelBindingContext bindingContext = indexManagerBuildingState.getRootBindingContext();
 		this.processorBuilder = new PojoIndexingProcessorTypeNodeBuilder<>(
 				PojoModelPath.root( typeModel ),
-				contributorProvider, indexModelBinder, bindingContext, identityMappingCollector
+				mappingHelper, bindingContext, identityMappingCollector
 		);
 	}
 

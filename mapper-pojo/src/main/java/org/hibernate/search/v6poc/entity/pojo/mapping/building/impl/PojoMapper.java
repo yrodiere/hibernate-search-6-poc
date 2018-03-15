@@ -33,7 +33,7 @@ import org.hibernate.search.v6poc.util.AssertionFailure;
  */
 public class PojoMapper<M extends MappingImplementor> implements Mapper<PojoTypeMetadataContributor, M> {
 
-	private final PojoIndexModelBinder indexModelBinder;
+	private final PojoIndexModelBinderImpl indexModelBinder;
 	private final ConfigurationPropertySource propertySource;
 	private final boolean implicitProvidedId;
 	private final BiFunction<ConfigurationPropertySource, PojoMappingDelegate, M> wrapperFactory;

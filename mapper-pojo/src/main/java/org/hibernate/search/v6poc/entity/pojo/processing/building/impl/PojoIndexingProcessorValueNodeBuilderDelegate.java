@@ -19,7 +19,7 @@ import org.hibernate.search.v6poc.entity.mapping.building.spi.TypeMetadataContri
 import org.hibernate.search.v6poc.entity.pojo.bridge.ValueBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIdentityMappingCollector;
-import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinder;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIndexModelBinderImpl;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorValueNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoTypeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathTypeNode;
@@ -32,7 +32,7 @@ public class PojoIndexingProcessorValueNodeBuilderDelegate<T> implements PojoMap
 	private final PojoModelPathValueNode<?, T> modelPath;
 	private final String defaultName;
 
-	private final PojoIndexModelBinder indexModelBinder;
+	private final PojoIndexModelBinderImpl indexModelBinder;
 	private final TypeMetadataContributorProvider<PojoTypeMetadataContributor> contributorProvider;
 	private final IndexModelBindingContext bindingContext;
 
@@ -43,7 +43,7 @@ public class PojoIndexingProcessorValueNodeBuilderDelegate<T> implements PojoMap
 	PojoIndexingProcessorValueNodeBuilderDelegate(
 			PojoModelPathValueNode<?, T> modelPath, String defaultName,
 			TypeMetadataContributorProvider<PojoTypeMetadataContributor> contributorProvider,
-			PojoIndexModelBinder indexModelBinder, IndexModelBindingContext bindingContext) {
+			PojoIndexModelBinderImpl indexModelBinder, IndexModelBindingContext bindingContext) {
 		this.modelPath = modelPath;
 		this.defaultName = defaultName;
 		this.indexModelBinder = indexModelBinder;

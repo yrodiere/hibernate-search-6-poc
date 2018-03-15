@@ -35,7 +35,7 @@ public class PojoTypeManagerBuilder<E, D extends DocumentElement> {
 
 	PojoTypeManagerBuilder(PojoRawTypeModel<E> typeModel,
 			TypeMetadataContributorProvider<PojoTypeMetadataContributor> contributorProvider,
-			PojoIndexModelBinder indexModelBinder,
+			PojoIndexModelBinderImpl indexModelBinder,
 			IndexManagerBuildingState<D> indexManagerBuildingState,
 			IdentifierMapping<?, E> defaultIdentifierMapping) {
 		this.typeModel = typeModel;

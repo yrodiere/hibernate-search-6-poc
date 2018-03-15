@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,7 +19,8 @@ import org.hibernate.search.v6poc.entity.pojo.bridge.IdentifierBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.PropertyBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
-import org.hibernate.search.v6poc.entity.pojo.extractor.impl.BoundContainerValueExtractor;
+import org.hibernate.search.v6poc.entity.pojo.extractor.impl.BoundContainerValueExtractorPath;
+import org.hibernate.search.v6poc.entity.pojo.extractor.impl.ContainerValueExtractorPath;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoIdentityMappingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorPropertyNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorValueNode;
@@ -43,8 +43,8 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 
 	private final Collection<PropertyBridge> propertyBridges = new ArrayList<>();
 	private final PojoIndexingProcessorValueNodeBuilderDelegate<T> valueWithoutExtractorBuilderDelegate;
-	private Map<List<? extends Class<? extends ContainerValueExtractor>>,
-			PojoIndexingProcessorContainerElementNodeBuilder<? super T, ?>> containerElementNodeBuilders = new HashMap<>();
+	private Map<ContainerValueExtractorPath, PojoIndexingProcessorContainerElementNodeBuilder<? super T, ?>>
+			containerElementNodeBuilders = new HashMap<>();
 
 	PojoIndexingProcessorPropertyNodeBuilder(
 			PojoModelPathPropertyNode<P, T> modelPath,
@@ -91,45 +91,32 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 	}
 
 	@Override
-	public PojoMappingCollectorValueNode valueWithoutExtractors() {
-		return valueWithoutExtractorBuilderDelegate;
-	}
-
-	@Override
-	public PojoMappingCollectorValueNode valueWithDefaultExtractors() {
-		PojoIndexingProcessorContainerElementNodeBuilder<? super T, ?> containerElementNodeBuilder =
-				containerElementNodeBuilders.get( null );
-		if ( containerElementNodeBuilder == null && !containerElementNodeBuilders.containsKey( null ) ) {
-			Optional<BoundContainerValueExtractor<? super T, ?>> boundExtractorOptional =
-					mappingHelper.getIndexModelBinder()
-							.createDefaultExtractors( modelPath.getPropertyModel().getTypeModel() );
-			if ( boundExtractorOptional.isPresent() ) {
-				containerElementNodeBuilder = createContainerElementNodeBuilder( boundExtractorOptional.get() );
+	public PojoMappingCollectorValueNode value(ContainerValueExtractorPath extractorPath) {
+		if ( !extractorPath.isEmpty() ) {
+			PojoIndexingProcessorContainerElementNodeBuilder<? super T, ?> containerElementNodeBuilder =
+					containerElementNodeBuilders.get( extractorPath );
+			if ( containerElementNodeBuilder == null && !containerElementNodeBuilders.containsKey( extractorPath ) ) {
+				BoundContainerValueExtractorPath<T, ?> boundExtractorPath =
+						mappingHelper.getIndexModelBinder().bindExtractorPath(
+								modelPath.getPropertyModel().getTypeModel(),
+								ContainerValueExtractorPath.defaultExtractors()
+						);
+				ContainerValueExtractorPath explicitExtractorPath = boundExtractorPath.getExtractorPath();
+				if ( !explicitExtractorPath.isEmpty() ) {
+					// Check whether the path was already encountered as an explicit path
+					containerElementNodeBuilder = containerElementNodeBuilders.get( explicitExtractorPath );
+					if ( containerElementNodeBuilder == null ) {
+						containerElementNodeBuilder = createContainerElementNodeBuilder( boundExtractorPath );
+					}
+				}
+				containerElementNodeBuilders.put( explicitExtractorPath, containerElementNodeBuilder );
+				containerElementNodeBuilders.put( extractorPath, containerElementNodeBuilder );
 			}
-			containerElementNodeBuilders.put( null, containerElementNodeBuilder );
+			if ( containerElementNodeBuilder != null ) {
+				return containerElementNodeBuilder.value();
+			}
 		}
-		if ( containerElementNodeBuilder != null ) {
-			return containerElementNodeBuilder.value();
-		}
-		else {
-			return valueWithoutExtractors();
-		}
-	}
-
-	@Override
-	public PojoMappingCollectorValueNode valueWithExtractors(
-			List<? extends Class<? extends ContainerValueExtractor>> extractorClasses) {
-		PojoIndexingProcessorContainerElementNodeBuilder<? super T, ?> containerElementNodeBuilder =
-				containerElementNodeBuilders.get( extractorClasses );
-		if ( containerElementNodeBuilder == null ) {
-			BoundContainerValueExtractor<? super T, ?> boundExtractor = mappingHelper.getIndexModelBinder()
-					.<T>createExplicitExtractors(
-							modelPath.getPropertyModel().getTypeModel(), extractorClasses
-					);
-			containerElementNodeBuilder = createContainerElementNodeBuilder( boundExtractor );
-			containerElementNodeBuilders.put( extractorClasses, containerElementNodeBuilder );
-		}
-		return containerElementNodeBuilder.value();
+		return valueWithoutExtractorBuilderDelegate;
 	}
 
 	/*
@@ -137,9 +124,11 @@ public class PojoIndexingProcessorPropertyNodeBuilder<P, T> extends AbstractPojo
 	 * that the extracted type and extractor have compatible generic arguments.
 	 */
 	private <V> PojoIndexingProcessorContainerElementNodeBuilder<? super T, V> createContainerElementNodeBuilder(
-			BoundContainerValueExtractor<? super T, V> boundExtractor) {
+			BoundContainerValueExtractorPath<T, V> boundExtractorPath) {
+		ContainerValueExtractor<? super T, V> extractor = mappingHelper.getIndexModelBinder()
+				.createExtractors( boundExtractorPath );
 		PojoModelPathContainerElementNode<P, ? super T, V> containerElementPath = modelPath.containerElement(
-				boundExtractor.getExtractor(), boundExtractor.getExtractedType()
+				extractor, boundExtractorPath.getExtractedType()
 		);
 		return new PojoIndexingProcessorContainerElementNodeBuilder<>(
 				containerElementPath, mappingHelper, bindingContext

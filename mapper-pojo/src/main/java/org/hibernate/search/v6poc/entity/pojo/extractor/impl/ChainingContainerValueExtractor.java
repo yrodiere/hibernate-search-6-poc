@@ -6,11 +6,12 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.extractor.impl;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 
-class ChainingContainerValueExtractor<C, T, U> implements ContainerValueExtractor<C, U> {
+public class ChainingContainerValueExtractor<C, T, U> implements ContainerValueExtractor<C, U> {
 
 	private final ContainerValueExtractor<C, T> parent;
 	private final ContainerValueExtractor<? super T, U> chained;
@@ -26,12 +27,31 @@ class ChainingContainerValueExtractor<C, T, U> implements ContainerValueExtracto
 		return parent.extract( container ).flatMap( chained::extract );
 	}
 
+	public ContainerValueExtractor<C, T> getParent() {
+		return parent;
+	}
+
+	public void collectLinks(List<ContainerValueExtractor<?, ?>> list) {
+		collectLinks( list, parent );
+		collectLinks( list, chained );
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder( "[" );
 		appendToString( builder, this, true );
 		builder.append( "]" );
 		return builder.toString();
+	}
+
+	private void collectLinks(List<ContainerValueExtractor<?, ?>> list, ContainerValueExtractor<?, ?> toCollect) {
+		if ( toCollect instanceof ChainingContainerValueExtractor ) {
+			ChainingContainerValueExtractor<?, ?, ?> chaining = (ChainingContainerValueExtractor<?, ?, ?>) toCollect;
+			chaining.collectLinks( list );
+		}
+		else {
+			list.add( toCollect );
+		}
 	}
 
 	private void appendToString(StringBuilder builder, ContainerValueExtractor<?, ?> extractor, boolean first) {

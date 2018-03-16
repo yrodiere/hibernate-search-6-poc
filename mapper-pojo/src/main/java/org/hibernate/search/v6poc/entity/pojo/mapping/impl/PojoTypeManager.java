@@ -12,6 +12,7 @@ import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.backend.index.spi.DocumentReferenceProvider;
 import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
 import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.entity.pojo.dirtiness.impl.EntityReindexingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoSessionContext;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoCaster;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRuntimeIntrospector;
@@ -76,6 +77,12 @@ public class PojoTypeManager<I, E, D extends DocumentElement> implements AutoClo
 
 	public PojoDocumentContributor<D, E> toDocumentContributor(Supplier<E> entitySupplier) {
 		return new PojoDocumentContributor<>( processor, entitySupplier );
+	}
+
+	public void resolveDirtyContaining(Supplier<E> entitySupplier, EntityReindexingCollector collector) {
+		// TODO take into account dirty properties to only contribute containing entities
+		// that are affected by the changes in the contained entity
+
 	}
 
 	public ChangesetPojoTypeWorker<D, E> createWorker(PojoSessionContext sessionContext) {

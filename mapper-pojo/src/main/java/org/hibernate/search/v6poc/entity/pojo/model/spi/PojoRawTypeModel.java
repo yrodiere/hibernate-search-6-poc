@@ -43,7 +43,7 @@ public interface PojoRawTypeModel<T> extends PojoTypeModel<T>, MappableTypeModel
 
 	Stream<? extends Annotation> getAnnotationsByMetaAnnotationType(Class<? extends Annotation> metaAnnotationType);
 
-	Stream<PojoPropertyModel<?>> getDeclaredProperties();
+	Stream<? extends PojoPropertyModel<?>> getDeclaredProperties();
 
 	/**
 	 * @return The exact Java {@link Class} for this type.

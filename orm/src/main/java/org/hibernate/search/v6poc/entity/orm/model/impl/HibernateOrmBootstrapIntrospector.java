@@ -45,7 +45,6 @@ import org.hibernate.search.v6poc.entity.pojo.model.spi.GenericContextAwarePojoG
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoBootstrapIntrospector;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
-import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.util.spi.AnnotationHelper;
 
@@ -72,7 +71,7 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 	 *
 	 * @see AbstractHibernateOrmTypeModel#propertyModelCache
 	 */
-	private final Map<Class<?>, PojoRawTypeModel<?>> typeModelCache = new HashMap<>();
+	private final Map<Class<?>, AbstractHibernateOrmTypeModel<?>> typeModelCache = new HashMap<>();
 
 	public HibernateOrmBootstrapIntrospector(Metadata metadata, SessionFactoryImplementor sessionFactoryImplementor) {
 		ReflectionManager metadataReflectionManager = null;
@@ -101,8 +100,8 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> PojoRawTypeModel<T> getTypeModel(Class<T> clazz) {
-		return (PojoRawTypeModel<T>) typeModelCache.computeIfAbsent( clazz, this::createTypeModel );
+	public <T> AbstractHibernateOrmTypeModel<T> getTypeModel(Class<T> clazz) {
+		return (AbstractHibernateOrmTypeModel<T>) typeModelCache.computeIfAbsent( clazz, this::createTypeModel );
 	}
 
 	@Override
@@ -111,15 +110,15 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 	}
 
 	@SuppressWarnings( "unchecked" )
-	<T> Stream<PojoRawTypeModel<? super T>> getAscendingSuperTypes(XClass xClass) {
+	<T> Stream<AbstractHibernateOrmTypeModel<? super T>> getAscendingSuperTypes(XClass xClass) {
 		return XClassOrdering.get().getAscendingSuperTypes( xClass )
-				.map( superType -> (PojoRawTypeModel<? super T>) getTypeModel( superType ) );
+				.map( superType -> (AbstractHibernateOrmTypeModel<? super T>) getTypeModel( superType ) );
 	}
 
 	@SuppressWarnings( "unchecked" )
-	<T> Stream<PojoRawTypeModel<? super T>> getDescendingSuperTypes(XClass xClass) {
+	<T> Stream<AbstractHibernateOrmTypeModel<? super T>> getDescendingSuperTypes(XClass xClass) {
 		return XClassOrdering.get().getDescendingSuperTypes( xClass )
-				.map( superType -> (PojoRawTypeModel<? super T>) getTypeModel( superType ) );
+				.map( superType -> (AbstractHibernateOrmTypeModel<? super T>) getTypeModel( superType ) );
 	}
 
 	XClass toXClass(Class<?> type) {
@@ -187,12 +186,12 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 	}
 
 	@SuppressWarnings( "unchecked" )
-	private PojoTypeModel<?> getTypeModel(XClass xClass) {
+	private AbstractHibernateOrmTypeModel<?> getTypeModel(XClass xClass) {
 		return getTypeModel( reflectionManager.toClass( xClass ) );
 	}
 
-	private <T> PojoRawTypeModel<T> createTypeModel(Class<T> type) {
-		PojoRawTypeModel<T> typeModel = tryCreateEntityTypeModel( type );
+	private <T> AbstractHibernateOrmTypeModel<T> createTypeModel(Class<T> type) {
+		AbstractHibernateOrmTypeModel<T> typeModel = tryCreateEntityTypeModel( type );
 		if ( typeModel == null ) {
 			typeModel = tryCreateEmbeddableTypeModel( type );
 		}
@@ -205,7 +204,7 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 		return typeModel;
 	}
 
-	private <T> PojoRawTypeModel<T> tryCreateEntityTypeModel(Class<T> type) {
+	private <T> AbstractHibernateOrmTypeModel<T> tryCreateEntityTypeModel(Class<T> type) {
 		try {
 			EntityPersister persister = sessionFactoryImplementor.getMetamodel().entityPersister( type );
 			return new HibernateOrmEntityTypeModel<>(
@@ -219,7 +218,7 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 		}
 	}
 
-	private <T> PojoRawTypeModel<T> tryCreateEmbeddableTypeModel(Class<T> type) {
+	private <T> AbstractHibernateOrmTypeModel<T> tryCreateEmbeddableTypeModel(Class<T> type) {
 		try {
 			EmbeddableType<T> embeddableType = sessionFactoryImplementor.getMetamodel().embeddable( type );
 			return new HibernateOrmEmbeddableTypeModel<>(
@@ -233,7 +232,7 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 		}
 	}
 
-	private <T> PojoRawTypeModel<T> tryCreateMappedSuperclassTypeModel(Class<T> type) {
+	private <T> AbstractHibernateOrmTypeModel<T> tryCreateMappedSuperclassTypeModel(Class<T> type) {
 		try {
 			/*
 			 * We try this after having tried to create an entity type model and an embeddable type model,
@@ -251,7 +250,7 @@ public class HibernateOrmBootstrapIntrospector implements PojoBootstrapIntrospec
 		}
 	}
 
-	private <T> PojoRawTypeModel<T> createNonManagedTypeModel(Class<T> type) {
+	private <T> AbstractHibernateOrmTypeModel<T> createNonManagedTypeModel(Class<T> type) {
 		return new HibernateOrmNonManagedTypeModel<>(
 				this, type,
 				new RawTypeDeclaringContext<>( genericContextHelper, type )

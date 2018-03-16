@@ -12,6 +12,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.hibernate.annotations.common.reflection.XProperty;
@@ -21,7 +22,7 @@ import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
 import org.hibernate.search.v6poc.util.SearchException;
 
-class HibernateOrmPropertyModel<T> implements PojoPropertyModel<T> {
+public class HibernateOrmPropertyModel<T> implements PojoPropertyModel<T> {
 
 	private final HibernateOrmBootstrapIntrospector introspector;
 	private final AbstractHibernateOrmTypeModel<?> holderTypeModel;
@@ -87,6 +88,10 @@ class HibernateOrmPropertyModel<T> implements PojoPropertyModel<T> {
 			handle = new GetterPropertyHandle( name, getter );
 		}
 		return handle;
+	}
+
+	public String getMappedByOrNull() {
+		return null;
 	}
 
 	Type getGetterGenericReturnType() {

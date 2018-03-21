@@ -22,16 +22,16 @@ public class PojoModelTreeValueNode<H, P, V> extends PojoModelTreeNode {
 
 	private final PojoModelTreePropertyNode<H, P> parent;
 	private final ContainerValueExtractorPath extractorPath;
-	private final PojoGenericTypeModel<V> extractedType;
+	private final PojoGenericTypeModel<V> extractedTypeModel;
 
 	private PojoModelTreeTypeNode<V> extractedTypeNode;
 	private Collection<PojoModelTreeTypeNode<V>> children = Collections.emptyList();
 
 	PojoModelTreeValueNode(PojoModelTreePropertyNode<H, P> parent,
-			ContainerValueExtractorPath extractorPath, PojoGenericTypeModel<V> extractedType) {
+			ContainerValueExtractorPath extractorPath, PojoGenericTypeModel<V> extractedTypeModel) {
 		this.parent = parent;
 		this.extractorPath = extractorPath;
-		this.extractedType = extractedType;
+		this.extractedTypeModel = extractedTypeModel;
 	}
 
 	@Override
@@ -52,12 +52,20 @@ public class PojoModelTreeValueNode<H, P, V> extends PojoModelTreeNode {
 		return extractorPath;
 	}
 
-	public PojoModelTreeTypeNode<V> getExtractedType() {
+	public PojoGenericTypeModel<V> getExtractedTypeModel() {
+		return extractedTypeModel;
+	}
+
+	public PojoModelTreeTypeNode<V> getOrCreateChild() {
 		if ( extractedTypeNode == null ) {
-			extractedTypeNode = new PojoModelTreeTypeNode<>( this, extractedType );
+			extractedTypeNode = new PojoModelTreeTypeNode<>( this, extractedTypeModel );
 			children = Collections.singleton( extractedTypeNode );
 		}
 		return extractedTypeNode;
+	}
+
+	public Optional<PojoModelTreeTypeNode<V>> getChild() {
+		return Optional.ofNullable( extractedTypeNode );
 	}
 
 	@Override

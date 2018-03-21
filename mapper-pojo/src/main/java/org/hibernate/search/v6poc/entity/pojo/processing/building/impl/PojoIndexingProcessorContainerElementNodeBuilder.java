@@ -10,29 +10,29 @@ import java.util.Collection;
 import java.util.Optional;
 
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexModelBindingContext;
+import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorValueNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingHelper;
-import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathContainerElementNode;
-import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathPropertyNode;
+import org.hibernate.search.v6poc.entity.pojo.model.tree.impl.PojoModelTreeValueNode;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessorContainerElementNode;
 
 public class PojoIndexingProcessorContainerElementNodeBuilder<C, T> extends AbstractPojoProcessorNodeBuilder<C> {
 
-	private final PojoModelPathContainerElementNode<?, C, T> modelPath;
+	private final PojoModelTreeValueNode<?, ? extends C, T> treeNode;
+	private final ContainerValueExtractor<C, T> extractor;
 
 	private final PojoIndexingProcessorValueNodeBuilderDelegate<T> valueNodeProcessorCollectionBuilder;
 
-	PojoIndexingProcessorContainerElementNodeBuilder(PojoModelPathContainerElementNode<?, C, T> modelPath,
+	PojoIndexingProcessorContainerElementNodeBuilder(PojoModelTreeValueNode<?, ? extends C, T> treeNode,
+			ContainerValueExtractor<C, T> extractor,
 			PojoMappingHelper mappingHelper, IndexModelBindingContext bindingContext) {
 		super( mappingHelper, bindingContext );
-		this.modelPath = modelPath;
-
-		PojoModelPathPropertyNode<?, ? extends C> propertyPath = modelPath.parent();
+		this.treeNode = treeNode;
+		this.extractor = extractor;
 
 		valueNodeProcessorCollectionBuilder = new PojoIndexingProcessorValueNodeBuilderDelegate<>(
-				modelPath, propertyPath.getPropertyHandle().getName(),
-				mappingHelper, bindingContext
+				treeNode, mappingHelper, bindingContext
 		);
 	}
 
@@ -41,8 +41,8 @@ public class PojoIndexingProcessorContainerElementNodeBuilder<C, T> extends Abst
 	}
 
 	@Override
-	PojoModelPathContainerElementNode<?, C, T> getModelPath() {
-		return modelPath;
+	PojoModelTreeValueNode<?, ? extends C, T> getModelTreeNode() {
+		return treeNode;
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class PojoIndexingProcessorContainerElementNodeBuilder<C, T> extends Abst
 		}
 		else {
 			return Optional.of( new PojoIndexingProcessorContainerElementNode<>(
-					modelPath.getExtractor(), immutableNestedProcessors
+					extractor, immutableNestedProcessors
 			) );
 		}
 	}

@@ -17,10 +17,10 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PojoTypeManagerContai
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.PropertyIdentifierMapping;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.RoutingKeyBridgeRoutingKeyProvider;
 import org.hibernate.search.v6poc.entity.pojo.mapping.impl.RoutingKeyProvider;
-import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPath;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
+import org.hibernate.search.v6poc.entity.pojo.model.tree.impl.PojoModelTreeNode;
 import org.hibernate.search.v6poc.entity.pojo.processing.building.impl.PojoIndexingProcessorTypeNodeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
 import org.hibernate.search.v6poc.util.SearchException;
@@ -41,7 +41,7 @@ public class PojoTypeManagerBuilder<E, D extends DocumentElement> {
 		this.identityMappingCollector = new PojoIdentityMappingCollectorImpl( defaultIdentifierMapping );
 		IndexModelBindingContext bindingContext = indexManagerBuildingState.getRootBindingContext();
 		this.processorBuilder = new PojoIndexingProcessorTypeNodeBuilder<>(
-				PojoModelPath.root( typeModel ),
+				PojoModelTreeNode.root( typeModel ),
 				mappingHelper, bindingContext, identityMappingCollector
 		);
 	}

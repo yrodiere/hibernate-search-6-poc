@@ -21,6 +21,13 @@ import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoGenericTypeModel;
  * @param <T> The extracted value type
  */
 public class BoundContainerValueExtractorPath<C, T> {
+
+	public static <T> BoundContainerValueExtractorPath<T, T> noExtractors(PojoGenericTypeModel<T> sourceType) {
+		return new BoundContainerValueExtractorPath<>(
+				sourceType, ContainerValueExtractorPath.noExtractors(), sourceType
+		);
+	}
+
 	private final PojoGenericTypeModel<C> sourceType;
 	private final ContainerValueExtractorPath extractorPath;
 	private final PojoGenericTypeModel<T> extractedType;

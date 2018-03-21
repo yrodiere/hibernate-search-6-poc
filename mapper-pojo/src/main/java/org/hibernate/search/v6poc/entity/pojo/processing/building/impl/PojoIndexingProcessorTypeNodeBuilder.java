@@ -23,8 +23,8 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingC
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingCollectorTypeNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingHelper;
 import org.hibernate.search.v6poc.entity.pojo.model.impl.PojoModelTypeRootElement;
-import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPathTypeNode;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PropertyHandle;
+import org.hibernate.search.v6poc.entity.pojo.model.tree.impl.PojoModelTreeTypeNode;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessorPropertyNode;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessorTypeNode;
@@ -32,7 +32,7 @@ import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProces
 public class PojoIndexingProcessorTypeNodeBuilder<T> extends AbstractPojoProcessorNodeBuilder<T>
 		implements PojoMappingCollectorTypeNode {
 
-	private final PojoModelPathTypeNode<T> modelPath;
+	private final PojoModelTreeTypeNode<T> treeNode;
 	private final PojoModelTypeRootElement pojoModelRootElement;
 
 	private final PojoIdentityMappingCollector identityMappingCollector;
@@ -42,16 +42,16 @@ public class PojoIndexingProcessorTypeNodeBuilder<T> extends AbstractPojoProcess
 			new HashMap<>();
 
 	public PojoIndexingProcessorTypeNodeBuilder(
-			PojoModelPathTypeNode<T> modelPath,
+			PojoModelTreeTypeNode<T> treeNode,
 			PojoMappingHelper mappingHelper, IndexModelBindingContext bindingContext,
 			PojoIdentityMappingCollector identityMappingCollector) {
 		super( mappingHelper, bindingContext );
 
-		this.modelPath = modelPath;
+		this.treeNode = treeNode;
 
 		// FIXME do something more with the pojoModelRootElement, to be able to use it in containedIn processing in particular
 		this.pojoModelRootElement = new PojoModelTypeRootElement(
-				modelPath.getTypeModel(), mappingHelper.getAugmentedTypeModelProvider()
+				treeNode.getTypeModel(), mappingHelper.getAugmentedTypeModelProvider()
 		);
 
 		this.identityMappingCollector = identityMappingCollector;
@@ -77,14 +77,14 @@ public class PojoIndexingProcessorTypeNodeBuilder<T> extends AbstractPojoProcess
 
 	private PojoIndexingProcessorPropertyNodeBuilder<? super T, ?> createPropertyNodeBuilder(PropertyHandle propertyHandle) {
 		return new PojoIndexingProcessorPropertyNodeBuilder<>(
-				modelPath.property( propertyHandle ),
+				treeNode.getOrCreateProperty( propertyHandle ),
 				mappingHelper, bindingContext, identityMappingCollector
 		);
 	}
 
 	@Override
-	PojoModelPathTypeNode<T> getModelPath() {
-		return modelPath;
+	PojoModelTreeTypeNode<T> getModelTreeNode() {
+		return treeNode;
 	}
 
 	@Override

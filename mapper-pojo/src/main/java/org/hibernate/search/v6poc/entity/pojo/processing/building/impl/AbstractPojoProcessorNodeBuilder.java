@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexModelBindingContext;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.impl.PojoMappingHelper;
-import org.hibernate.search.v6poc.entity.pojo.model.path.impl.PojoModelPath;
+import org.hibernate.search.v6poc.entity.pojo.model.tree.impl.PojoModelTreeNode;
 import org.hibernate.search.v6poc.entity.pojo.processing.impl.PojoIndexingProcessor;
 
 abstract class AbstractPojoProcessorNodeBuilder<T> {
@@ -26,10 +26,10 @@ abstract class AbstractPojoProcessorNodeBuilder<T> {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[" + getModelPath() + "]";
+		return getClass().getSimpleName() + "[" + getModelTreeNode() + "]";
 	}
 
-	abstract PojoModelPath getModelPath();
+	abstract PojoModelTreeNode getModelTreeNode();
 
 	abstract Optional<? extends PojoIndexingProcessor<T>> build();
 }

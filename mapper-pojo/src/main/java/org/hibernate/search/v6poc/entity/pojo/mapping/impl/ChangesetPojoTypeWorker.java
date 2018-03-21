@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
 import org.hibernate.search.v6poc.backend.index.spi.DocumentReferenceProvider;
+import org.hibernate.search.v6poc.entity.pojo.dirtiness.impl.EntityReindexingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoSessionContext;
 
 /**
@@ -80,6 +81,24 @@ class ChangesetPojoTypeWorker<D extends DocumentElement, E> implements PojoTypeW
 		getWork( documentReferenceProvider ).delete();
 	}
 
+	public void updateBecauseOfContained(Object entity) {
+		Supplier<E> entitySupplier = typeManager.toEntitySupplier( sessionContext, entity );
+		DocumentReferenceProvider documentReferenceProvider = typeManager.toDocumentReferenceProvider(
+				sessionContext, null, entitySupplier
+		);
+		String identifier = documentReferenceProvider.getIdentifier();
+		if ( !worksPerDocument.containsKey( identifier ) ) {
+			getWork( documentReferenceProvider ).updateBecauseOfContained( entitySupplier );
+		}
+		// If the entry is already there, no need for an additional update
+	}
+
+	public void resolveDirty(EntityReindexingCollector containingEntityCollector) {
+		for ( WorkPerDocument workPerDocument : worksPerDocument.values() ) {
+			workPerDocument.resolveDirty( containingEntityCollector );
+		}
+	}
+
 	public void prepare() {
 		sendWorksToDelegate();
 		delegate.prepare();
@@ -96,7 +115,9 @@ class ChangesetPojoTypeWorker<D extends DocumentElement, E> implements PojoTypeW
 
 	private void sendWorksToDelegate() {
 		try {
-			worksPerDocument.values().forEach( WorkPerDocument::sendWorkToDelegate );
+			for ( WorkPerDocument workPerDocument : worksPerDocument.values() ) {
+				workPerDocument.sendWorkToDelegate();
+			}
 		}
 		finally {
 			worksPerDocument.clear();
@@ -121,25 +142,29 @@ class ChangesetPojoTypeWorker<D extends DocumentElement, E> implements PojoTypeW
 		private boolean delete;
 		private boolean add;
 
+		private boolean shouldResolveDirty = false;
+
 		private WorkPerDocument(DocumentReferenceProvider documentReferenceProvider) {
 			this.documentReferenceProvider = documentReferenceProvider;
 		}
 
 		void add(Supplier<E> entitySupplier) {
 			add = true;
+			this.shouldResolveDirty = true;
 			this.entitySupplier = entitySupplier;
 		}
 
 		void update(Supplier<E> entitySupplier) {
+			doUpdate( entitySupplier, true );
+		}
+
+		void updateBecauseOfContained(Supplier<E> entitySupplier) {
 			/*
-			 * If add is true, either this is already an update (in which case we don't need to change the flags)
-			 * or we called add() in the same changeset (in which case we don't expect the document to be in the index).
+			 * Make sure that containing entities that haven't been modified will not trigger an update of their
+			 * containing entities, unless those containing entities embed other entities in their index,
+			 * and those entities have been modified.
 			 */
-			if ( !add ) {
-				delete = true;
-				add = true;
-			}
-			this.entitySupplier = entitySupplier;
+			doUpdate( entitySupplier, false );
 		}
 
 		void delete() {
@@ -155,7 +180,30 @@ class ChangesetPojoTypeWorker<D extends DocumentElement, E> implements PojoTypeW
 				add = false;
 				delete = true;
 			}
+			this.shouldResolveDirty = false;
 			this.entitySupplier = null;
+		}
+
+		void doUpdate(Supplier<E> entitySupplier, boolean shouldResolveContaining) {
+			/*
+			 * If add is true, either this is already an update (in which case we don't need to change the flags)
+			 * or we called add() in the same changeset (in which case we don't expect the document to be in the index).
+			 */
+			if ( !add ) {
+				delete = true;
+				add = true;
+			}
+			if ( shouldResolveContaining ) {
+				this.shouldResolveDirty = true;
+			}
+			this.entitySupplier = entitySupplier;
+		}
+
+		void resolveDirty(EntityReindexingCollector containingEntityCollector) {
+			if ( shouldResolveDirty ) {
+				shouldResolveDirty = false;
+				typeManager.resolveDirtyContaining( entitySupplier, containingEntityCollector );
+			}
 		}
 
 		void sendWorkToDelegate() {

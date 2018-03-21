@@ -38,6 +38,11 @@ final class GenericContextAwarePojoPropertyModel<T> implements PojoPropertyModel
 	}
 
 	@Override
+	public PojoPropertyModel<? super T> getRawProperty() {
+		return rawPropertyModel;
+	}
+
+	@Override
 	public PojoGenericTypeModel<T> getTypeModel() {
 		return genericPropertyTypeModel;
 	}

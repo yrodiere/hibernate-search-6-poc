@@ -25,7 +25,7 @@ import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoTypeModel;
 
-abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
+public abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 
 	final HibernateOrmBootstrapIntrospector introspector;
 	private final XClass xClass;
@@ -46,7 +46,7 @@ abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 	 * Second, if property models are unique, they can be used as cache keys in
 	 * {@link HibernateOrmGenericContextHelper#getPropertyCacheKey(PojoPropertyModel)}.
 	 */
-	private final Map<String, PojoPropertyModel<?>> propertyModelCache = new HashMap<>();
+	private final Map<String, HibernateOrmPropertyModel<?>> propertyModelCache = new HashMap<>();
 
 	private Map<String, XProperty> fieldAccessXPropertiesByName;
 	private Map<String, XProperty> methodAccessXPropertiesByName;
@@ -102,12 +102,12 @@ abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 	}
 
 	@Override
-	public Stream<PojoRawTypeModel<? super T>> getAscendingSuperTypes() {
+	public Stream<AbstractHibernateOrmTypeModel<? super T>> getAscendingSuperTypes() {
 		return introspector.getAscendingSuperTypes( xClass );
 	}
 
 	@Override
-	public Stream<PojoRawTypeModel<? super T>> getDescendingSuperTypes() {
+	public Stream<AbstractHibernateOrmTypeModel<? super T>> getDescendingSuperTypes() {
 		return introspector.getDescendingSuperTypes( xClass );
 	}
 
@@ -127,12 +127,12 @@ abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 	}
 
 	@Override
-	public final PojoPropertyModel<?> getProperty(String propertyName) {
+	public final HibernateOrmPropertyModel<?> getProperty(String propertyName) {
 		return propertyModelCache.computeIfAbsent( propertyName, this::createPropertyModel );
 	}
 
 	@Override
-	public Stream<PojoPropertyModel<?>> getDeclaredProperties() {
+	public Stream<HibernateOrmPropertyModel<?>> getDeclaredProperties() {
 		return Stream.concat(
 						getFieldAccessXPropertiesByName().keySet().stream(),
 						getMethodAccessXPropertiesByName().keySet().stream()
@@ -145,7 +145,7 @@ abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 					catch (PropertyNotFoundException e) {
 						// Error resolving the property through Hibernate internals
 						// Ignore this property
-						return (PojoPropertyModel<?>) null;
+						return (HibernateOrmPropertyModel<?>) null;
 					}
 					catch (IllegalArgumentException e) {
 						// Error resolving the property through the JPA metamodel
@@ -170,7 +170,7 @@ abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 		return rawTypeDeclaringContext;
 	}
 
-	abstract PojoPropertyModel<?> createPropertyModel(String propertyName, List<XProperty> declaredXProperties);
+	abstract HibernateOrmPropertyModel<?> createPropertyModel(String propertyName, List<XProperty> declaredXProperties);
 
 	private Map<String, XProperty> getFieldAccessXPropertiesByName() {
 		if ( fieldAccessXPropertiesByName == null ) {
@@ -186,7 +186,7 @@ abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 		return methodAccessXPropertiesByName;
 	}
 
-	private PojoPropertyModel<?> createPropertyModel(String propertyName) {
+	private HibernateOrmPropertyModel<?> createPropertyModel(String propertyName) {
 		List<XProperty> declaredXProperties = new ArrayList<>( 2 );
 		XProperty fieldAccessXProperty = getFieldAccessXPropertiesByName().get( propertyName );
 		if ( fieldAccessXProperty != null ) {

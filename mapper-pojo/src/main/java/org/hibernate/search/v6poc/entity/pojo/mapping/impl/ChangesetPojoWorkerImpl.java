@@ -31,6 +31,9 @@ class ChangesetPojoWorkerImpl extends PojoWorkerImpl implements ChangesetPojoWor
 	@Override
 	public void prepare() {
 		for ( ChangesetPojoTypeWorker<?, ?> delegate : delegates.values() ) {
+			delegate.resolveDirty( this::updateBecauseOfContained );
+		}
+		for ( ChangesetPojoTypeWorker<?, ?> delegate : delegates.values() ) {
 			delegate.prepare();
 		}
 	}
@@ -56,6 +59,13 @@ class ChangesetPojoWorkerImpl extends PojoWorkerImpl implements ChangesetPojoWor
 				clazz,
 				c -> getTypeManager( c ).createWorker( sessionContext )
 		);
+	}
+
+	private void updateBecauseOfContained(Object containingEntity) {
+		// TODO ignore the event when containingEntity has provided IDs
+		Class<?> clazz = getIntrospector().getClass( containingEntity );
+		ChangesetPojoTypeWorker<?, ?> delegate = getDelegate( clazz );
+		delegate.updateBecauseOfContained( containingEntity );
 	}
 
 }

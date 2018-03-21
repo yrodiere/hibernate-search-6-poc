@@ -55,7 +55,7 @@ import org.hibernate.search.v6poc.util.spi.LoggerFactory;
  *
  * @author Yoann Rodiere
  */
-public class PojoIndexModelBinderImpl {
+public class PojoIndexModelBinder {
 
 	private static final Log log = LoggerFactory.make( Log.class, MethodHandles.lookup() );
 
@@ -64,7 +64,7 @@ public class PojoIndexModelBinderImpl {
 	private final ContainerValueExtractorResolver extractorResolver;
 	private final BridgeResolver bridgeResolver;
 
-	PojoIndexModelBinderImpl(BuildContext buildContext, PojoBootstrapIntrospector introspector,
+	PojoIndexModelBinder(BuildContext buildContext, PojoBootstrapIntrospector introspector,
 			ContainerValueExtractorResolver extractorResolver, BridgeResolver bridgeResolver) {
 		this.buildContext = buildContext;
 		this.introspector = introspector;

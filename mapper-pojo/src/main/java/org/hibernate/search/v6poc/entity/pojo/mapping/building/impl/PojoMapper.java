@@ -33,7 +33,7 @@ import org.hibernate.search.v6poc.util.AssertionFailure;
  */
 public class PojoMapper<M extends MappingImplementor> implements Mapper<PojoTypeMetadataContributor, M> {
 
-	private final PojoIndexModelBinderImpl indexModelBinder;
+	private final PojoIndexModelBinder indexModelBinder;
 	private final ConfigurationPropertySource propertySource;
 	private final boolean implicitProvidedId;
 	private final BiFunction<ConfigurationPropertySource, PojoMappingDelegate, M> wrapperFactory;
@@ -46,7 +46,7 @@ public class PojoMapper<M extends MappingImplementor> implements Mapper<PojoType
 			BiFunction<ConfigurationPropertySource, PojoMappingDelegate, M> wrapperFactory) {
 		ContainerValueExtractorResolver extractorResolver = new ContainerValueExtractorResolver( buildContext );
 		BridgeResolver bridgeResolver = new BridgeResolver();
-		this.indexModelBinder = new PojoIndexModelBinderImpl(
+		this.indexModelBinder = new PojoIndexModelBinder(
 				buildContext, introspector, extractorResolver, bridgeResolver
 		);
 

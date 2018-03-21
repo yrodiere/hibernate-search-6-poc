@@ -196,7 +196,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 				)
 						.orElseThrow( () -> log.missingBuilderReferenceInBridgeMapping( annotation.annotationType() ) );
 
-		// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+		// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinder#addValueBridge
 		return beanResolver.resolve( markerBuilderReference, AnnotationMarkerBuilder.class );
 	}
 
@@ -226,7 +226,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 			return castedBuilder;
 		}
 		else if ( bridgeBuilderReference.isPresent() ) {
-			// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+			// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinder#addValueBridge
 			return beanResolver.resolve( bridgeBuilderReference.get(), BridgeBuilder.class );
 		}
 		else {
@@ -247,7 +247,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 				)
 						.orElseThrow( () -> log.missingBuilderReferenceInBridgeMapping( annotation.annotationType() ) );
 
-		// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+		// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinder#addValueBridge
 		return beanResolver.resolve( builderReference, AnnotationBridgeBuilder.class );
 	}
 
@@ -263,7 +263,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 				)
 						.orElseThrow( () -> log.missingBuilderReferenceInBridgeMapping( annotation.annotationType() ) );
 
-		// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+		// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinder#addValueBridge
 		return beanResolver.resolve( builderReference, AnnotationBridgeBuilder.class );
 	}
 
@@ -293,7 +293,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 			return castedBuilder;
 		}
 		else if ( bridgeBuilderReference.isPresent() ) {
-			// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+			// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinder#addValueBridge
 			return beanResolver.resolve( bridgeBuilderReference.get(), BridgeBuilder.class );
 		}
 		else {

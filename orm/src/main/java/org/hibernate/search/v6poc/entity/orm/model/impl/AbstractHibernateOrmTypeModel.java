@@ -20,6 +20,7 @@ import org.hibernate.annotations.common.reflection.XClass;
 import org.hibernate.annotations.common.reflection.XProperty;
 import org.hibernate.search.v6poc.entity.model.spi.MappableTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.GenericContextAwarePojoGenericTypeModel.RawTypeDeclaringContext;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.JavaClassPojoCaster;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoCaster;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
@@ -49,6 +50,7 @@ abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 
 	private Map<String, XProperty> fieldAccessXPropertiesByName;
 	private Map<String, XProperty> methodAccessXPropertiesByName;
+	private PojoCaster<T> caster;
 
 	AbstractHibernateOrmTypeModel(HibernateOrmBootstrapIntrospector introspector, Class<T> clazz,
 			RawTypeDeclaringContext<T> rawTypeDeclaringContext) {
@@ -160,7 +162,10 @@ abstract class AbstractHibernateOrmTypeModel<T> implements PojoRawTypeModel<T> {
 
 	@Override
 	public PojoCaster<T> getCaster() {
-		return clazz::cast;
+		if ( caster == null ) {
+			caster = new JavaClassPojoCaster<>( clazz );
+		}
+		return caster;
 	}
 
 	@Override

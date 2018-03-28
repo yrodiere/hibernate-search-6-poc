@@ -6,6 +6,7 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.dirtiness.impl;
 
+import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRuntimeIntrospector;
 import org.hibernate.search.v6poc.util.impl.common.ToStringTreeAppendable;
 import org.hibernate.search.v6poc.util.impl.common.ToStringTreeBuilder;
 
@@ -28,7 +29,8 @@ public abstract class PojoImplicitReindexingResolver<T> implements ToStringTreeA
 	 */
 	// TODO pass dirty properties to only reindex containing entities
 	// that are affected by the changes in the contained entity
-	public abstract void resolveEntitiesToReindex(PojoReindexingCollector collector, T dirty);
+	public abstract void resolveEntitiesToReindex(PojoReindexingCollector collector,
+			PojoRuntimeIntrospector runtimeIntrospector, T dirty);
 
 	public static <T> PojoImplicitReindexingResolver<T> noOp() {
 		return NoOpPojoImplicitReindexingResolver.get();

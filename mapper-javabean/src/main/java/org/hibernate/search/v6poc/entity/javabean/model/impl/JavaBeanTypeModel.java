@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 
 import org.hibernate.search.v6poc.entity.model.spi.MappableTypeModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.GenericContextAwarePojoGenericTypeModel.RawTypeDeclaringContext;
+import org.hibernate.search.v6poc.entity.pojo.model.spi.JavaClassPojoCaster;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoCaster;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoPropertyModel;
 import org.hibernate.search.v6poc.entity.pojo.model.spi.PojoRawTypeModel;
@@ -32,6 +33,8 @@ class JavaBeanTypeModel<T> implements PojoRawTypeModel<T> {
 	private final BeanInfo beanInfo;
 	private final BeanInfo declaredBeanInfo;
 	private final RawTypeDeclaringContext<T> rawTypeDeclaringContext;
+
+	private PojoCaster<T> caster;
 
 	JavaBeanTypeModel(JavaBeanBootstrapIntrospector introspector, Class<T> clazz,
 			RawTypeDeclaringContext<T> rawTypeDeclaringContext) throws IntrospectionException {
@@ -137,7 +140,10 @@ class JavaBeanTypeModel<T> implements PojoRawTypeModel<T> {
 
 	@Override
 	public PojoCaster<T> getCaster() {
-		return getJavaClass()::cast;
+		if ( caster == null ) {
+			caster = new JavaClassPojoCaster<>( clazz );
+		}
+		return caster;
 	}
 
 	@Override

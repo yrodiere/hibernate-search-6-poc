@@ -75,11 +75,10 @@ class PojoImplicitReindexingResolverPropertyNodeBuilder<T, P>
 	}
 
 	Optional<PojoImplicitReindexingResolverPropertyNode<T, P>> build() {
-		boolean markForReindexing = valueWithoutExtractorsBuilderDelegate.isMarkForReindexing();
-		Optional<PojoImplicitReindexingResolver<P>> valueWithoutExtractorTypeNode =
-				valueWithoutExtractorsBuilderDelegate.buildTypeNode();
+		Collection<PojoImplicitReindexingResolver<P>> valueWithoutExtractorTypeNodes =
+				valueWithoutExtractorsBuilderDelegate.buildTypeNodes();
 		Collection<PojoImplicitReindexingResolver<? super P>> immutableNestedNodes = new ArrayList<>();
-		valueWithoutExtractorTypeNode.ifPresent( immutableNestedNodes::add );
+		immutableNestedNodes.addAll( valueWithoutExtractorTypeNodes );
 		containerElementNodeBuilders.values().stream()
 				.distinct() // Necessary because the default extractor path has two possible keys with the same value
 				.filter( Objects::nonNull )
@@ -88,7 +87,7 @@ class PojoImplicitReindexingResolverPropertyNodeBuilder<T, P>
 				.map( Optional::get )
 				.forEach( immutableNestedNodes::add );
 
-		if ( !markForReindexing && immutableNestedNodes.isEmpty() ) {
+		if ( immutableNestedNodes.isEmpty() ) {
 			/*
 			 * If this resolver doesn't mark the value for reindexing and doesn't have any nested node,
 			 * it is useless and we don't need to build it.
@@ -97,7 +96,7 @@ class PojoImplicitReindexingResolverPropertyNodeBuilder<T, P>
 		}
 		else {
 			return Optional.of( new PojoImplicitReindexingResolverPropertyNode<>(
-					modelPath.getPropertyHandle(), markForReindexing, immutableNestedNodes
+					modelPath.getPropertyHandle(), immutableNestedNodes
 			) );
 		}
 	}

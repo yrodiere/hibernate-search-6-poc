@@ -67,6 +67,13 @@ class PojoImplicitReindexingResolverValueNodeBuilderDelegate<V> {
 		}
 	}
 
+	PojoImplicitReindexingResolverOriginalTypeNodeBuilder<V> type() {
+		if ( typeNodeBuilder == null ) {
+			typeNodeBuilder = new PojoImplicitReindexingResolverOriginalTypeNodeBuilder<>( modelPath.type(), buildingHelper );
+		}
+		return typeNodeBuilder;
+	}
+
 	Collection<PojoImplicitReindexingResolver<V>> buildTypeNodes() {
 		Collection<PojoImplicitReindexingResolver<V>> immutableTypeNodes = new ArrayList<>();
 		if ( typeNodeBuilder != null ) {
@@ -79,13 +86,6 @@ class PojoImplicitReindexingResolverValueNodeBuilderDelegate<V> {
 				.forEach( immutableTypeNodes::add );
 
 		return immutableTypeNodes;
-	}
-
-	private PojoImplicitReindexingResolverOriginalTypeNodeBuilder<V> type() {
-		if ( typeNodeBuilder == null ) {
-			typeNodeBuilder = new PojoImplicitReindexingResolverOriginalTypeNodeBuilder<>( modelPath.type(), buildingHelper );
-		}
-		return typeNodeBuilder;
 	}
 
 	@SuppressWarnings("unchecked") // We know builders have this exact type, by construction

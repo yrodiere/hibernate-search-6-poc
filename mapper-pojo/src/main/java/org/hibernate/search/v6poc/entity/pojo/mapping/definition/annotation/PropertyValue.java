@@ -7,7 +7,6 @@
 package org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -15,29 +14,21 @@ import java.lang.annotation.Target;
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 
 @Documented
-@Target({ ElementType.METHOD, ElementType.FIELD })
+@Target({}) // Only used as a component in other annotations
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AssociationInverseSide {
+public @interface PropertyValue {
+
+	String propertyName();
 
 	/**
 	 * @return An array of reference to container value extractor implementation classes,
-	 * allowing to precisely define which association the inverse side is being defined for.
-	 * For instance, on a property of type {@code Map<EntityA, EntityB>},
-	 * {@code @AssociationInverseSide(extractors = @ContainerValueExtractorBeanReference(type = MapKeyExtractor.class))}
-	 * would define the inverse side of the association for the map keys (of type EntityA),
-	 * while {@code @AssociationInverseSide(extractors = @ContainerValueExtractorBeanReference(type = MapValueExtractor.class))}
-	 * would define the inverse side of the association for the map values (of type EntityB).
+	 * which will be applied to the property when getting the value.
 	 * By default, Hibernate Search will try to apply a set of extractors for common types
 	 * ({@link Iterable}, {@link java.util.Collection}, {@link java.util.Optional}, ...).
 	 * To prevent Hibernate Search from applying any extractor, set this attribute to an empty array (<code>{}</code>).
 	 */
 	ContainerValueExtractorBeanReference[] extractors()
-			default @ContainerValueExtractorBeanReference( type = DefaultExtractors.class );
-
-	/**
-	 * @return The path to the targeted entity on the inverse side of the association.
-	 */
-	PropertyValue[] inversePath();
+			default @ContainerValueExtractorBeanReference( type = PropertyValue.DefaultExtractors.class );
 
 	/**
 	 * Class used as a marker for the default value of the {@link #extractors()} attribute.
@@ -46,5 +37,4 @@ public @interface AssociationInverseSide {
 		private DefaultExtractors() {
 		}
 	}
-
 }

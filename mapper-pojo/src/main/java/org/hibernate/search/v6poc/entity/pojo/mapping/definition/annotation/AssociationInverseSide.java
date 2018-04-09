@@ -14,6 +14,10 @@ import java.lang.annotation.Target;
 
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 
+/**
+ * Given an association on a entity type A to entity type B, defines the inverse side of an association,
+ * i.e. the path from B to A.
+ */
 @Documented
 @Target({ ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)

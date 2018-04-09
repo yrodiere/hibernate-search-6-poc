@@ -7,8 +7,11 @@
 package org.hibernate.search.v6poc.entity.pojo.model.augmented.building.spi;
 
 import org.hibernate.search.v6poc.entity.pojo.model.augmented.impl.PojoAugmentedTypeModel;
+import org.hibernate.search.v6poc.entity.pojo.model.path.PojoModelPathValueNode;
 
 public interface PojoAugmentedModelCollectorTypeNode extends PojoAugmentedModelCollector {
+
+	PojoAugmentedModelCollectorPropertyNode property(String propertyName);
 
 	/**
 	 * Mark this type as an entity type.
@@ -25,6 +28,12 @@ public interface PojoAugmentedModelCollectorTypeNode extends PojoAugmentedModelC
 	 */
 	void markAsEntity();
 
-	PojoAugmentedModelCollectorPropertyNode property(String propertyName);
+	/**
+	 * Register an association from this entity type to another entity type, along with its inverse side path.
+	 *
+	 * @throws org.hibernate.search.v6poc.util.SearchException if this type is not
+	 * {@link #markAsEntity() marked as an entity type}.
+	 */
+	void association(PojoModelPathValueNode originalSidePath, PojoModelPathValueNode inverseSidePath);
 
 }

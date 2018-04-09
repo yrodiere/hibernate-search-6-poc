@@ -1401,7 +1401,7 @@ public class OrmAutomaticIndexingIT {
 		@ManyToMany
 		@OrderBy("id asc") // Make sure the iteration order is predictable
 		@AssociationInverseSide(
-				inversePath = @PropertyValue(
+				inverseSidePath = @PropertyValue(
 						propertyName = "containedMapKeys",
 						extractors = @ContainerValueExtractorBeanReference(type = MapKeyExtractor.class)
 				)

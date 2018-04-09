@@ -95,7 +95,7 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 		propertyModel.getAnnotationsByMetaAnnotationType( MarkerMapping.class )
 				.forEach( annotation -> addMarker( collector.property( name ), annotation ) );
 		propertyModel.getAnnotationsByType( AssociationInverseSide.class )
-				.forEach( annotation -> addAssociationInverseSide( collector.property( name ), propertyModel, annotation ) );
+				.forEach( annotation -> addAssociation( collector, propertyModel, annotation ) );
 	}
 
 	private void contributePropertyMapping(PojoMappingCollectorTypeNode collector, PojoPropertyModel<?> propertyModel) {
@@ -116,31 +116,23 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 		collector.marker( builder );
 	}
 
-	private void addAssociationInverseSide(PojoAugmentedModelCollectorPropertyNode collector,
+	private void addAssociation(PojoAugmentedModelCollectorTypeNode collector,
 			PojoPropertyModel<?> propertyModel, AssociationInverseSide annotation) {
+		String propertyName = propertyModel.getName();
 		ContainerValueExtractorPath extractorPath = getExtractorPath(
 				annotation.extractors(), AssociationInverseSide.DefaultExtractors.class
 		);
+		PojoModelPathValueNode originalSidePath =
+				PojoModelPath.fromRoot( propertyName ).value( extractorPath );
+		originalSidePath = toModelPath( originalSidePath, annotation.embeddedPath() );
 
-		PropertyValue[] inversePathElements = annotation.inversePath();
-		if ( inversePathElements.length == 0 ) {
+		PropertyValue[] inverseSidePathElements = annotation.inverseSidePath();
+		if ( inverseSidePathElements.length == 0 ) {
 			throw log.missingInversePathInAssociationInverseSideMapping( typeModel, propertyModel.getName() );
 		}
-		PojoModelPathValueNode inversePath = null;
-		for ( PropertyValue element : inversePathElements ) {
-			String inversePropertyName = element.propertyName();
-			ContainerValueExtractorPath inverseExtractorPath = getExtractorPath(
-					element.extractors(), PropertyValue.DefaultExtractors.class
-			);
-			if ( inversePath == null ) {
-				inversePath = PojoModelPath.fromRoot( inversePropertyName ).value( inverseExtractorPath );
-			}
-			else {
-				inversePath = inversePath.property( inversePropertyName ).value( inverseExtractorPath );
-			}
-		}
+		PojoModelPathValueNode inverseSidePath = toModelPath( null, inverseSidePathElements );
 
-		collector.value( extractorPath ).associationInverseSide( inversePath );
+		collector.association( originalSidePath, inverseSidePath );
 	}
 
 	private void addDocumentId(PojoMappingCollectorPropertyNode collector, PojoPropertyModel<?> propertyModel, DocumentId annotation) {
@@ -350,6 +342,23 @@ class AnnotationPojoTypeMetadataContributorImpl implements PojoTypeMetadataContr
 		else {
 			return Optional.of( new ImmutableBeanReference( cleanedUpName, cleanedUpType ) );
 		}
+	}
+
+	private PojoModelPathValueNode toModelPath(PojoModelPathValueNode root, PropertyValue[] inverseSidePathElements) {
+		PojoModelPathValueNode result = root;
+		for ( PropertyValue element : inverseSidePathElements ) {
+			String elementPropertyName = element.propertyName();
+			ContainerValueExtractorPath elementExtractorPath = getExtractorPath(
+					element.extractors(), PropertyValue.DefaultExtractors.class
+			);
+			if ( result == null ) {
+				result = PojoModelPath.fromRoot( elementPropertyName ).value( elementExtractorPath );
+			}
+			else {
+				result = result.property( elementPropertyName ).value( elementExtractorPath );
+			}
+		}
+		return result;
 	}
 
 	private static class AnnotationFieldModelContributor implements FieldModelContributor {

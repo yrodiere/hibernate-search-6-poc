@@ -57,6 +57,20 @@ public final class PojoModelPathValueNode extends PojoModelPath {
 		return new PojoModelPathPropertyNode( this, propertyName );
 	}
 
+	public PojoModelPathValueNode append(PojoModelPathValueNode other) {
+		return append( other.parent() ).value( other.getExtractorPath() );
+	}
+
+	public PojoModelPathPropertyNode append(PojoModelPathPropertyNode other) {
+		PojoModelPathValueNode otherParent = other.parent();
+		if ( otherParent == null ) {
+			return append( otherParent ).property( other.getPropertyName() );
+		}
+		else {
+			return property( other.getPropertyName() );
+		}
+	}
+
 	@Override
 	void appendSelfPath(StringBuilder builder) {
 		builder.append( getExtractorPath() );

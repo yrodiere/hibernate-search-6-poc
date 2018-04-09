@@ -10,8 +10,4 @@ import org.hibernate.search.v6poc.entity.pojo.model.path.PojoModelPathValueNode;
 
 public interface PojoAugmentedModelCollectorValueNode extends PojoAugmentedModelCollector {
 
-	void associationInverseSide(PojoModelPathValueNode inverseSidePath);
-
-	void associationEmbedded();
-
 }

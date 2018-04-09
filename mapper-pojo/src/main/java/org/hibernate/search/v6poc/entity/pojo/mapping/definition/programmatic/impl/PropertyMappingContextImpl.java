@@ -36,6 +36,8 @@ public class PropertyMappingContextImpl
 	private final TypeMappingContext parent;
 	private final PropertyHandle propertyHandle;
 
+	private final List<PojoMetadataContributor<? super PojoAugmentedModelCollectorTypeNode, ? super PojoMappingCollectorTypeNode>>
+			typeChildren = new ArrayList<>();
 	private final List<PojoMetadataContributor<? super PojoAugmentedModelCollectorPropertyNode, ? super PojoMappingCollectorPropertyNode>>
 			children = new ArrayList<>();
 
@@ -46,12 +48,14 @@ public class PropertyMappingContextImpl
 
 	@Override
 	public void contributeModel(PojoAugmentedModelCollectorTypeNode collector) {
+		typeChildren.forEach( child -> child.contributeModel( collector ) );
 		PojoAugmentedModelCollectorPropertyNode propertyNodeCollector = collector.property( propertyHandle.getName() );
 		children.forEach( child -> child.contributeModel( propertyNodeCollector ) );
 	}
 
 	@Override
 	public void contributeMapping(PojoMappingCollectorTypeNode collector) {
+		typeChildren.forEach( child -> child.contributeMapping( collector ) );
 		PojoMappingCollectorPropertyNode propertyNodeCollector = collector.property( propertyHandle );
 		children.forEach( child -> child.contributeMapping( propertyNodeCollector ) );
 	}
@@ -121,9 +125,9 @@ public class PropertyMappingContextImpl
 	@Override
 	public AssociationInverseSideMappingContext associationInverseSide(PojoModelPathValueNode inversePath) {
 		AssociationInverseSideMappingContextImpl child = new AssociationInverseSideMappingContextImpl(
-				this, inversePath
+				this, propertyHandle.getName(), inversePath
 		);
-		children.add( child );
+		typeChildren.add( child );
 		return child;
 	}
 }

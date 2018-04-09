@@ -8,6 +8,7 @@ package org.hibernate.search.v6poc.entity.pojo.mapping.definition.programmatic;
 
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
 import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractorPath;
+import org.hibernate.search.v6poc.entity.pojo.model.path.PojoModelPathValueNode;
 
 /**
  * @author Yoann Rodiere
@@ -24,5 +25,7 @@ public interface AssociationInverseSideMappingContext extends PropertyMappingCon
 	}
 
 	AssociationInverseSideMappingContext withExtractors(ContainerValueExtractorPath extractorPath);
+
+	AssociationInverseSideMappingContext withEmbeddedPath(PojoModelPathValueNode embeddedPath);
 
 }

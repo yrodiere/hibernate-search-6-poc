@@ -144,4 +144,10 @@ public interface Log extends BasicLogger {
 	@Message(id = 23, value = "Property '%2$s' from type '%1$s' is annotated with @AnnotationInverseSide,"
 			+ " but the inverse path is empty.")
 	SearchException missingInversePathInAssociationInverseSideMapping(PojoRawTypeModel<?> typeModel, String propertyName);
+
+	@Message(id = 24, value = "Cannot define an association on a non-entity type."
+			+ " Attempt to define the inverse side of association '%2$s' on type '%1$s' as '%3$s',"
+			+ " but type '%1$s' is not an entity type.")
+	SearchException cannotDefineAssociationOnNonEntityType(PojoRawTypeModel<?> typeModel,
+			PojoModelPathValueNode originalSidePath, PojoModelPathValueNode inverseSidePath);
 }

@@ -11,29 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractorPath;
-
 public class PojoAugmentedPropertyModel {
 
 	public static final PojoAugmentedPropertyModel EMPTY = new PojoAugmentedPropertyModel(
-			Collections.emptyMap(), Collections.emptyMap()
+			Collections.emptyMap()
 	);
 
-	private final Map<ContainerValueExtractorPath, PojoAugmentedValueModel> values;
 	private final Map<Class<?>, List<?>> markers;
 
-	public PojoAugmentedPropertyModel(Map<ContainerValueExtractorPath, PojoAugmentedValueModel> values,
-			Map<Class<?>, List<?>> markers) {
-		this.values = values;
+	public PojoAugmentedPropertyModel(Map<Class<?>, List<?>> markers) {
 		this.markers = markers;
-	}
-
-	public PojoAugmentedValueModel getValue(ContainerValueExtractorPath extractorPath) {
-		return values.getOrDefault( extractorPath, PojoAugmentedValueModel.EMPTY );
-	}
-
-	public Map<ContainerValueExtractorPath, PojoAugmentedValueModel> getAugmentedValues() {
-		return values;
 	}
 
 	@SuppressWarnings("unchecked")

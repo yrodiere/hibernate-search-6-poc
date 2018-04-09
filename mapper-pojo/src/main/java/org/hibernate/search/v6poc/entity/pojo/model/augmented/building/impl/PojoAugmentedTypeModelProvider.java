@@ -29,7 +29,7 @@ public class PojoAugmentedTypeModelProvider {
 	}
 
 	private PojoAugmentedTypeModel createAugmentedTypeModel(PojoRawTypeModel<?> typeModel) {
-		PojoAugmentedTypeModelBuilder builder = new PojoAugmentedTypeModelBuilder();
+		PojoAugmentedTypeModelBuilder builder = new PojoAugmentedTypeModelBuilder( typeModel );
 		modelContributorProvider.forEach( typeModel, c -> c.contributeModel( builder ) );
 		return builder.build();
 	}

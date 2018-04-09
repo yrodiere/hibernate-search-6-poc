@@ -7,10 +7,8 @@
 package org.hibernate.search.v6poc.entity.orm.mapping.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.hibernate.boot.Metadata;
@@ -50,46 +48,35 @@ public final class HibernateOrmMetatadaContributor implements MetadataContributo
 
 	@Override
 	public void contribute(BuildContext buildContext, MetadataCollector collector) {
-		PropertyDelegatesCollector delegatesCollector = new PropertyDelegatesCollector();
 		// Ensure all entities are declared as such and have their inverse associations declared
 		for ( PersistentClass persistentClass : metadata.getEntityBindings() ) {
 			Class<?> clazz = persistentClass.getMappedClass();
+			List<PojoTypeMetadataContributor> delegates = new ArrayList<>();
 			// getMappedClass() can return null, which should be ignored
 			if ( clazz != null ) {
 				PojoRawTypeModel<?> typeModel = introspector.getTypeModel( clazz );
-				collectPropertyDelegates( delegatesCollector, clazz, persistentClass.getPropertyIterator() );
+				collectPropertyDelegates( delegates, null, persistentClass.getPropertyIterator() );
 				collector.collectContributor(
 						mapperFactory, typeModel,
-						new HibernateOrmEntityTypeMetadataContributor( delegatesCollector.buildAndRemove( clazz ) )
-				);
-			}
-		}
-
-		for ( Map.Entry<Class<?>, List<PojoTypeMetadataContributor>> entry :
-				delegatesCollector.buildRemaining().entrySet() ) {
-			PojoRawTypeModel<?> typeModel = introspector.getTypeModel( entry.getKey() );
-			List<PojoTypeMetadataContributor> delegates = entry.getValue();
-			if ( !delegates.isEmpty() ) {
-				collector.collectContributor(
-						mapperFactory, typeModel,
-						new HibernateOrmComponentTypeMetadataContributor( delegates )
+						new HibernateOrmEntityTypeMetadataContributor( delegates )
 				);
 			}
 		}
 	}
 
 	@SuppressWarnings( "rawtypes" ) // Hibernate ORM gives us raw types, we must make do.
-	private void collectPropertyDelegates(PropertyDelegatesCollector collector,
-			Class<?> javaClass, Iterator propertyIterator) {
-		collector.markAsSeen( javaClass );
+	private void collectPropertyDelegates(List<PojoTypeMetadataContributor> delegates,
+			PojoModelPathValueNode parentPath, Iterator propertyIterator) {
 		while ( propertyIterator.hasNext() ) {
 			Property property = (Property) propertyIterator.next();
-			collectPropertyMetadataContributors( collector, javaClass, property );
+			collectPropertyMetadataContributors( delegates, parentPath, property );
 		}
 	}
 
-	private void collectPropertyMetadataContributors(PropertyDelegatesCollector collector,
-			Class<?> javaClass, Property property) {
+	private void collectPropertyMetadataContributors(List<PojoTypeMetadataContributor> delegates,
+			PojoModelPathValueNode parentPath, Property property) {
+		PojoModelPathPropertyNode propertyPath = parentPath == null ? PojoModelPath.fromRoot( property.getName() )
+				: parentPath.property( property.getName() );
 		Value value = property.getValue();
 		if ( value instanceof org.hibernate.mapping.Collection ) {
 			org.hibernate.mapping.Collection collectionValue = (org.hibernate.mapping.Collection) value;
@@ -110,10 +97,9 @@ public final class HibernateOrmMetatadaContributor implements MetadataContributo
 			if ( referencedEntityName != null ) {
 				String mappedByPath = collectionValue.getMappedByProperty();
 				if ( mappedByPath != null && !mappedByPath.isEmpty() ) {
-					collector.collect(
-							javaClass,
+					delegates.add(
 							new HibernateOrmAssociationInverseSideMetadataContributor(
-									property.getName(), getExtractorPath( collectionValue ),
+									propertyPath.value( getExtractorPath( collectionValue ) ),
 									resolveMappedByPath( referencedEntityName, mappedByPath )
 							)
 					);
@@ -126,27 +112,18 @@ public final class HibernateOrmMetatadaContributor implements MetadataContributo
 			// For *ToOne, the "mappedBy" information is apparently stored in the ReferencedPropertyName
 			String mappedByPath = toOneValue.getReferencedPropertyName();
 			if ( mappedByPath != null && !mappedByPath.isEmpty() ) {
-				collector.collect(
-						javaClass,
+				delegates.add(
 						new HibernateOrmAssociationInverseSideMetadataContributor(
-								property.getName(), getExtractorPath( toOneValue ),
+								propertyPath.value( getExtractorPath( toOneValue ) ),
 								resolveMappedByPath( referencedEntityName, mappedByPath )
 						)
 				);
 			}
 		}
 		else if ( value instanceof Component ) {
-			collector.collect(
-					javaClass,
-					new HibernateOrmAssociationEmbeddedMetadataContributor(
-							property.getName(), getExtractorPath( value )
-					)
-			);
 			Component componentValue = (Component) value;
-			Class<?> componentClass = componentValue.getComponentClass();
-			if ( !collector.hasSeen( componentClass ) ) {
-				collectPropertyDelegates( collector, componentClass, componentValue.getPropertyIterator() );
-			}
+			PojoModelPathValueNode componentPath = propertyPath.value( getExtractorPath( componentValue ) );
+			collectPropertyDelegates( delegates, componentPath, componentValue.getPropertyIterator() );
 		}
 	}
 
@@ -199,36 +176,6 @@ public final class HibernateOrmMetatadaContributor implements MetadataContributo
 		}
 		else {
 			return CollectionElementExtractor.class;
-		}
-	}
-
-	private static class PropertyDelegatesCollector {
-		private final Map<Class<?>, List<PojoTypeMetadataContributor>> result = new HashMap<>();
-
-		public void markAsSeen(Class<?> clazz) {
-			getList( clazz );
-		}
-
-		public boolean hasSeen(Class<?> clazz) {
-			return result.containsKey( clazz );
-		}
-
-		public void collect(Class<?> clazz, PojoTypeMetadataContributor contributor) {
-			getList( clazz ).add( contributor );
-		}
-
-		public List<PojoTypeMetadataContributor> buildAndRemove(Class<?> clazz) {
-			List<PojoTypeMetadataContributor> built = getList( clazz );
-			result.remove( clazz );
-			return built;
-		}
-
-		public Map<Class<?>, List<PojoTypeMetadataContributor>> buildRemaining() {
-			return result;
-		}
-
-		private List<PojoTypeMetadataContributor> getList(Class<?> clazz) {
-			return result.computeIfAbsent( clazz, ignored -> new ArrayList<>() );
 		}
 	}
 }

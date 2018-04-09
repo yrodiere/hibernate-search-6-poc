@@ -8,6 +8,7 @@ package org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -21,10 +22,15 @@ import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractor;
  * This annotation is generally not needed, as inverse sides of associations should generally be inferred by the mapper.
  * For example, Hibernate ORM defines inverse sides using {@code @OneToMany#mappedBy}, {@code @OneToOne#mappedBy}, etc.,
  * and the Hibernate ORM mapper will register these inverse sides automatically.
+ * <p>
+ * The annotation must be applied to entity types only; adding this annotation to a property of a non-entity (embedded)
+ * type will result in undefined behavior.
+ * Use {@link #embeddedPath()} to define the inverse side of embedded associations.
  */
 @Documented
 @Target({ ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
+@Repeatable( AssociationInverseSide.List.class )
 public @interface AssociationInverseSide {
 
 	/**
@@ -43,9 +49,15 @@ public @interface AssociationInverseSide {
 			default @ContainerValueExtractorBeanReference( type = DefaultExtractors.class );
 
 	/**
+	 * @return The path from the annotated value to the targeted entity on the original side of the association.
+	 * Useful when the annotated value is a embedded, non-entity type that embeds an association.
+	 */
+	PropertyValue[] embeddedPath() default {};
+
+	/**
 	 * @return The path to the targeted entity on the inverse side of the association.
 	 */
-	PropertyValue[] inversePath();
+	PropertyValue[] inverseSidePath();
 
 	/**
 	 * Class used as a marker for the default value of the {@link #extractors()} attribute.
@@ -53,6 +65,13 @@ public @interface AssociationInverseSide {
 	abstract class DefaultExtractors implements ContainerValueExtractor<Object, Object> {
 		private DefaultExtractors() {
 		}
+	}
+
+	@Documented
+	@Target({ ElementType.METHOD, ElementType.FIELD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@interface List {
+		AssociationInverseSide[] value();
 	}
 
 }

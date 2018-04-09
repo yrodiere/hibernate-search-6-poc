@@ -11,7 +11,8 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.building.spi.PojoMappingCo
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.spi.PojoMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.programmatic.AssociationInverseSideMappingContext;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.programmatic.PropertyMappingContext;
-import org.hibernate.search.v6poc.entity.pojo.model.augmented.building.spi.PojoAugmentedModelCollectorPropertyNode;
+import org.hibernate.search.v6poc.entity.pojo.model.augmented.building.spi.PojoAugmentedModelCollectorTypeNode;
+import org.hibernate.search.v6poc.entity.pojo.model.path.PojoModelPath;
 import org.hibernate.search.v6poc.entity.pojo.model.path.PojoModelPathValueNode;
 
 
@@ -21,19 +22,27 @@ import org.hibernate.search.v6poc.entity.pojo.model.path.PojoModelPathValueNode;
 public class AssociationInverseSideMappingContextImpl
 		extends DelegatingPropertyMappingContext
 		implements AssociationInverseSideMappingContext,
-		PojoMetadataContributor<PojoAugmentedModelCollectorPropertyNode, PojoMappingCollector> {
+		PojoMetadataContributor<PojoAugmentedModelCollectorTypeNode, PojoMappingCollector> {
 
-	private final PojoModelPathValueNode inversePath;
+	private final String propertyName;
 	private ContainerValueExtractorPath extractorPath = ContainerValueExtractorPath.defaultExtractors();
+	private PojoModelPathValueNode embeddedPath;
+	private final PojoModelPathValueNode inverseSidePath;
 
-	AssociationInverseSideMappingContextImpl(PropertyMappingContext delegate, PojoModelPathValueNode inversePath) {
+	AssociationInverseSideMappingContextImpl(PropertyMappingContext delegate, String propertyName,
+			PojoModelPathValueNode inverseSidePath) {
 		super( delegate );
-		this.inversePath = inversePath;
+		this.propertyName = propertyName;
+		this.inverseSidePath = inverseSidePath;
 	}
 
 	@Override
-	public void contributeModel(PojoAugmentedModelCollectorPropertyNode collector) {
-		collector.value( extractorPath ).associationInverseSide( inversePath );
+	public void contributeModel(PojoAugmentedModelCollectorTypeNode collector) {
+		PojoModelPathValueNode originalSidePath = PojoModelPath.fromRoot( propertyName ).value( extractorPath );
+		if ( embeddedPath != null ) {
+			originalSidePath = originalSidePath.append( embeddedPath );
+		}
+		collector.association( originalSidePath, inverseSidePath );
 	}
 
 	@Override
@@ -44,6 +53,12 @@ public class AssociationInverseSideMappingContextImpl
 	@Override
 	public AssociationInverseSideMappingContext withExtractors(ContainerValueExtractorPath extractorPath) {
 		this.extractorPath = extractorPath;
+		return this;
+	}
+
+	@Override
+	public AssociationInverseSideMappingContext withEmbeddedPath(PojoModelPathValueNode embeddedPath) {
+		this.embeddedPath = embeddedPath;
 		return this;
 	}
 }

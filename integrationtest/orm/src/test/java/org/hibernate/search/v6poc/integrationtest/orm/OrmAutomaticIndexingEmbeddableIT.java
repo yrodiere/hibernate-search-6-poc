@@ -1467,7 +1467,7 @@ public class OrmAutomaticIndexingEmbeddableIT {
 		@JoinTable(name = "contained_containingAsElementCollection")
 		@OrderBy("id asc") // Make sure the iteration order is predictable
 		@AssociationInverseSide(
-				inversePath = {
+				inverseSidePath = {
 						@PropertyValue(propertyName = "containedElementCollection"),
 						@PropertyValue(propertyName = "containedSingle")
 				}
@@ -1637,7 +1637,7 @@ public class OrmAutomaticIndexingEmbeddableIT {
 		 * so there should be no problem, but this test should prevent any regression.
 		 */
 		@OneToOne
-		@AssociationInverseSide(inversePath = @PropertyValue(propertyName = "containedSingleWithInverseSideEmbedded"))
+		@AssociationInverseSide(inverseSidePath = @PropertyValue(propertyName = "containedSingleWithInverseSideEmbedded"))
 		private ContainingEntity containingAsSingle;
 
 		public InverseSideEmbeddable() {

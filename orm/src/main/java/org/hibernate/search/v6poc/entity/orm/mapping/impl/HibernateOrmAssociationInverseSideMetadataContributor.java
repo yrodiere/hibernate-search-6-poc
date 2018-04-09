@@ -6,27 +6,24 @@
  */
 package org.hibernate.search.v6poc.entity.orm.mapping.impl;
 
-import org.hibernate.search.v6poc.entity.pojo.extractor.ContainerValueExtractorPath;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.spi.PojoMappingCollectorTypeNode;
 import org.hibernate.search.v6poc.entity.pojo.mapping.building.spi.PojoTypeMetadataContributor;
 import org.hibernate.search.v6poc.entity.pojo.model.augmented.building.spi.PojoAugmentedModelCollectorTypeNode;
 import org.hibernate.search.v6poc.entity.pojo.model.path.PojoModelPathValueNode;
 
 final class HibernateOrmAssociationInverseSideMetadataContributor implements PojoTypeMetadataContributor {
-	private final String propertyName;
-	private final ContainerValueExtractorPath extractorPath;
+	private final PojoModelPathValueNode originalSideValuePath;
 	private final PojoModelPathValueNode inverseSideValuePath;
 
-	HibernateOrmAssociationInverseSideMetadataContributor(String propertyName,
-			ContainerValueExtractorPath extractorPath, PojoModelPathValueNode inverseSideValuePath) {
-		this.propertyName = propertyName;
-		this.extractorPath = extractorPath;
+	HibernateOrmAssociationInverseSideMetadataContributor(PojoModelPathValueNode originalSideValuePath,
+			PojoModelPathValueNode inverseSideValuePath) {
+		this.originalSideValuePath = originalSideValuePath;
 		this.inverseSideValuePath = inverseSideValuePath;
 	}
 
 	@Override
 	public void contributeModel(PojoAugmentedModelCollectorTypeNode collector) {
-		collector.property( propertyName ).value( extractorPath ).associationInverseSide( inverseSideValuePath );
+		collector.association( originalSideValuePath, inverseSideValuePath );
 	}
 
 	@Override

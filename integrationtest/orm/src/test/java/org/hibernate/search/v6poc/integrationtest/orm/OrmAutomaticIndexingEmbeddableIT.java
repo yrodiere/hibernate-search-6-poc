@@ -1625,7 +1625,7 @@ public class OrmAutomaticIndexingEmbeddableIT {
 	@Embeddable
 	public static class InverseSideEmbeddable {
 		/*
-		 * This side must use "mappedBy".
+		 * This association must not use "mappedBy".
 		 * This is because we want to test defining the "association mapping" in an embeddable on the inverse side
 		 * without relying on Hibernate ORM.
 		 * This has specific implications internally, as the embeddable type

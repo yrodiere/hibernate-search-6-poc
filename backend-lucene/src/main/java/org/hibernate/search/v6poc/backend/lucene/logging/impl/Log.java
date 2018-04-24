@@ -11,9 +11,9 @@ import java.nio.file.Path;
 import java.util.Collection;
 
 import org.apache.lucene.search.Query;
+
+import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
 import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
-import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndexSchemaFieldNode;
-import org.hibernate.search.v6poc.backend.lucene.index.impl.LuceneIndexManager;
 import org.hibernate.search.v6poc.backend.spi.BackendImplementor;
 import org.hibernate.search.v6poc.search.SearchPredicate;
 import org.hibernate.search.v6poc.search.SearchSort;
@@ -89,8 +89,8 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 511, value = "Multiple conflicting types for field '%1$s': '%2$s' in index '%3$s', but '%4$s' in index '%5$s'." )
 	SearchException conflictingFieldTypesForSearch(String absoluteFieldPath,
-			LuceneIndexSchemaFieldNode<?> schemaNode1, String indexName1,
-			LuceneIndexSchemaFieldNode<?> schemaNode2, String indexName2);
+			Object schemaNode1, String indexName1,
+			Object schemaNode2, String indexName2);
 
 	@Message(id = 512, value = "Field '%2$s' is not an object field in index '%1$s'." )
 	SearchException nonObjectFieldForNestedQuery(String indexName, String absoluteFieldPath);
@@ -128,11 +128,11 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 524, value = "A search query cannot target both a Lucene index and other types of index."
 			+ " First target was: '%1$s', other target was: '%2$s'" )
-	SearchException cannotMixLuceneSearchTargetWithOtherType(IndexSearchTargetBuilder firstTarget, LuceneIndexManager otherTarget);
+	SearchException cannotMixLuceneSearchTargetWithOtherType(IndexSearchTargetBuilder firstTarget, IndexManager<?> otherTarget);
 
 	@Message(id = 525, value = "A search query cannot target multiple Lucene backends."
 			+ " First target was: '%1$s', other target was: '%2$s'" )
-	SearchException cannotMixLuceneSearchTargetWithOtherBackend(IndexSearchTargetBuilder firstTarget, LuceneIndexManager otherTarget);
+	SearchException cannotMixLuceneSearchTargetWithOtherBackend(IndexSearchTargetBuilder firstTarget, IndexManager<?> otherTarget);
 
 	@Message(id = 526, value = "Unknown projections %1$s in indexes %2$s." )
 	SearchException unknownProjectionForSearch(Collection<String> projections, Collection<String> indexNames);

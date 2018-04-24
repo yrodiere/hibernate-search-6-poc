@@ -12,8 +12,7 @@ import java.util.Map;
 
 import org.hibernate.search.v6poc.backend.elasticsearch.util.impl.URLEncodedString;
 import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.esnative.DataType;
-import org.hibernate.search.v6poc.backend.elasticsearch.index.impl.ElasticsearchIndexManager;
-import org.hibernate.search.v6poc.backend.elasticsearch.types.codec.impl.ElasticsearchFieldCodec;
+import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
 import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.backend.spi.BackendImplementor;
 import org.hibernate.search.v6poc.search.SearchPredicate;
@@ -68,19 +67,19 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 502, value = "A search query cannot target both an Elasticsearch index and other types of index."
 			+ " First target was: '%1$s', other target was: '%2$s'" )
-	SearchException cannotMixElasticsearchSearchTargetWithOtherType(IndexSearchTargetBuilder firstTarget, ElasticsearchIndexManager otherTarget);
+	SearchException cannotMixElasticsearchSearchTargetWithOtherType(IndexSearchTargetBuilder firstTarget, IndexManager<?> otherTarget);
 
 	@Message(id = 503, value = "A search query cannot target multiple Elasticsearch backends."
 			+ " First target was: '%1$s', other target was: '%2$s'" )
-	SearchException cannotMixElasticsearchSearchTargetWithOtherBackend(IndexSearchTargetBuilder firstTarget, ElasticsearchIndexManager otherTarget);
+	SearchException cannotMixElasticsearchSearchTargetWithOtherBackend(IndexSearchTargetBuilder firstTarget, IndexManager<?> otherTarget);
 
 	@Message(id = 504, value = "Unknown field '%1$s' in indexes %2$s." )
 	SearchException unknownFieldForSearch(String absoluteFieldPath, Collection<URLEncodedString> indexNames);
 
 	@Message(id = 505, value = "Multiple conflicting types for field '%1$s': '%2$s' in index '%3$s', but '%4$s' in index '%5$s'." )
 	SearchException conflictingFieldCodecsForSearch(String absoluteFieldPath,
-			ElasticsearchFieldCodec codec1, URLEncodedString indexName1,
-			ElasticsearchFieldCodec codec2, URLEncodedString indexName2);
+			Object codec1, URLEncodedString indexName1,
+			Object codec2, URLEncodedString indexName2);
 
 	@Message(id = 506, value = "The Elasticsearch extension can only be applied to objects"
 			+ " derived from the Elasticsearch backend. Was applied to '%1$s' instead." )

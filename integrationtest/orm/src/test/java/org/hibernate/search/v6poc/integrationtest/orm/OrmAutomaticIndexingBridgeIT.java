@@ -367,6 +367,15 @@ public class OrmAutomaticIndexingBridgeIT {
 		} );
 		backendMock.verifyExpectationsMet();
 
+		// Test updating a value that is not included in the bridge
+		OrmUtils.withinTransaction( sessionFactory, session -> {
+			ContainedEntity containedEntity = session.get( ContainedEntity.class, 4 );
+			containedEntity.setExcludedFromAll( "updatedExcludedValue" );
+
+			// Do not expect any work
+		} );
+		backendMock.verifyExpectationsMet();
+
 		// Test updating a value that is too deeply nested to matter (it's out of the IndexedEmbedded scope)
 		OrmUtils.withinTransaction( sessionFactory, session -> {
 			ContainedEntity containedEntity = session.get( ContainedEntity.class, 5 );
@@ -580,6 +589,15 @@ public class OrmAutomaticIndexingBridgeIT {
 		} );
 		backendMock.verifyExpectationsMet();
 
+		// Test updating a value that is not included in the bridge
+		OrmUtils.withinTransaction( sessionFactory, session -> {
+			ContainedEntity containedEntity = session.get( ContainedEntity.class, 4 );
+			containedEntity.setExcludedFromAll( "updatedExcludedValue" );
+
+			// Do not expect any work
+		} );
+		backendMock.verifyExpectationsMet();
+
 		// Test updating a value that is too deeply nested to matter (it's out of the IndexedEmbedded scope)
 		OrmUtils.withinTransaction( sessionFactory, session -> {
 			ContainedEntity containedEntity = session.get( ContainedEntity.class, 5 );
@@ -675,6 +693,9 @@ public class OrmAutomaticIndexingBridgeIT {
 		@Basic
 		private String includedInPropertyBridge;
 
+		@Basic
+		private String excludedFromAll;
+
 		public Integer getId() {
 			return id;
 		}
@@ -701,6 +722,14 @@ public class OrmAutomaticIndexingBridgeIT {
 
 		public void setIncludedInPropertyBridge(String includedInPropertyBridge) {
 			this.includedInPropertyBridge = includedInPropertyBridge;
+		}
+
+		public String getExcludedFromAll() {
+			return excludedFromAll;
+		}
+
+		public void setExcludedFromAll(String excludedFromAll) {
+			this.excludedFromAll = excludedFromAll;
 		}
 	}
 

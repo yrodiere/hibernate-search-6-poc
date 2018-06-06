@@ -15,6 +15,7 @@ import org.hibernate.search.v6poc.entity.pojo.dirtiness.impl.PojoImplicitReindex
 import org.hibernate.search.v6poc.entity.pojo.model.path.PojoModelPathValueNode;
 import org.hibernate.search.v6poc.entity.pojo.model.path.impl.BoundPojoModelPath;
 import org.hibernate.search.v6poc.util.AssertionFailure;
+import org.hibernate.search.v6poc.util.impl.common.Contracts;
 
 abstract class AbstractPojoImplicitReindexingResolverNodeBuilder<T> {
 
@@ -71,20 +72,46 @@ abstract class AbstractPojoImplicitReindexingResolverNodeBuilder<T> {
 		return dirtyPathsTriggeringReindexingIncludingNestedNodes;
 	}
 
-	final Optional<PojoImplicitReindexingResolver<T>> build() {
+	/**
+	 * @param allPotentialDirtyPaths A comprehensive list of all paths that may be dirty
+	 * when the built resolver will be called. {@code null} if unknown.
+	 */
+	final Optional<PojoImplicitReindexingResolver<T>> build(Set<PojoModelPathValueNode> allPotentialDirtyPaths) {
 		freeze();
-		return doBuild().map( this::wrapWithFilter );
+
+		Set<PojoModelPathValueNode> immutableDirtyPathsAcceptedByFilter =
+				getDirtyPathsTriggeringReindexingIncludingNestedNodes();
+
+		if ( allPotentialDirtyPaths == null
+				|| !immutableDirtyPathsAcceptedByFilter.containsAll( allPotentialDirtyPaths ) ) {
+			/*
+			 * The resolver may be called even when none of the dirty properties we are interested in is dirty.
+			 * We need to add our own dirty check.
+			 * Note that as a consequence, on contrary to the "else" branch below,
+			 * we take care to call doBuild() passing as an argument
+			 * the set of properties that the filter will allow.
+			 */
+			return doBuild( immutableDirtyPathsAcceptedByFilter )
+					.map( resolver -> wrapWithFilter(
+							resolver, immutableDirtyPathsAcceptedByFilter
+					) );
+		}
+		else {
+			/*
+			 * The resolver will only be called when at least one of the dirty properties we are interested in is dirty.
+			 * No need to add our own dirty check.
+			 * Note that as a consequence, on contrary to the "if" branch above,
+			 * we take care to call doBuild() passing as an argument
+			 * the set of properties that the caller declared as "all potentially dirty properties".
+			 */
+			return doBuild( allPotentialDirtyPaths );
+		}
 	}
 
-	abstract Optional<PojoImplicitReindexingResolver<T>> doBuild();
+	abstract Optional<PojoImplicitReindexingResolver<T>> doBuild(Set<PojoModelPathValueNode> allPotentialDirtyPaths);
 
-	private PojoImplicitReindexingResolver<T> wrapWithFilter(PojoImplicitReindexingResolver<T> resolver) {
-		/*
-		 * TODO optimize this: if an ancestor node already filters properties down to this exact set,
-		 * we don't need to apply the filter.
-		 */
-		Set<PojoModelPathValueNode> immutableDirtyPathsTriggeringReindexing =
-				getDirtyPathsTriggeringReindexingIncludingNestedNodes();
+	private PojoImplicitReindexingResolver<T> wrapWithFilter(PojoImplicitReindexingResolver<T> resolver,
+			Set<PojoModelPathValueNode> immutableDirtyPathsTriggeringReindexing) {
 		return new PojoImplicitReindexingResolverDirtinessFilterNode<>(
 				immutableDirtyPathsTriggeringReindexing, resolver
 		);

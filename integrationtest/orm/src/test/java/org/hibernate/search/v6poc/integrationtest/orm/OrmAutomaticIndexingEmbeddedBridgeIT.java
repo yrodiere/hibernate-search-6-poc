@@ -39,7 +39,6 @@ import org.hibernate.search.v6poc.entity.pojo.bridge.declaration.TypeBridgeMappi
 import org.hibernate.search.v6poc.entity.pojo.bridge.declaration.TypeBridgeMappingBuilderReference;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.AnnotationBridgeBuilder;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation.DocumentId;
-import org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation.Field;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation.Indexed;
 import org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation.IndexedEmbedded;
 import org.hibernate.search.v6poc.entity.pojo.model.PojoElement;
@@ -268,11 +267,9 @@ public class OrmAutomaticIndexingEmbeddedBridgeIT {
 		private List<ContainingEntity> containingAsSecondContained = new ArrayList<>();
 
 		@Basic
-		@Field
 		private String includedInFirstBridge;
 
 		@Basic
-		@Field
 		private String includedInSecondBridge;
 
 		public Integer getId() {

@@ -153,4 +153,8 @@ public interface Log extends BasicLogger {
 	@Message(id = 25, value = "Cannot access the value of containing annotation '%1$s'."
 			+ " Ignoring annotation.")
 	void cannotAccessRepeateableContainingAnnotationValue(Class<?> containingAnnotationType, @Cause Throwable e);
+
+	@Message(id = 26, value = "Type '%1$s' is not marked as an entity type, yet it is indexed or targeted"
+			+ " by an association from an indexed type. Please check your configuration.")
+	SearchException missingEntityTypeMetadata(PojoRawTypeModel<?> typeModel);
 }

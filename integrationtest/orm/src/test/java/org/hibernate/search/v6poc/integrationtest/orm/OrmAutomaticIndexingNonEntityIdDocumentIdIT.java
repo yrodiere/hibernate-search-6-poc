@@ -113,6 +113,38 @@ public class OrmAutomaticIndexingNonEntityIdDocumentIdIT {
 		backendMock.verifyExpectationsMet();
 	}
 
+	@Test
+	public void directValueUpdate_documentId() {
+		OrmUtils.withinTransaction( sessionFactory, session -> {
+			IndexedEntity entity1 = new IndexedEntity();
+			entity1.setId( 1 );
+			entity1.setDocumentId( 10 );
+
+			session.persist( entity1 );
+
+			backendMock.expectWorks( IndexedEntity.INDEX )
+					.add( "10", b -> b
+							.field( "indexedField", null )
+					)
+					.preparedThenExecuted();
+		} );
+		backendMock.verifyExpectationsMet();
+
+		// Test changing the document ID
+		OrmUtils.withinTransaction( sessionFactory, session -> {
+			IndexedEntity entity1 = session.get( IndexedEntity.class, 1 );
+			entity1.setDocumentId( 20 );
+
+			backendMock.expectWorks( IndexedEntity.INDEX )
+					.delete( "10" )
+					.add( "20", b -> b
+							.field( "indexedField", null )
+					)
+					.preparedThenExecuted();
+		} );
+		backendMock.verifyExpectationsMet();
+	}
+
 	@Entity(name = "indexed")
 	@Indexed(index = IndexedEntity.INDEX)
 	public static class IndexedEntity {

@@ -54,6 +54,7 @@ class ChangesetPojoContainedTypeWorker<E> extends ChangesetPojoTypeWorker {
 		getWork( providedId ).delete( entitySupplier );
 	}
 
+	@Override
 	void resolveDirty(PojoReindexingCollector containingEntityCollector) {
 		for ( WorkPlanPerDocument workPerDocument : workPlansPerId.values() ) {
 			workPerDocument.resolveDirty( containingEntityCollector );

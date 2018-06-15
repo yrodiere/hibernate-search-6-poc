@@ -17,7 +17,7 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoSessionContext;
  * @param <E> The entity type mapped to the index.
  * @param <D> The document type for the index.
  */
-class StreamPojoIndexedTypeWorker<I, E, D extends DocumentElement> extends PojoTypeWorker {
+class StreamPojoIndexedTypeWorker<I, E, D extends DocumentElement> extends StreamPojoTypeWorker {
 
 	private final PojoIndexedTypeManager<I, E, D> typeManager;
 	private final StreamIndexWorker<D> delegate;
@@ -29,7 +29,6 @@ class StreamPojoIndexedTypeWorker<I, E, D extends DocumentElement> extends PojoT
 		this.delegate = delegate;
 	}
 
-	@Override
 	void add(Object providedId, Object entity) {
 		Supplier<E> entitySupplier = typeManager.toEntitySupplier( sessionContext, entity );
 		I identifier = typeManager.getIdentifierMapping().getIdentifier( providedId, entitySupplier );
@@ -39,7 +38,6 @@ class StreamPojoIndexedTypeWorker<I, E, D extends DocumentElement> extends PojoT
 		);
 	}
 
-	@Override
 	void update(Object providedId, Object entity) {
 		Supplier<E> entitySupplier = typeManager.toEntitySupplier( sessionContext, entity );
 		I identifier = typeManager.getIdentifierMapping().getIdentifier( providedId, entitySupplier );
@@ -49,7 +47,6 @@ class StreamPojoIndexedTypeWorker<I, E, D extends DocumentElement> extends PojoT
 		);
 	}
 
-	@Override
 	void delete(Object providedId, Object entity) {
 		Supplier<E> entitySupplier = typeManager.toEntitySupplier( sessionContext, entity );
 		I identifier = typeManager.getIdentifierMapping().getIdentifier( providedId, entitySupplier );

@@ -6,14 +6,25 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.mapping.impl;
 
+import org.hibernate.search.v6poc.entity.pojo.dirtiness.impl.PojoReindexingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoSessionContext;
 
-abstract class ChangesetPojoTypeWorker extends PojoTypeWorker {
+abstract class ChangesetPojoTypeWorker {
+
+	final PojoSessionContext sessionContext;
 
 	ChangesetPojoTypeWorker(PojoSessionContext sessionContext) {
-		super( sessionContext );
+		this.sessionContext = sessionContext;
 	}
 
+	abstract void add(Object id, Object entity);
+
+	abstract void update(Object id, Object entity);
+
+	abstract void delete(Object id, Object entity);
+
 	abstract void update(Object id, Object entity, String... dirtyPaths);
+
+	abstract void resolveDirty(PojoReindexingCollector containingEntityCollector);
 
 }

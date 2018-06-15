@@ -62,4 +62,10 @@ public class PojoContainedTypeManager<E> implements AutoCloseable, ToStringTreeA
 				this, sessionContext
 		);
 	}
+
+	StreamPojoContainedTypeWorker<E> createStreamWorker(PojoSessionContext sessionContext) {
+		return new StreamPojoContainedTypeWorker<>(
+				this, sessionContext
+		);
+	}
 }

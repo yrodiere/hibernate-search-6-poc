@@ -6,64 +6,76 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.mapping.impl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.hibernate.search.v6poc.entity.pojo.mapping.StreamPojoWorker;
-import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoSessionContext;
-import org.hibernate.search.v6poc.util.SearchException;
 
-class StreamPojoWorkerImpl extends PojoWorkerImpl implements StreamPojoWorker {
+class StreamPojoWorkerImpl implements StreamPojoWorker {
 
-	private final PojoSessionContext sessionContext;
-	private final Map<Class<?>, StreamPojoIndexedTypeWorker<?, ?, ?>> delegates = new ConcurrentHashMap<>();
-	private volatile boolean addedAll = false;
+	private final PojoTypeWorkerContainer<
+			StreamPojoTypeWorker,
+			StreamPojoIndexedTypeWorker<?, ?, ?>,
+			StreamPojoContainedTypeWorker<?>
+			> typeWorkerContainer;
 
-	StreamPojoWorkerImpl(PojoIndexedTypeManagerContainer indexedTypeManagers,
-			PojoSessionContext sessionContext) {
-		super( indexedTypeManagers, sessionContext.getRuntimeIntrospector() );
-		this.sessionContext = sessionContext;
+	StreamPojoWorkerImpl(PojoTypeWorkerContainer<
+			StreamPojoTypeWorker,
+			StreamPojoIndexedTypeWorker<?, ?, ?>,
+			StreamPojoContainedTypeWorker<?>
+			> typeWorkerContainer) {
+		this.typeWorkerContainer = typeWorkerContainer;
+	}
+
+	@Override
+	public void add(Object entity) {
+		add( null, entity );
+	}
+
+	@Override
+	public void add(Object id, Object entity) {
+		typeWorkerContainer.getIndexed( entity ).add( id, entity );
+	}
+
+	@Override
+	public void update(Object entity) {
+		update( null, entity );
+	}
+
+	@Override
+	public void update(Object id, Object entity) {
+		typeWorkerContainer.getIndexed( entity ).update( id, entity );
+	}
+
+	@Override
+	public void delete(Object entity) {
+		delete( null, entity );
+	}
+
+	@Override
+	public void delete(Object id, Object entity) {
+		typeWorkerContainer.getIndexed( entity ).delete( id, entity );
 	}
 
 	@Override
 	public void flush() {
-		for ( StreamPojoIndexedTypeWorker<?, ?, ?> delegate : getAllDelegates() ) {
+		for ( StreamPojoIndexedTypeWorker<?, ?, ?> delegate : typeWorkerContainer.getAllIndexed() ) {
 			delegate.flush();
 		}
 	}
 
 	@Override
 	public void flush(Class<?> clazz) {
-		getDelegate( clazz ).flush();
+		typeWorkerContainer.getIndexed( clazz ).flush();
 	}
 
 	@Override
 	public void optimize() {
-		for ( StreamPojoIndexedTypeWorker<?, ?, ?> delegate : getAllDelegates() ) {
+		for ( StreamPojoIndexedTypeWorker<?, ?, ?> delegate : typeWorkerContainer.getAllIndexed() ) {
 			delegate.optimize();
 		}
 	}
 
 	@Override
 	public void optimize(Class<?> clazz) {
-		getDelegate( clazz ).optimize();
+		typeWorkerContainer.getIndexed( clazz ).optimize();
 	}
 
-	@Override
-	StreamPojoIndexedTypeWorker<?, ?, ?> getDelegate(Class<?> clazz) {
-		return delegates.computeIfAbsent( clazz, c -> getIndexedTypeManager( clazz ).createStreamWorker( sessionContext ) );
-	}
-
-	private <E> PojoIndexedTypeManager<?, E, ?> getIndexedTypeManager(Class<E> clazz) {
-		return indexedTypeManagers.getByExactClass( clazz )
-				.orElseThrow( () -> new SearchException( "Cannot work on type " + clazz + ", because it is not indexed." ) );
-	}
-
-	private Iterable<StreamPojoIndexedTypeWorker<?, ?, ?>> getAllDelegates() {
-		if ( !addedAll ) {
-			getAllIndexedTypeManagers().forEach( manager -> getDelegate( manager.getClass() ) );
-			addedAll = true;
-		}
-		return delegates.values();
-	}
 }

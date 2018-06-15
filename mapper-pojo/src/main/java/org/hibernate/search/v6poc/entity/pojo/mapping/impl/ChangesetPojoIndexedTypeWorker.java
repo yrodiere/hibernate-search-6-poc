@@ -76,6 +76,7 @@ class ChangesetPojoIndexedTypeWorker<I, E, D extends DocumentElement> extends Ch
 		// If the entry is already there, no need for an additional update
 	}
 
+	@Override
 	void resolveDirty(PojoReindexingCollector containingEntityCollector) {
 		for ( WorkPlanPerDocument workPerDocument : workPlansPerId.values() ) {
 			workPerDocument.resolveDirty( containingEntityCollector );

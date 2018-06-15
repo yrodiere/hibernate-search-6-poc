@@ -19,20 +19,50 @@ import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoSessionContext;
 import org.hibernate.search.v6poc.util.AssertionFailure;
 import org.hibernate.search.v6poc.util.SearchException;
 
-class ChangesetPojoWorkerImpl extends PojoWorkerImpl implements ChangesetPojoWorker {
+class ChangesetPojoWorkerImpl implements ChangesetPojoWorker {
 
-	private final PojoContainedTypeManagerContainer containedTypeManagers;
-	private final PojoSessionContext sessionContext;
-	// Use a LinkedHashMap for deterministic iteration
-	private final Map<Class<?>, ChangesetPojoIndexedTypeWorker<?, ?, ?>> indexedTypeDelegates = new LinkedHashMap<>();
-	private final Map<Class<?>, ChangesetPojoContainedTypeWorker<?>> containedTypeDelegates = new HashMap<>();
+	private final PojoTypeWorkerContainer<
+			ChangesetPojoTypeWorker,
+			ChangesetPojoIndexedTypeWorker<?, ?, ?>,
+			ChangesetPojoContainedTypeWorker<?>
+			> typeWorkerContainer;
 
-	ChangesetPojoWorkerImpl(PojoIndexedTypeManagerContainer indexedTypeManagers,
-			PojoContainedTypeManagerContainer containedTypeManagers,
-			PojoSessionContext sessionContext) {
-		super( indexedTypeManagers, sessionContext.getRuntimeIntrospector() );
-		this.containedTypeManagers = containedTypeManagers;
-		this.sessionContext = sessionContext;
+	ChangesetPojoWorkerImpl(PojoTypeWorkerContainer<
+			ChangesetPojoTypeWorker,
+			ChangesetPojoIndexedTypeWorker<?, ?, ?>,
+			ChangesetPojoContainedTypeWorker<?>
+			> typeWorkerContainer) {
+		this.typeWorkerContainer = typeWorkerContainer;
+	}
+
+	@Override
+	public void add(Object entity) {
+		add( null, entity );
+	}
+
+	@Override
+	public void add(Object id, Object entity) {
+		typeWorkerContainer.get( entity ).add( id, entity );
+	}
+
+	@Override
+	public void update(Object entity) {
+		update( null, entity );
+	}
+
+	@Override
+	public void update(Object id, Object entity) {
+		typeWorkerContainer.get( entity ).update( id, entity );
+	}
+
+	@Override
+	public void delete(Object entity) {
+		delete( null, entity );
+	}
+
+	@Override
+	public void delete(Object id, Object entity) {
+		typeWorkerContainer.get( entity ).delete( id, entity );
 	}
 
 	@Override
@@ -42,21 +72,19 @@ class ChangesetPojoWorkerImpl extends PojoWorkerImpl implements ChangesetPojoWor
 
 	@Override
 	public void update(Object id, Object entity, String... dirtyPaths) {
-		Class<?> clazz = getIntrospector().getClass( entity );
-		ChangesetPojoTypeWorker delegate = getDelegate( clazz );
-		delegate.update( id, entity, dirtyPaths );
+		typeWorkerContainer.get( entity ).update( id, entity, dirtyPaths );
 	}
 
 	@Override
 	public void prepare() {
-		for ( ChangesetPojoContainedTypeWorker<?> delegate : containedTypeDelegates.values() ) {
-			delegate.resolveDirty( this::updateBecauseOfContained );
+		for ( ChangesetPojoTypeWorker worker : typeWorkerContainer.getCachedContained() ) {
+			worker.resolveDirty( this::updateBecauseOfContained );
 		}
-		for ( ChangesetPojoIndexedTypeWorker<?, ?, ?> delegate : indexedTypeDelegates.values() ) {
-			delegate.resolveDirty( this::updateBecauseOfContained );
+		for ( ChangesetPojoIndexedTypeWorker<?, ?, ?> worker : typeWorkerContainer.getCachedIndexed() ) {
+			worker.resolveDirty( this::updateBecauseOfContained );
 		}
-		for ( ChangesetPojoIndexedTypeWorker<?, ?, ?> delegate : indexedTypeDelegates.values() ) {
-			delegate.prepare();
+		for ( ChangesetPojoIndexedTypeWorker<?, ?, ?> worker : typeWorkerContainer.getCachedIndexed() ) {
+			worker.prepare();
 		}
 	}
 
@@ -65,79 +93,19 @@ class ChangesetPojoWorkerImpl extends PojoWorkerImpl implements ChangesetPojoWor
 		try {
 			prepare();
 			List<CompletableFuture<?>> futures = new ArrayList<>();
-			for ( ChangesetPojoIndexedTypeWorker<?, ?, ?> delegate : indexedTypeDelegates.values() ) {
-				futures.add( delegate.execute() );
+			for ( ChangesetPojoIndexedTypeWorker<?, ?, ?> worker : typeWorkerContainer.getCachedIndexed() ) {
+				futures.add( worker.execute() );
 			}
 			return CompletableFuture.allOf( futures.toArray( new CompletableFuture[futures.size()] ) );
 		}
 		finally {
-			indexedTypeDelegates.clear();
+			typeWorkerContainer.clear();
 		}
-	}
-
-	@Override
-	ChangesetPojoTypeWorker getDelegate(Class<?> clazz) {
-		ChangesetPojoTypeWorker delegate = indexedTypeDelegates.get( clazz );
-		if ( delegate == null ) {
-			delegate = containedTypeDelegates.get( clazz );
-			if ( delegate == null ) {
-				delegate = createDelegate( clazz );
-			}
-		}
-		return delegate;
-	}
-
-	private ChangesetPojoTypeWorker createDelegate(Class<?> clazz) {
-		Optional<? extends PojoIndexedTypeManager<?, ?, ?>> indexedTypeManagerOptional =
-				indexedTypeManagers.getByExactClass( clazz );
-		if ( indexedTypeManagerOptional.isPresent() ) {
-			ChangesetPojoIndexedTypeWorker<?, ?, ?> delegate = indexedTypeManagerOptional.get()
-					.createWorker( sessionContext );
-			indexedTypeDelegates.put( clazz, delegate );
-			return delegate;
-		}
-		else {
-			Optional<? extends PojoContainedTypeManager<?>> containedTypeManagerOptional =
-					containedTypeManagers.getByExactClass( clazz );
-			if ( containedTypeManagerOptional.isPresent() ) {
-				ChangesetPojoContainedTypeWorker<?> delegate = containedTypeManagerOptional.get()
-						.createWorker( sessionContext );
-				containedTypeDelegates.put( clazz, delegate );
-				return delegate;
-			}
-		}
-		throw new SearchException(
-				"Cannot work on type " + clazz + ", because it is not indexed,"
-				+ " neither directly nor as a contained entity in another type."
-		);
-	}
-
-	private ChangesetPojoIndexedTypeWorker<?, ?, ?> getOrCreateIndexedDelegateForContainedUpdate(Class<?> clazz) {
-		ChangesetPojoIndexedTypeWorker<?, ?, ?> delegate = indexedTypeDelegates.get( clazz );
-		if ( delegate != null ) {
-			return delegate;
-		}
-
-		Optional<? extends PojoIndexedTypeManager<?, ?, ?>> indexedTypeManagerOptional =
-				indexedTypeManagers.getByExactClass( clazz );
-		if ( indexedTypeManagerOptional.isPresent() ) {
-			delegate = indexedTypeManagerOptional.get().createWorker( sessionContext );
-			indexedTypeDelegates.put( clazz, delegate );
-			return delegate;
-		}
-
-		throw new AssertionFailure(
-				"Attempt to reindex an entity of type " + clazz + " because a contained entity was modified,"
-				+ " but " + clazz + " is not indexed directly."
-				+ " This is proa"
-		);
 	}
 
 	private void updateBecauseOfContained(Object containingEntity) {
 		// TODO ignore the event when containingEntity has provided IDs
-		Class<?> clazz = getIntrospector().getClass( containingEntity );
-		ChangesetPojoIndexedTypeWorker<?, ?, ?> delegate = getOrCreateIndexedDelegateForContainedUpdate( clazz );
-		delegate.updateBecauseOfContained( containingEntity );
+		typeWorkerContainer.getIndexed( containingEntity ).updateBecauseOfContained( containingEntity );
 	}
 
 }

@@ -49,12 +49,26 @@ public class PojoMappingDelegateImpl implements PojoMappingDelegate {
 
 	@Override
 	public ChangesetPojoWorker createWorker(PojoSessionContext sessionContext) {
-		return new ChangesetPojoWorkerImpl( indexedTypeManagers, containedTypeManagers, sessionContext );
+		return new ChangesetPojoWorkerImpl(
+				new PojoTypeWorkerContainerImpl<>(
+						indexedTypeManagers,
+						containedTypeManagers,
+						ChangesetPojoWorkMode.get(),
+						sessionContext
+				)
+		);
 	}
 
 	@Override
 	public StreamPojoWorker createStreamWorker(PojoSessionContext sessionContext) {
-		return new StreamPojoWorkerImpl( indexedTypeManagers, sessionContext );
+		return new StreamPojoWorkerImpl(
+				new PojoTypeWorkerContainerImpl<>(
+						indexedTypeManagers,
+						containedTypeManagers,
+						StreamPojoWorkMode.get(),
+						sessionContext
+				)
+		);
 	}
 
 	@Override

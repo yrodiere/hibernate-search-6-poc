@@ -18,7 +18,7 @@ import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.esna
  * @author Yoann Rodiere
  */
 public abstract class AbstractElasticsearchIndexSchemaFieldTypedContext<T>
-		implements ElasticsearchIndexSchemaFieldTypedContext<T>,
+		implements ElasticsearchIndexSchemaFieldTypedContext<IndexFieldAccessor<T>>,
 		ElasticsearchIndexSchemaNodeContributor<PropertyMapping> {
 
 	private DeferredInitializationIndexFieldAccessor<T> accessor = new DeferredInitializationIndexFieldAccessor<>();

@@ -7,18 +7,18 @@
 package org.hibernate.search.v6poc.backend.document.model.dsl;
 
 /**
- * @author Yoann Rodiere
+ * @param <A> The type of accessor created by this context.
  */
-public interface IndexSchemaFieldTypedContext<T> extends IndexSchemaFieldTerminalContext<T> {
+public interface IndexSchemaFieldTypedContext<A> extends IndexSchemaFieldTerminalContext<A> {
 
 	// TODO add common options: stored, sortable, ...
 
-	IndexSchemaFieldTypedContext<T> analyzer(String analyzerName);
+	IndexSchemaFieldTypedContext<A> analyzer(String analyzerName);
 
-	IndexSchemaFieldTypedContext<T> normalizer(String normalizerName);
+	IndexSchemaFieldTypedContext<A> normalizer(String normalizerName);
 
-	IndexSchemaFieldTypedContext<T> store(Store store);
+	IndexSchemaFieldTypedContext<A> store(Store store);
 
-	IndexSchemaFieldTypedContext<T> sortable(Sortable sortable);
+	IndexSchemaFieldTypedContext<A> sortable(Sortable sortable);
 
 }

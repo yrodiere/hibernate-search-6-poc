@@ -9,7 +9,6 @@ package org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend
 import java.time.LocalDate;
 
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldContext;
-import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTypedContext;
 import org.hibernate.search.v6poc.spatial.GeoPoint;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend.document.model.StubIndexSchemaNode;
 
@@ -27,7 +26,7 @@ class StubIndexSchemaFieldContext implements IndexSchemaFieldContext {
 	}
 
 	@Override
-	public <T> IndexSchemaFieldTypedContext<T> as(Class<T> inputType) {
+	public <T> StubIndexSchemaFieldTypedContext<T> as(Class<T> inputType) {
 		StubIndexSchemaNode.Builder childBuilder =
 				StubIndexSchemaNode.field( parentBuilder, relativeFieldName, inputType );
 		if ( included ) {
@@ -37,22 +36,22 @@ class StubIndexSchemaFieldContext implements IndexSchemaFieldContext {
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<String> asString() {
+	public StubIndexSchemaFieldTypedContext<String> asString() {
 		return as( String.class );
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<Integer> asInteger() {
+	public StubIndexSchemaFieldTypedContext<Integer> asInteger() {
 		return as( Integer.class );
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<LocalDate> asLocalDate() {
+	public StubIndexSchemaFieldTypedContext<LocalDate> asLocalDate() {
 		return as( LocalDate.class );
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<GeoPoint> asGeoPoint() {
+	public StubIndexSchemaFieldTypedContext<GeoPoint> asGeoPoint() {
 		return as( GeoPoint.class );
 	}
 

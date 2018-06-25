@@ -8,6 +8,7 @@ package org.hibernate.search.v6poc.backend.document.model.dsl;
 
 import java.time.LocalDate;
 
+import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.FieldModelExtension;
 import org.hibernate.search.v6poc.spatial.GeoPoint;
 
@@ -17,15 +18,15 @@ import org.hibernate.search.v6poc.spatial.GeoPoint;
  */
 public interface IndexSchemaFieldContext {
 
-	<T> IndexSchemaFieldTypedContext<T> as(Class<T> inputType);
+	<T> IndexSchemaFieldTypedContext<? extends IndexFieldAccessor<T>> as(Class<T> inputType);
 
-	IndexSchemaFieldTypedContext<String> asString();
+	IndexSchemaFieldTypedContext<? extends IndexFieldAccessor<String>> asString();
 
-	IndexSchemaFieldTypedContext<Integer> asInteger();
+	IndexSchemaFieldTypedContext<? extends IndexFieldAccessor<Integer>> asInteger();
 
-	IndexSchemaFieldTypedContext<LocalDate> asLocalDate();
+	IndexSchemaFieldTypedContext<? extends IndexFieldAccessor<LocalDate>> asLocalDate();
 
-	IndexSchemaFieldTypedContext<GeoPoint> asGeoPoint();
+	IndexSchemaFieldTypedContext<? extends IndexFieldAccessor<GeoPoint>> asGeoPoint();
 
 	// TODO NumericBridgeProvider
 	// TODO JavaTimeBridgeProvider

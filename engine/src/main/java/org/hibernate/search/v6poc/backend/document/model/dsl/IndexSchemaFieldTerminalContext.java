@@ -6,13 +6,11 @@
  */
 package org.hibernate.search.v6poc.backend.document.model.dsl;
 
-import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
-
 /**
  * @author Yoann Rodiere
  */
-public interface IndexSchemaFieldTerminalContext<T> {
+public interface IndexSchemaFieldTerminalContext<A> {
 
-	IndexFieldAccessor<T> createAccessor();
+	A createAccessor();
 
 }

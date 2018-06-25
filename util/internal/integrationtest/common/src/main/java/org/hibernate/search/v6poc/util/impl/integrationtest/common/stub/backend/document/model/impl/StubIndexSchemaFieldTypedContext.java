@@ -12,7 +12,7 @@ import org.hibernate.search.v6poc.backend.document.model.dsl.Sortable;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Store;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend.document.model.StubIndexSchemaNode;
 
-class StubIndexSchemaFieldTypedContext<T> implements IndexSchemaFieldTypedContext<T> {
+class StubIndexSchemaFieldTypedContext<T> implements IndexSchemaFieldTypedContext<IndexFieldAccessor<T>> {
 
 	private final StubIndexSchemaNode.Builder builder;
 	private final boolean included;
@@ -25,25 +25,25 @@ class StubIndexSchemaFieldTypedContext<T> implements IndexSchemaFieldTypedContex
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<T> analyzer(String analyzerName) {
+	public StubIndexSchemaFieldTypedContext<T> analyzer(String analyzerName) {
 		builder.analyzerName( analyzerName );
 		return this;
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<T> normalizer(String normalizerName) {
+	public StubIndexSchemaFieldTypedContext<T> normalizer(String normalizerName) {
 		builder.normalizerName( normalizerName );
 		return this;
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<T> store(Store store) {
+	public StubIndexSchemaFieldTypedContext<T> store(Store store) {
 		builder.store( store );
 		return this;
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<T> sortable(Sortable sortable) {
+	public StubIndexSchemaFieldTypedContext<T> sortable(Sortable sortable) {
 		builder.sortable( sortable );
 		return this;
 	}

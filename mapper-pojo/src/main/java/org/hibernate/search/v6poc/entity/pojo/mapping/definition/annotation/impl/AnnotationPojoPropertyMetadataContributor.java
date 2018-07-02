@@ -1,0 +1,42 @@
+/*
+ * Hibernate Search, full-text search for your domain model
+ *
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later
+ * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ */
+package org.hibernate.search.v6poc.entity.pojo.mapping.definition.annotation.impl;
+
+import java.lang.annotation.Annotation;
+
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.spi.PojoMappingCollectorPropertyNode;
+import org.hibernate.search.v6poc.entity.pojo.mapping.building.spi.PojoPropertyMetadataContributor;
+import org.hibernate.search.v6poc.entity.pojo.model.additionalmetadata.building.spi.PojoAdditionalMetadataCollectorPropertyNode;
+
+abstract class AnnotationPojoPropertyMetadataContributor<A extends Annotation>
+		implements PojoPropertyMetadataContributor {
+	final A annotation;
+
+	AnnotationPojoPropertyMetadataContributor(A annotation) {
+		this.annotation = annotation;
+	}
+
+	@Override
+	public void contributeModel(PojoAdditionalMetadataCollectorPropertyNode collector) {
+		// TODO add a try/catch block to add some context (the annotation in particular) to thrown exceptions
+		doContributeModel( collector );
+	}
+
+	@Override
+	public void contributeMapping(PojoMappingCollectorPropertyNode collector) {
+		// TODO add a try/catch block to add some context (the annotation in particular) to thrown exceptions
+		doContributeMapping( collector );
+	}
+
+	void doContributeModel(PojoAdditionalMetadataCollectorPropertyNode collector) {
+		// Do nothing by default
+	}
+
+	void doContributeMapping(PojoMappingCollectorPropertyNode collector) {
+		// Do nothing by default
+	}
+}

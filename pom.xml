@@ -126,6 +126,19 @@
         <maven.compiler.argument.testSource>${maven.compiler.testSource}</maven.compiler.argument.testSource>
 
         <!--
+            Should be set by submodules.
+            Used by integration tests modules that execute tests from another module.
+            Allows to distinguish between multiple executions of the same test in test reports.
+         -->
+        <surefire.executing-module>default</surefire.executing-module>
+        <!--
+            Should be set from the command line.
+            Used by CI jobs that execute tests in multiple environments.
+            Allows to distinguish between multiple executions of the same test in test reports.
+         -->
+        <surefire.environment>default</surefire.environment>
+
+        <!--
             The path to the root project directory.
             This property is set by the build-helper plugin.
             We initialize it to some crude, potentially wrong value,
@@ -708,6 +721,7 @@
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <runOrder>alphabetical</runOrder>
                         <argLine>${surefire.jacoco.args}</argLine>
+                        <reportNameSuffix>${surefire.environment}-${surefire.executing-module}</reportNameSuffix>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -720,6 +734,7 @@
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <runOrder>alphabetical</runOrder>
                         <argLine>${failsafe.jacoco.args}</argLine>
+                        <reportNameSuffix>${surefire.environment}-${surefire.executing-module}</reportNameSuffix>
                     </configuration>
                 </plugin>
                 <plugin>

@@ -291,6 +291,13 @@ stage('Non-default environment ITs') {
 		if (!itEnv.awsRegion) {
 			throw new IllegalStateException("Unexpected empty AWS region")
 		}
+		// By default the lockable resource plugin will wait forever on undefined labels...
+		// Let's check the label is valid (there are resources with this label) before we use it
+		if (!isLockableResourceLabelValid(itEnv.endpointResourceLabel)) {
+			throw new IllegalStateException(
+					"Lockable resource label '$itEnv.endpointResourceLabel' does not match any resource"
+			)
+		}
 		executions.put(itEnv.tag, {
 			lock(label: itEnv.endpointResourceLabel, quantity: 1, variable: 'endpointUrl') {
 				echo "Sucessfully locked an AWS endpoint. Endpoint URL: $env.endpointUrl"
@@ -435,4 +442,21 @@ void mavenNonDefaultIT(ITEnvironment itEnv, String args) {
 	// of the same test in different environments in reports
 	def testSuffix = itEnv.tag.replaceAll('[^a-zA-Z0-9_\\-+]+', '_')
 	sh "mvn -Dsurefire.environment=$testSuffix $args"
+}
+
+// Relevant documentation: http://javadoc.jenkins.io/jenkins/model/Jenkins.html
+boolean isLockableResourceLabelValid(String resourceLabel) {
+	def extensionList = jenkins.model.Jenkins.instance.getExtensionList(
+			org.jenkins.plugins.lockableresources.LockableResourcesManager.class
+	)
+	if (extensionList.size() == 0) {
+		return false
+	}
+	else if (extensionList.size() > 1) {
+		throw new IllegalStateException("Found multiple LockableResourceManager extensions")
+	}
+	else {
+		def resourceManager = extensionList.get(0)
+		return resourceManager.isValidLabel(resourceLabel)
+	}
 }

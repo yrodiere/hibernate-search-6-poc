@@ -166,11 +166,6 @@ enableExperimentalEnvIT=$enableExperimentalEnvIT"""
 	}
 
 	nonDefaultEsAwsEnvs.removeAll { itEnv ->
-		itEnv.endpointUrl = env.getProperty(itEnv.endpointVariableName)
-		if (!itEnv.endpointUrl) {
-			echo "Skipping test ${itEnv.tag} because environment variable '${itEnv.endpointVariableName}' is not defined."
-			return true
-		}
 		itEnv.awsRegion = env.ES_AWS_REGION
 		if (!itEnv.awsRegion) {
 			echo "Skipping test ${itEnv.tag} because environment variable 'ES_AWS_REGION' is not defined."
@@ -293,14 +288,12 @@ stage('Non-default environment ITs') {
 
 	// Test Elasticsearch integration with multiple versions in an AWS instance
 	nonDefaultEsAwsEnvs.each { itEnv ->
-		if (!itEnv.endpointUrl) {
-			throw new IllegalStateException("Unexpected empty endpoint URL")
-		}
 		if (!itEnv.awsRegion) {
 			throw new IllegalStateException("Unexpected empty AWS region")
 		}
 		executions.put(itEnv.tag, {
-			lock(label: itEnv.lockedResourcesLabel) {
+			lock(label: itEnv.endpointResourceLabel, quantity: 1, variable: 'endpointUrl') {
+				echo "Sucessfully locked an AWS endpoint. Endpoint URL: $env.endpointUrl"
 				node(NODE_PATTERN_BASE + '&&AWS') {
 					withDefaultedMaven {
 						resumeFromDefaultBuild()
@@ -308,7 +301,7 @@ stage('Non-default environment ITs') {
 							mavenNonDefaultIT itEnv, """ \\
 								clean install -pl integrationtest/backend-elasticsearch \\
 								-P!$DEFAULT_ES_PROFILE,$itEnv.mavenProfile \\
-								-Dtest.elasticsearch.host=$itEnv.endpointUrl \\
+								-Dtest.elasticsearch.host=$env.endpointUrl \\
 								-Dtest.elasticsearch.host.aws.access_key=$AWS_ACCESS_KEY_ID \\
 								-Dtest.elasticsearch.host.aws.secret_key=$AWS_SECRET_ACCESS_KEY \\
 								-Dtest.elasticsearch.host.aws.region=$itEnv.awsRegion
@@ -402,10 +395,7 @@ class EsAwsITEnvironment extends ITEnvironment {
 	String getNameEmbeddableVersion() {
 		version.replaceAll('\\.', '')
 	}
-	String getEndpointVariableName() {
-		"ES_AWS_${nameEmbeddableVersion}_ENDPOINT"
-	}
-	String getLockedResourcesLabel() {
+	String getEndpointResourceLabel() {
 		"es-aws-${nameEmbeddableVersion}"
 	}
 }

@@ -23,8 +23,8 @@ import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaObjectFi
 import org.hibernate.search.v6poc.backend.document.model.dsl.ObjectFieldStorage;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Sortable;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
 import org.hibernate.search.v6poc.search.DocumentReference;
@@ -65,7 +65,7 @@ public class SearchSortIT {
 	public ExpectedException thrown = ExpectedException.none();
 
 	private IndexAccessors indexAccessors;
-	private IndexManager<?> indexManager;
+	private MappedIndexManager<?> indexManager;
 	private SessionContext sessionContext = new StubSessionContext();
 
 	@Before
@@ -82,7 +82,7 @@ public class SearchSortIT {
 	}
 
 	private SearchQuery<DocumentReference> simpleQuery(Consumer<? super SearchSortContainerContext<SearchSort>> sortContributor) {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		return searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()
@@ -147,7 +147,7 @@ public class SearchSortIT {
 
 	@Test
 	public void byScore() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query;
 
 		SearchPredicate predicate = searchTarget.predicate()
@@ -213,7 +213,7 @@ public class SearchSortIT {
 
 	@Test
 	public void separateSort() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query;
 
 		SearchSort sort = searchTarget.sort()
@@ -258,7 +258,7 @@ public class SearchSortIT {
 	}
 	@Test
 	public void lambda_caching() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		AtomicReference<SearchSort> cache = new AtomicReference<>();
 
@@ -314,7 +314,7 @@ public class SearchSortIT {
 		Assume.assumeTrue( "Errors on attempt to sort on unknown fields are not supported yet", false );
 		// TODO throw an error on attempts to sort on unknown fields
 
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "Unknown field" );
@@ -333,7 +333,7 @@ public class SearchSortIT {
 		Assume.assumeTrue( "Errors on attempt to sort on object fields are not supported yet", false );
 		// TODO throw an error on attempts to sort on object fields
 
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "Unknown field" );
@@ -352,7 +352,7 @@ public class SearchSortIT {
 		Assume.assumeTrue( "Errors on attempt to sort on object fields are not supported yet", false );
 		// TODO throw an error on attempts to sort on object fields
 
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "Unknown field" );
@@ -440,7 +440,7 @@ public class SearchSortIT {
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

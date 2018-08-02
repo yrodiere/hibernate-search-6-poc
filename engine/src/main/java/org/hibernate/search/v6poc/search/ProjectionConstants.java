@@ -6,6 +6,7 @@
  */
 package org.hibernate.search.v6poc.search;
 
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
 import org.hibernate.search.v6poc.search.dsl.query.SearchQueryResultDefinitionContext;
 
 public final class ProjectionConstants {
@@ -20,7 +21,7 @@ public final class ProjectionConstants {
 	 * Project to an object representing the match.
 	 * <p>
 	 * The actual type of the object depends on the entry point
-	 * for your query query: an {@link org.hibernate.search.v6poc.backend.index.spi.IndexManager}
+	 * for your query query: an {@link MappedIndexManager}
 	 * may return a Java representation of the document,
 	 * but a {@link org.hibernate.search.v6poc.engine.SearchManager} will
 	 * return a Java representation of the mapped object.
@@ -36,7 +37,7 @@ public final class ProjectionConstants {
 	 * Project to a reference to the match.
 	 * <p>
 	 * The actual type of the reference depends on the entry point
-	 * for your query query: an {@link org.hibernate.search.v6poc.backend.index.spi.IndexManager}
+	 * for your query query: an {@link MappedIndexManager}
 	 * will return a {@link DocumentReference},
 	 * but a {@link org.hibernate.search.v6poc.engine.SearchManager} may
 	 * return an implementation-specific type.

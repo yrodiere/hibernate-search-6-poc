@@ -19,8 +19,8 @@ import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaElement;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaObjectField;
 import org.hibernate.search.v6poc.backend.document.model.dsl.ObjectFieldStorage;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
 import org.hibernate.search.v6poc.search.DocumentReference;
 import org.hibernate.search.v6poc.search.SearchQuery;
@@ -55,7 +55,7 @@ public class ObjectFieldStorageIT {
 	public ExpectedException thrown = ExpectedException.none();
 
 	private IndexAccessors indexAccessors;
-	private IndexManager<?> indexManager;
+	private MappedIndexManager<?> indexManager;
 	private StubSessionContext sessionContext = new StubSessionContext();
 
 	@Before
@@ -119,7 +119,7 @@ public class ObjectFieldStorageIT {
 
 	@Test
 	public void search_match() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -150,7 +150,7 @@ public class ObjectFieldStorageIT {
 
 	@Test
 	public void search_range() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -185,7 +185,7 @@ public class ObjectFieldStorageIT {
 
 	@Test
 	public void search_error_nonNestedField() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "'flattenedObject'" );
@@ -195,7 +195,7 @@ public class ObjectFieldStorageIT {
 
 	@Test
 	public void search_error_nonObjectField() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "'flattenedObject.string'" );
@@ -205,7 +205,7 @@ public class ObjectFieldStorageIT {
 
 	@Test
 	public void search_error_missingField() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "Unknown field" );
@@ -309,7 +309,7 @@ public class ObjectFieldStorageIT {
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

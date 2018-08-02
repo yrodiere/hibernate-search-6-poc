@@ -8,7 +8,7 @@ package org.hibernate.search.v6poc.search.dsl.predicate.impl;
 
 import java.util.function.Consumer;
 
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.search.SearchPredicate;
 import org.hibernate.search.v6poc.search.dsl.predicate.spi.SearchPredicateContributor;
 import org.hibernate.search.v6poc.search.dsl.predicate.spi.SearchPredicateDslContext;
@@ -17,7 +17,7 @@ import org.hibernate.search.v6poc.search.predicate.spi.SearchPredicateFactory;
 
 /**
  * A DSL context used when building a {@link SearchPredicate} object,
- * either when calling {@link IndexSearchTarget#predicate()} from a search target
+ * either when calling {@link MappedIndexSearchTarget#predicate()} from a search target
  * or when calling {@link SearchQueryResultContext#predicate(Consumer)} to build the predicate using a lambda
  * (in which case the lambda may retrieve the resulting {@link SearchPredicate} object and cache it).
  */

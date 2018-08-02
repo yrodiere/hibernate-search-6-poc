@@ -4,13 +4,12 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package org.hibernate.search.v6poc.backend.index.spi;
+package org.hibernate.search.v6poc.entity.mapping.spi;
 
-/**
- * @author Yoann Rodiere
- */
-public interface IndexSearchTargetBuilder {
+public interface MappedIndexSearchTargetBuilder {
 
-	IndexSearchTarget build();
+	MappedIndexSearchTargetBuilder add(MappedIndexManager<?> other);
+
+	MappedIndexSearchTarget build();
 
 }

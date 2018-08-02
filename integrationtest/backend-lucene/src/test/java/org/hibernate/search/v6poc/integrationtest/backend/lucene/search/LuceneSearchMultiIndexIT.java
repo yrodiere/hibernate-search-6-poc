@@ -15,9 +15,9 @@ import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaElement;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Sortable;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Store;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.search.SearchMultiIndexIT;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
@@ -61,12 +61,12 @@ public class LuceneSearchMultiIndexIT {
 	// Backend 1 / Index 1
 
 	private IndexAccessors_1_1 indexAccessors_1_1;
-	private IndexManager<?> indexManager_1_1;
+	private MappedIndexManager<?> indexManager_1_1;
 
 	// Backend 1 / Index 2
 
 	private IndexAccessors_1_2 indexAccessors_1_2;
-	private IndexManager<?> indexManager_1_2;
+	private MappedIndexManager<?> indexManager_1_2;
 
 	private SessionContext sessionContext = new StubSessionContext();
 
@@ -90,9 +90,9 @@ public class LuceneSearchMultiIndexIT {
 
 	@Test
 	public void field_in_one_index_only_is_supported_for_sorting() {
-		IndexSearchTargetBuilder searchTargetBuilder = indexManager_1_1.createSearchTarget();
+		MappedIndexSearchTargetBuilder searchTargetBuilder = indexManager_1_1.createSearchTarget();
 		indexManager_1_2.addToSearchTarget( searchTargetBuilder );
-		IndexSearchTarget searchTarget = searchTargetBuilder.build();
+		MappedIndexSearchTarget searchTarget = searchTargetBuilder.build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -133,7 +133,7 @@ public class LuceneSearchMultiIndexIT {
 
 		worker.execute().join();
 
-		IndexSearchTarget searchTarget = indexManager_1_1.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager_1_1.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

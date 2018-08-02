@@ -27,8 +27,8 @@ import org.hibernate.search.v6poc.backend.document.model.dsl.ObjectFieldStorage;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Store;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaObjectField;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.StubSessionContext;
@@ -72,7 +72,7 @@ public class SearchResultIT {
 	public ExpectedException thrown = ExpectedException.none();
 
 	private IndexAccessors indexAccessors;
-	private IndexManager<?> indexManager;
+	private MappedIndexManager<?> indexManager;
 	private SessionContext sessionContext = new StubSessionContext();
 
 	@Before
@@ -90,7 +90,7 @@ public class SearchResultIT {
 
 	@Test
 	public void references_noReferenceTransformer() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -102,7 +102,7 @@ public class SearchResultIT {
 
 	@Test
 	public void objects_noObjectLoading() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asObjects()
@@ -114,7 +114,7 @@ public class SearchResultIT {
 
 	@Test
 	public void projections() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<List<?>> query = searchTarget.query( sessionContext )
 				.asProjections( "string", "string_analyzed", "integer", "localDate", "geoPoint" )
@@ -150,7 +150,7 @@ public class SearchResultIT {
 
 	@Test
 	public void projections_error_unknownField() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "Unknown projections" );
@@ -165,7 +165,7 @@ public class SearchResultIT {
 
 	@Test
 	public void projections_error_objectField_nested() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "Unknown projections" );
@@ -180,7 +180,7 @@ public class SearchResultIT {
 
 	@Test
 	public void projections_error_objectField_flattened() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		thrown.expect( SearchException.class );
 		thrown.expectMessage( "Unknown projections" );
@@ -198,7 +198,7 @@ public class SearchResultIT {
 		Assume.assumeTrue( "Projections on fields within object fields are not supported yet", false );
 		// TODO support projections on fields within object fields
 
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// Project on fields within a flattened object
 		SearchQuery<List<?>> query = searchTarget.query( sessionContext )
@@ -235,7 +235,7 @@ public class SearchResultIT {
 
 	@Test
 	public void references_referenceTransformer() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		DocumentReference mainReference = reference( INDEX_NAME, MAIN_ID );
 		DocumentReference emptyReference = reference( INDEX_NAME, EMPTY_ID );
@@ -265,7 +265,7 @@ public class SearchResultIT {
 
 	@Test
 	public void objects_referencesTransformer_objectLoading() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		DocumentReference mainReference = reference( INDEX_NAME, MAIN_ID );
 		DocumentReference emptyReference = reference( INDEX_NAME, EMPTY_ID );
@@ -303,7 +303,7 @@ public class SearchResultIT {
 
 	@Test
 	public void projection_referencesTransformer_objectLoading() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		DocumentReference mainReference = reference( INDEX_NAME, MAIN_ID );
 		DocumentReference emptyReference = reference( INDEX_NAME, EMPTY_ID );
@@ -349,7 +349,7 @@ public class SearchResultIT {
 
 	@Test
 	public void projections_hitTransformer() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		DocumentReference mainReference = reference( INDEX_NAME, MAIN_ID );
 		DocumentReference emptyReference = reference( INDEX_NAME, EMPTY_ID );
@@ -385,7 +385,7 @@ public class SearchResultIT {
 
 	@Test
 	public void projections_hitTransformer_referencesTransformer_objectLoading() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		DocumentReference mainReference = reference( INDEX_NAME, MAIN_ID );
 		DocumentReference emptyReference = reference( INDEX_NAME, EMPTY_ID );
@@ -463,7 +463,7 @@ public class SearchResultIT {
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

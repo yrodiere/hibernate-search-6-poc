@@ -21,7 +21,7 @@ import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaElement;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaObjectField;
 import org.hibernate.search.v6poc.backend.document.model.dsl.ObjectFieldStorage;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexModelBindingContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
@@ -51,7 +51,7 @@ public class IndexFieldAccessorIT {
 	public SearchSetupHelper setupHelper = new SearchSetupHelper();
 
 	private IndexAccessors indexAccessors;
-	private IndexManager<?> indexManager;
+	private MappedIndexManager<?> indexManager;
 	private SessionContext sessionContext = new StubSessionContext();
 
 	@Before

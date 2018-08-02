@@ -11,7 +11,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
 import org.hibernate.search.v6poc.backend.index.spi.IndexManagerImplementor;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.backend.index.spi.SearchTargetContextBuilder;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.backend.index.spi.StreamIndexWorker;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend.document.impl.StubDocumentElement;
@@ -66,13 +67,13 @@ public class StubIndexManager implements IndexManagerImplementor<StubDocumentEle
 	}
 
 	@Override
-	public IndexSearchTargetBuilder createSearchTarget() {
-		return new StubIndexSearchTargetBuilder( backend, name );
+	public SearchTargetContextBuilder createSearchTargetContext() {
+		return new StubSearchTargetContextBuilder( backend, name );
 	}
 
 	@Override
-	public void addToSearchTarget(IndexSearchTargetBuilder searchTargetBuilder) {
-		((StubIndexSearchTargetBuilder)searchTargetBuilder).add( backend, name );
+	public void addToSearchTargetContext(SearchTargetContextBuilder builder) {
+		((StubSearchTargetContextBuilder)builder).add( backend, name );
 	}
 
 	void prepare(List<StubIndexWork> works) {

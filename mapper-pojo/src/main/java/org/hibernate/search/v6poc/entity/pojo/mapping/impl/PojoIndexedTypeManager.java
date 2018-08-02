@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 
 import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.backend.index.spi.DocumentReferenceProvider;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.entity.pojo.dirtiness.impl.PojoImplicitReindexingResolver;
 import org.hibernate.search.v6poc.entity.pojo.dirtiness.impl.PojoReindexingCollector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoSessionContext;
@@ -35,14 +35,14 @@ public class PojoIndexedTypeManager<I, E, D extends DocumentElement> implements 
 	private final IdentifierMapping<I, E> identifierMapping;
 	private final RoutingKeyProvider<E> routingKeyProvider;
 	private final PojoIndexingProcessor<E> processor;
-	private final IndexManager<D> indexManager;
+	private final MappedIndexManager<D> indexManager;
 	private final PojoImplicitReindexingResolver<E, Set<String>> reindexingResolver;
 
 	public PojoIndexedTypeManager(Class<E> indexedJavaClass,
 			PojoCaster<E> caster,
 			IdentifierMapping<I, E> identifierMapping,
 			RoutingKeyProvider<E> routingKeyProvider,
-			PojoIndexingProcessor<E> processor, IndexManager<D> indexManager,
+			PojoIndexingProcessor<E> processor, MappedIndexManager<D> indexManager,
 			PojoImplicitReindexingResolver<E, Set<String>> reindexingResolver) {
 		this.indexedJavaClass = indexedJavaClass;
 		this.caster = caster;
@@ -122,11 +122,11 @@ public class PojoIndexedTypeManager<I, E, D extends DocumentElement> implements 
 		return new StreamPojoIndexedTypeWorker<>( this, sessionContext, indexManager.createStreamWorker( sessionContext ) );
 	}
 
-	IndexSearchTargetBuilder createSearchTarget() {
+	MappedIndexSearchTargetBuilder createSearchTarget() {
 		return indexManager.createSearchTarget();
 	}
 
-	void addToSearchTarget(IndexSearchTargetBuilder builder) {
-		indexManager.addToSearchTarget( builder );
+	void addToSearchTarget(MappedIndexSearchTargetBuilder builder) {
+		builder.add( indexManager );
 	}
 }

@@ -15,8 +15,8 @@ import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaElement;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
 import org.hibernate.search.v6poc.search.DocumentReference;
@@ -68,7 +68,7 @@ public class BoolSearchPredicateIT {
 	public SearchSetupHelper setupHelper = new SearchSetupHelper();
 
 	private IndexAccessors indexAccessors;
-	private IndexManager<?> indexManager;
+	private MappedIndexManager<?> indexManager;
 	private SessionContext sessionContext = new StubSessionContext();
 
 	@Before
@@ -86,7 +86,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void must() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -122,7 +122,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void must_consumer() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -137,7 +137,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void must_predicate() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchPredicate predicate = searchTarget.predicate().match().onField( "field1" ).matching( FIELD1_VALUE1 ).end();
 
@@ -154,7 +154,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void should() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -180,7 +180,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void should_consumer() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -196,7 +196,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void should_predicate() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchPredicate predicate1 = searchTarget.predicate().match().onField( "field1" ).matching( FIELD1_VALUE1 ).end();
 		SearchPredicate predicate2 = searchTarget.predicate().match().onField( "field1" ).matching( FIELD1_VALUE3 ).end();
@@ -215,7 +215,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void mustNot() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -241,7 +241,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void mustNot_consumer() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -256,7 +256,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void mustNot_predicate() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchPredicate predicate = searchTarget.predicate().match().onField( "field1" ).matching( FIELD1_VALUE2 ).end();
 
@@ -273,7 +273,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void should_mustNot() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -290,7 +290,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void must_mustNot() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -316,7 +316,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void nested() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -350,7 +350,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void must_should() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// A boolean predicate with must + should clauses:
 		// documents should match regardless of whether should clauses match.
@@ -384,7 +384,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void filter_should() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// A boolean predicate with filter + should clauses:
 		// documents should match regardless of whether should clauses match.
@@ -418,7 +418,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void mustNot_should() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// A boolean predicate with mustNot + should clauses:
 		// documents should match only if at least one should clause matches
@@ -454,7 +454,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void minimumShouldMatchNumber_positive() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// Expect default behavior (1 "should" clause has to match)
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
@@ -513,7 +513,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void minimumShouldMatchNumber_negative() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// Expect default behavior (1 "should" clause has to match)
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
@@ -559,7 +559,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void minimumShouldMatchPercent_positive() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// Expect default behavior (1 "should" clause has to match)
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
@@ -618,7 +618,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void minimumShouldMatchPercent_negative() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// Expect default behavior (1 "should" clause has to match)
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
@@ -664,7 +664,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void minimumShouldMatch_multipleConstraints() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		Consumer<MinimumShouldMatchContext<?>> minimumShouldMatchConstraints = b -> b
 				.ifMoreThan( 2 ).thenRequireNumber( -1 )
@@ -772,7 +772,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void minimumShouldMatch_multipleConstraints_0ceiling() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		Consumer<MinimumShouldMatchContext<?>> minimumShouldMatchConstraints = b -> b
 				// Test that we can set the "default" minimum by using a ceiling of 0
@@ -824,7 +824,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void minimumShouldMatch_error_negativeCeiling() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"minimumShouldMatch constraint with negative ignoreConstraintCeiling",
@@ -849,7 +849,7 @@ public class BoolSearchPredicateIT {
 
 	@Test
 	public void minimumShouldMatch_error_multipleConflictingCeilings() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"bool() predicate with minimumShouldMatch constraints with multiple conflicting ceilings",
@@ -891,7 +891,7 @@ public class BoolSearchPredicateIT {
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

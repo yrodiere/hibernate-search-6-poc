@@ -11,8 +11,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndexModel;
 import org.hibernate.search.v6poc.backend.lucene.index.spi.ReaderProvider;
 import org.hibernate.search.v6poc.backend.lucene.logging.impl.Log;
@@ -26,7 +26,7 @@ import org.hibernate.search.v6poc.util.impl.common.LoggerFactory;
  * @author Yoann Rodiere
  * @author Guillaume Smet
  */
-class LuceneIndexSearchTargetBuilder implements IndexSearchTargetBuilder {
+class LuceneIndexSearchTargetBuilder implements MappedIndexSearchTargetBuilder {
 
 	private static final Log log = LoggerFactory.make( Log.class, MethodHandles.lookup() );
 
@@ -50,7 +50,7 @@ class LuceneIndexSearchTargetBuilder implements IndexSearchTargetBuilder {
 	}
 
 	@Override
-	public IndexSearchTarget build() {
+	public MappedIndexSearchTarget build() {
 		// Use LinkedHashSet to ensure stable order when generating requests
 		Set<LuceneIndexModel> indexModels = indexManagers.stream().map( LuceneIndexManager::getModel )
 				.collect( Collectors.toCollection( LinkedHashSet::new ) );
@@ -61,7 +61,7 @@ class LuceneIndexSearchTargetBuilder implements IndexSearchTargetBuilder {
 
 		LuceneSearchTargetModel searchTargetModel = new LuceneSearchTargetModel( indexModels, readerProviders );
 
-		return new IndexSearchTarget(
+		return new MappedIndexSearchTarget(
 				new LuceneSearchTargetContext( searchBackendContext, searchTargetModel )
 		);
 	}

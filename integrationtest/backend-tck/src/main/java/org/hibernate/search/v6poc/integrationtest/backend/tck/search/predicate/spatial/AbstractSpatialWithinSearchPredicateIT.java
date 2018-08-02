@@ -13,8 +13,8 @@ import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaElement;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
 import org.hibernate.search.v6poc.search.DocumentReference;
@@ -47,7 +47,7 @@ public abstract class AbstractSpatialWithinSearchPredicateIT {
 	public SearchSetupHelper setupHelper = new SearchSetupHelper();
 
 	protected IndexAccessors indexAccessors;
-	protected IndexManager<?> indexManager;
+	protected MappedIndexManager<?> indexManager;
 	protected SessionContext sessionContext = new StubSessionContext();
 
 	@Before
@@ -94,7 +94,7 @@ public abstract class AbstractSpatialWithinSearchPredicateIT {
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

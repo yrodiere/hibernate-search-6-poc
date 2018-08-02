@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndexSchemaFieldNode;
 import org.hibernate.search.v6poc.backend.lucene.index.impl.LuceneIndexManager;
 import org.hibernate.search.v6poc.util.EventContext;
@@ -136,12 +136,12 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 524, value = "A search query cannot target both a Lucene index and other types of index."
 			+ " First target was: '%1$s', other target was: '%2$s'" )
-	SearchException cannotMixLuceneSearchTargetWithOtherType(IndexSearchTargetBuilder firstTarget,
+	SearchException cannotMixLuceneSearchTargetWithOtherType(MappedIndexSearchTargetBuilder firstTarget,
 			LuceneIndexManager otherTarget, @Param EventContext context);
 
 	@Message(id = 525, value = "A search query cannot target multiple Lucene backends."
 			+ " First target was: '%1$s', other target was: '%2$s'" )
-	SearchException cannotMixLuceneSearchTargetWithOtherBackend(IndexSearchTargetBuilder firstTarget,
+	SearchException cannotMixLuceneSearchTargetWithOtherBackend(MappedIndexSearchTargetBuilder firstTarget,
 			LuceneIndexManager otherTarget, @Param EventContext context);
 
 	@Message(id = 526, value = "Unknown projections %1$s." )

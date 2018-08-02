@@ -28,8 +28,8 @@ import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaElement;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Sortable;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.backend.lucene.LuceneExtension;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
@@ -64,7 +64,7 @@ public class ExtensionIT {
 	public SearchSetupHelper setupHelper = new SearchSetupHelper();
 
 	private IndexAccessors indexAccessors;
-	private IndexManager<?> indexManager;
+	private MappedIndexManager<?> indexManager;
 	private SessionContext sessionContext = new StubSessionContext();
 
 	@Before
@@ -82,7 +82,7 @@ public class ExtensionIT {
 
 	@Test
 	public void predicate_fromJsonString() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -109,7 +109,7 @@ public class ExtensionIT {
 
 	@Test
 	public void predicate_fromJsonString_separatePredicate() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchPredicate predicate1 = searchTarget.predicate().withExtensionOptional(
 				LuceneExtension.get(),
@@ -141,7 +141,7 @@ public class ExtensionIT {
 
 	@Test
 	public void sort_fromJsonString() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -188,7 +188,7 @@ public class ExtensionIT {
 
 	@Test
 	public void sort_fromJsonString_separateSort() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchSort sort1 = searchTarget.sort()
 				.withExtensionOptional(
@@ -238,7 +238,7 @@ public class ExtensionIT {
 
 	@Test
 	public void predicate_nativeField_throwsException() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"match() predicate on unsupported native field",
@@ -258,7 +258,7 @@ public class ExtensionIT {
 
 	@Test
 	public void sort_nativeField_throwsException() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"sort on unsupported native field",
@@ -278,7 +278,7 @@ public class ExtensionIT {
 
 	@Test
 	public void predicate_nativeField_nativeQuery() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -292,7 +292,7 @@ public class ExtensionIT {
 
 	@Test
 	public void projection_nativeField() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<List<?>> query = searchTarget.query( sessionContext )
 				.asProjections( "nativeField" )
@@ -306,7 +306,7 @@ public class ExtensionIT {
 
 	@Test
 	public void projection_nativeField_unsupportedProjection() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// let's check that it's possible to query the field beforehand
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
@@ -338,7 +338,7 @@ public class ExtensionIT {
 
 	@Test
 	public void predicate_nativeField_nativeSort() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -421,7 +421,7 @@ public class ExtensionIT {
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

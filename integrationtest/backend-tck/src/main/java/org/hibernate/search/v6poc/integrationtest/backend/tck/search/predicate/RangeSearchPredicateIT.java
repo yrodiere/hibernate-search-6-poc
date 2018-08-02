@@ -17,8 +17,8 @@ import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaElement;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
 import org.hibernate.search.v6poc.logging.spi.EventContexts;
@@ -89,7 +89,7 @@ public class RangeSearchPredicateIT {
 	public SearchSetupHelper setupHelper = new SearchSetupHelper();
 
 	private IndexAccessors indexAccessors;
-	private IndexManager<?> indexManager;
+	private MappedIndexManager<?> indexManager;
 	private SessionContext sessionContext = new StubSessionContext();
 
 	@Before
@@ -107,7 +107,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void above() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		for ( int i = 0; i < FIELDS.size(); i++ ) {
 			String absoluteFieldPath = FIELDS.get( i );
@@ -125,7 +125,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void above_include_exclude() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		for ( int i = 0; i < FIELDS.size(); i++ ) {
 			String absoluteFieldPath = FIELDS.get( i );
@@ -165,7 +165,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void below() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		for ( int i = 0; i < FIELDS.size(); i++ ) {
 			String absoluteFieldPath = FIELDS.get( i );
@@ -183,7 +183,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void below_include_exclude() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		for ( int i = 0; i < FIELDS.size(); i++ ) {
 			String absoluteFieldPath = FIELDS.get( i );
@@ -223,7 +223,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void from_to() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		for ( int i = 0; i < FIELDS.size(); i++ ) {
 			String absoluteFieldPath = FIELDS.get( i );
@@ -242,7 +242,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void from_to_include_exclude() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		for ( int i = 0; i < FIELDS.size(); i++ ) {
 			String absoluteFieldPath = FIELDS.get( i );
@@ -316,7 +316,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void unsupported_field_types() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		for ( int i = 0; i < UNSUPPORTED_FIELD_TYPE_PATHS.size(); i++ ) {
 			String absoluteFieldPath = UNSUPPORTED_FIELD_TYPE_PATHS.get( i );
@@ -337,7 +337,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void boost() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -366,7 +366,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void multi_fields() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// onField(...).orField(...)
 
@@ -433,7 +433,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void range_error_null() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		for ( String fieldPath : FIELDS ) {
 			SubTest.expectException(
@@ -474,7 +474,7 @@ public class RangeSearchPredicateIT {
 
 	@Test
 	public void unknown_field() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"range() predicate with unknown field",
@@ -544,7 +544,7 @@ public class RangeSearchPredicateIT {
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

@@ -16,15 +16,12 @@ import org.hibernate.search.v6poc.backend.elasticsearch.logging.impl.Log;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.impl.ElasticsearchSearchTargetModel;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.query.impl.ElasticsearchSearchTargetContext;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.query.impl.SearchBackendContext;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.backend.index.spi.SearchTargetContextBuilder;
+import org.hibernate.search.v6poc.search.dsl.spi.SearchTargetContext;
 import org.hibernate.search.v6poc.util.impl.common.LoggerFactory;
 
 
-/**
- * @author Yoann Rodiere
- */
-class ElasticsearchIndexSearchTargetBuilder implements IndexSearchTargetBuilder {
+class ElasticsearchSearchTargetContextBuilder implements SearchTargetContextBuilder {
 
 	private static final Log log = LoggerFactory.make( Log.class, MethodHandles.lookup() );
 
@@ -33,7 +30,7 @@ class ElasticsearchIndexSearchTargetBuilder implements IndexSearchTargetBuilder 
 	// Use LinkedHashSet to ensure stable order when generating requests
 	private final Set<ElasticsearchIndexManager> indexManagers = new LinkedHashSet<>();
 
-	ElasticsearchIndexSearchTargetBuilder(SearchBackendContext searchBackendContext, ElasticsearchIndexManager indexManager) {
+	ElasticsearchSearchTargetContextBuilder(SearchBackendContext searchBackendContext, ElasticsearchIndexManager indexManager) {
 		this.searchBackendContext = searchBackendContext;
 		this.indexManagers.add( indexManager );
 	}
@@ -48,14 +45,12 @@ class ElasticsearchIndexSearchTargetBuilder implements IndexSearchTargetBuilder 
 	}
 
 	@Override
-	public IndexSearchTarget build() {
+	public SearchTargetContext<?> build() {
 		// Use LinkedHashSet to ensure stable order when generating requests
 		Set<ElasticsearchIndexModel> indexModels = indexManagers.stream().map( ElasticsearchIndexManager::getModel )
 				.collect( Collectors.toCollection( LinkedHashSet::new ) );
 		ElasticsearchSearchTargetModel searchTargetModel = new ElasticsearchSearchTargetModel( indexModels );
-		return new IndexSearchTarget(
-				new ElasticsearchSearchTargetContext( searchBackendContext, searchTargetModel )
-		);
+		return new ElasticsearchSearchTargetContext( searchBackendContext, searchTargetModel );
 	}
 
 	@Override

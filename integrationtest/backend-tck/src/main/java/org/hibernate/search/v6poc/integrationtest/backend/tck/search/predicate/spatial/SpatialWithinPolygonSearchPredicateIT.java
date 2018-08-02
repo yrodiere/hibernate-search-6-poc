@@ -9,7 +9,7 @@ package org.hibernate.search.v6poc.integrationtest.backend.tck.search.predicate.
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.logging.spi.EventContexts;
 import org.hibernate.search.v6poc.search.DocumentReference;
 import org.hibernate.search.v6poc.search.SearchQuery;
@@ -57,7 +57,7 @@ public class SpatialWithinPolygonSearchPredicateIT extends AbstractSpatialWithin
 
 	@Test
 	public void within_polygon() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -78,7 +78,7 @@ public class SpatialWithinPolygonSearchPredicateIT extends AbstractSpatialWithin
 
 	@Test
 	public void unsupported_field_types() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().polygon() predicate on field with unsupported type",
@@ -94,7 +94,7 @@ public class SpatialWithinPolygonSearchPredicateIT extends AbstractSpatialWithin
 
 	@Test
 	public void boost() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -123,7 +123,7 @@ public class SpatialWithinPolygonSearchPredicateIT extends AbstractSpatialWithin
 
 	@Test
 	public void multi_fields() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// onField(...).orField(...)
 
@@ -193,7 +193,7 @@ public class SpatialWithinPolygonSearchPredicateIT extends AbstractSpatialWithin
 
 	@Test
 	public void polygon_error_null() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().boundingBox() predicate with null polygon",
@@ -206,7 +206,7 @@ public class SpatialWithinPolygonSearchPredicateIT extends AbstractSpatialWithin
 
 	@Test
 	public void unknown_field() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().polygon() predicate on unknown field",

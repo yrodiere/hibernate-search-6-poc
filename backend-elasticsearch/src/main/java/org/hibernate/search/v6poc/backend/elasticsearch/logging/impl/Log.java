@@ -13,12 +13,13 @@ import java.util.Map;
 import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.ElasticsearchIndexSchemaFieldNode;
 import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.esnative.DataType;
 import org.hibernate.search.v6poc.backend.elasticsearch.index.impl.ElasticsearchIndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
-import org.hibernate.search.v6poc.util.EventContext;
-import org.hibernate.search.v6poc.util.SearchException;
+import org.hibernate.search.v6poc.backend.index.spi.SearchTargetContextBuilder;
 import org.hibernate.search.v6poc.search.SearchPredicate;
 import org.hibernate.search.v6poc.search.SearchSort;
+import org.hibernate.search.v6poc.search.dsl.spi.SearchTargetContext;
 import org.hibernate.search.v6poc.util.AssertionFailure;
+import org.hibernate.search.v6poc.util.EventContext;
+import org.hibernate.search.v6poc.util.SearchException;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger.Level;
@@ -69,12 +70,12 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 502, value = "A search query cannot target both an Elasticsearch index and other types of index."
 			+ " First target was: '%1$s', other target was: '%2$s'" )
-	SearchException cannotMixElasticsearchSearchTargetWithOtherType(IndexSearchTargetBuilder firstTarget,
+	SearchException cannotMixElasticsearchSearchTargetWithOtherType(SearchTargetContextBuilder firstTarget,
 			ElasticsearchIndexManager otherTarget, @Param EventContext context);
 
 	@Message(id = 503, value = "A search query cannot target multiple Elasticsearch backends."
 			+ " First target was: '%1$s', other target was: '%2$s'" )
-	SearchException cannotMixElasticsearchSearchTargetWithOtherBackend(IndexSearchTargetBuilder firstTarget,
+	SearchException cannotMixElasticsearchSearchTargetWithOtherBackend(SearchTargetContextBuilder firstTarget,
 			ElasticsearchIndexManager otherTarget, @Param EventContext context);
 
 	@Message(id = 504, value = "Unknown field '%1$s'." )

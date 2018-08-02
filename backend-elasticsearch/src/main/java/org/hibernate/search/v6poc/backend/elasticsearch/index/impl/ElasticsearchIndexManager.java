@@ -16,7 +16,7 @@ import org.hibernate.search.v6poc.backend.elasticsearch.search.query.impl.Search
 import org.hibernate.search.v6poc.backend.elasticsearch.util.impl.URLEncodedString;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
 import org.hibernate.search.v6poc.backend.index.spi.IndexManagerImplementor;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.backend.index.spi.SearchTargetContextBuilder;
 import org.hibernate.search.v6poc.backend.index.spi.StreamIndexWorker;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.util.impl.common.LoggerFactory;
@@ -72,19 +72,19 @@ public class ElasticsearchIndexManager implements IndexManagerImplementor<Elasti
 	}
 
 	@Override
-	public IndexSearchTargetBuilder createSearchTarget() {
-		return new ElasticsearchIndexSearchTargetBuilder( searchBackendContext, this );
+	public SearchTargetContextBuilder createSearchTargetContext() {
+		return new ElasticsearchSearchTargetContextBuilder( searchBackendContext, this );
 	}
 
 	@Override
-	public void addToSearchTarget(IndexSearchTargetBuilder searchTargetBuilder) {
-		if ( ! (searchTargetBuilder instanceof ElasticsearchIndexSearchTargetBuilder ) ) {
+	public void addToSearchTargetContext(SearchTargetContextBuilder builder) {
+		if ( ! (builder instanceof ElasticsearchSearchTargetContextBuilder ) ) {
 			throw log.cannotMixElasticsearchSearchTargetWithOtherType(
-					searchTargetBuilder, this, searchBackendContext.getEventContext()
+					builder, this, searchBackendContext.getEventContext()
 			);
 		}
 
-		ElasticsearchIndexSearchTargetBuilder esSearchTargetBuilder = (ElasticsearchIndexSearchTargetBuilder) searchTargetBuilder;
+		ElasticsearchSearchTargetContextBuilder esSearchTargetBuilder = (ElasticsearchSearchTargetContextBuilder) builder;
 		esSearchTargetBuilder.add( searchBackendContext, this );
 	}
 

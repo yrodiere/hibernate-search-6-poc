@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
 import org.hibernate.search.v6poc.cfg.ConfigurationPropertySource;
 import org.hibernate.search.v6poc.engine.SearchMappingRepository;
 import org.hibernate.search.v6poc.engine.SearchMappingRepositoryBuilder;
@@ -128,7 +128,7 @@ public class SearchSetupHelper implements TestRule {
 
 	public interface IndexSetupListener {
 
-		void onSetup(IndexManager<?> indexManager);
+		void onSetup(MappedIndexManager<?> indexManager);
 
 	}
 

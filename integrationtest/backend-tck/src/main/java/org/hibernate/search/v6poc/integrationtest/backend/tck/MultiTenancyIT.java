@@ -20,8 +20,8 @@ import org.hibernate.search.v6poc.backend.document.model.dsl.ObjectFieldStorage;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Store;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaObjectField;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.rule.SearchSetupHelper;
 import org.hibernate.search.v6poc.search.DocumentReference;
@@ -62,7 +62,7 @@ public class MultiTenancyIT {
 	public ExpectedException thrown = ExpectedException.none();
 
 	private IndexAccessors indexAccessors;
-	private IndexManager<?> indexManager;
+	private MappedIndexManager<?> indexManager;
 
 	private SessionContext tenant1SessionContext = new StubSessionContext( TENANT_1 );
 
@@ -84,7 +84,7 @@ public class MultiTenancyIT {
 
 	@Test
 	public void search_only_returns_elements_of_the_selected_tenant() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<List<?>> query = searchTarget.query( tenant1SessionContext )
 				.asProjections( "string", "integer" )
@@ -101,7 +101,7 @@ public class MultiTenancyIT {
 
 	@Test
 	public void search_on_nested_object_only_returns_elements_of_the_tenant() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<List<?>> query = searchTarget.query( tenant1SessionContext )
 				.asProjections( "string", "integer" )
@@ -122,7 +122,7 @@ public class MultiTenancyIT {
 	public void delete_only_deletes_elements_of_the_tenant() {
 		ChangesetIndexWorker<? extends DocumentElement> worker = indexManager.createWorker( tenant2SessionContext );
 
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( tenant2SessionContext )
 				.asReferences()
 				.predicate().matchAll().end()
@@ -165,7 +165,7 @@ public class MultiTenancyIT {
 	public void update_only_updates_elements_of_the_tenant() {
 		ChangesetIndexWorker<? extends DocumentElement> worker = indexManager.createWorker( tenant2SessionContext );
 
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> checkQuery = searchTarget.query( tenant2SessionContext )
 				.asReferences()
 				.predicate().matchAll().end()
@@ -261,7 +261,7 @@ public class MultiTenancyIT {
 				)
 				.setup();
 
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( tenant1SessionContext )
 				.asReferences()
 				.predicate().matchAll().end()
@@ -351,7 +351,7 @@ public class MultiTenancyIT {
 		thrown.expectMessage( "Backend" );
 		thrown.expectMessage( "has multi-tenancy enabled, but no tenant identifier is provided." );
 
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( new StubSessionContext() )
 				.asReferences()
 				.predicate().matchAll().end()
@@ -455,7 +455,7 @@ public class MultiTenancyIT {
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( tenant1SessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

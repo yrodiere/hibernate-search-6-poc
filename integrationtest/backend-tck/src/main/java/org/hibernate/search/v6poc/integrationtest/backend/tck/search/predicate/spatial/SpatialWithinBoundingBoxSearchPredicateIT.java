@@ -10,7 +10,7 @@ import static org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.m
 
 import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.logging.spi.EventContexts;
 import org.hibernate.search.v6poc.search.DocumentReference;
 import org.hibernate.search.v6poc.search.SearchQuery;
@@ -56,7 +56,7 @@ public class SpatialWithinBoundingBoxSearchPredicateIT extends AbstractSpatialWi
 
 	@Test
 	public void within_boundingBox() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -99,7 +99,7 @@ public class SpatialWithinBoundingBoxSearchPredicateIT extends AbstractSpatialWi
 
 	@Test
 	public void boundingBox_consistency() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -113,7 +113,7 @@ public class SpatialWithinBoundingBoxSearchPredicateIT extends AbstractSpatialWi
 
 	@Test
 	public void unsupported_field_types() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().boundingBox() predicate on field with unsupported type",
@@ -129,7 +129,7 @@ public class SpatialWithinBoundingBoxSearchPredicateIT extends AbstractSpatialWi
 
 	@Test
 	public void boost() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -158,7 +158,7 @@ public class SpatialWithinBoundingBoxSearchPredicateIT extends AbstractSpatialWi
 
 	@Test
 	public void multi_fields() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// onField(...).orField(...)
 
@@ -228,7 +228,7 @@ public class SpatialWithinBoundingBoxSearchPredicateIT extends AbstractSpatialWi
 
 	@Test
 	public void boundingBox_error_null() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().boundingBox() predicate with null bounding box",
@@ -241,7 +241,7 @@ public class SpatialWithinBoundingBoxSearchPredicateIT extends AbstractSpatialWi
 
 	@Test
 	public void unknown_field() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().boundingBox() predicate on unknown field",
@@ -269,7 +269,7 @@ public class SpatialWithinBoundingBoxSearchPredicateIT extends AbstractSpatialWi
 		worker.execute().join();
 
 		// Check that all documents are searchable
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate().matchAll().end()

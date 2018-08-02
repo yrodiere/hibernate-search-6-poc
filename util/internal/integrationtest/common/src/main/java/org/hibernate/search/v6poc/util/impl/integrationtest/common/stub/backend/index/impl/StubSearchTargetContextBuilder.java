@@ -9,15 +9,17 @@ package org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.backend.index.spi.SearchTargetContextBuilder;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.search.dsl.spi.SearchTargetContext;
 
-class StubIndexSearchTargetBuilder implements IndexSearchTargetBuilder {
+class StubSearchTargetContextBuilder implements SearchTargetContextBuilder {
 
 	private final StubBackend backend;
 	private final List<String> indexNames = new ArrayList<>();
 
-	StubIndexSearchTargetBuilder(StubBackend backend, String indexName) {
+	StubSearchTargetContextBuilder(StubBackend backend, String indexName) {
 		this.backend = backend;
 		this.indexNames.add( indexName );
 	}
@@ -30,9 +32,7 @@ class StubIndexSearchTargetBuilder implements IndexSearchTargetBuilder {
 	}
 
 	@Override
-	public IndexSearchTarget build() {
-		return new IndexSearchTarget(
-				new StubIndexSearchTargetContext( backend, indexNames )
-		);
+	public SearchTargetContext<?> build() {
+		return new StubIndexSearchTargetContext( backend, indexNames );
 	}
 }

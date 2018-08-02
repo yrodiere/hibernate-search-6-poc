@@ -6,7 +6,7 @@
  */
 package org.hibernate.search.v6poc.integrationtest.backend.tck.search.predicate.spatial;
 
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.logging.spi.EventContexts;
 import org.hibernate.search.v6poc.search.DocumentReference;
 import org.hibernate.search.v6poc.search.SearchQuery;
@@ -34,7 +34,7 @@ public class SpatialWithinCircleSearchPredicateIT extends AbstractSpatialWithinS
 
 	@Test
 	public void within_circle() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -80,7 +80,7 @@ public class SpatialWithinCircleSearchPredicateIT extends AbstractSpatialWithinS
 
 	@Test
 	public void unsupported_field_types() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().circle() predicate on field with unsupported type",
@@ -96,7 +96,7 @@ public class SpatialWithinCircleSearchPredicateIT extends AbstractSpatialWithinS
 
 	@Test
 	public void boost() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
@@ -125,7 +125,7 @@ public class SpatialWithinCircleSearchPredicateIT extends AbstractSpatialWithinS
 
 	@Test
 	public void multi_fields() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		// onField(...).orField(...)
 
@@ -195,7 +195,7 @@ public class SpatialWithinCircleSearchPredicateIT extends AbstractSpatialWithinS
 
 	@Test
 	public void circle_error_null() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().circle() predicate with null center",
@@ -218,7 +218,7 @@ public class SpatialWithinCircleSearchPredicateIT extends AbstractSpatialWithinS
 
 	@Test
 	public void unknown_field() {
-		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
+		MappedIndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
 		SubTest.expectException(
 				"spatial().within().circle() predicate on unknown field",

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import org.hibernate.search.v6poc.backend.index.spi.ChangesetIndexWorker;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.backend.index.spi.StreamIndexWorker;
 import org.hibernate.search.v6poc.backend.lucene.document.impl.LuceneRootDocumentBuilder;
 import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndexModel;
@@ -88,12 +88,12 @@ class LuceneDirectoryIndexManager implements LuceneIndexManager, ReaderProvider 
 	}
 
 	@Override
-	public IndexSearchTargetBuilder createSearchTarget() {
+	public MappedIndexSearchTargetBuilder createSearchTarget() {
 		return new LuceneIndexSearchTargetBuilder( searchBackendContext, this );
 	}
 
 	@Override
-	public void addToSearchTarget(IndexSearchTargetBuilder searchTargetBuilder) {
+	public void addToSearchTarget(MappedIndexSearchTargetBuilder searchTargetBuilder) {
 		if ( ! (searchTargetBuilder instanceof LuceneIndexSearchTargetBuilder ) ) {
 			throw log.cannotMixLuceneSearchTargetWithOtherType(
 					searchTargetBuilder, this, searchBackendContext.getEventContext()

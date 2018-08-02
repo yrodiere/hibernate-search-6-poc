@@ -11,12 +11,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.engine.spi.SessionContext;
 import org.hibernate.search.v6poc.entity.pojo.mapping.spi.PojoSearchTargetDelegate;
 import org.hibernate.search.v6poc.entity.pojo.search.PojoReference;
 import org.hibernate.search.v6poc.search.DocumentReference;
-import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexSearchTarget;
 import org.hibernate.search.v6poc.search.ObjectLoader;
 import org.hibernate.search.v6poc.search.SearchPredicate;
 import org.hibernate.search.v6poc.search.SearchSort;
@@ -30,7 +30,7 @@ public class PojoSearchTargetDelegateImpl<T> implements PojoSearchTargetDelegate
 	private final PojoIndexedTypeManagerContainer typeManagers;
 	private final Set<PojoIndexedTypeManager<?, ? extends T, ?>> targetedTypeManagers;
 	private final SessionContext sessionContext;
-	private IndexSearchTarget indexSearchTarget;
+	private MappedIndexSearchTarget indexSearchTarget;
 
 	public PojoSearchTargetDelegateImpl(PojoIndexedTypeManagerContainer typeManagers,
 			Set<PojoIndexedTypeManager<?, ? extends T, ?>> targetedTypeManagers,
@@ -67,10 +67,10 @@ public class PojoSearchTargetDelegateImpl<T> implements PojoSearchTargetDelegate
 		return getIndexSearchTarget().sort();
 	}
 
-	private IndexSearchTarget getIndexSearchTarget() {
+	private MappedIndexSearchTarget getIndexSearchTarget() {
 		if ( indexSearchTarget == null ) {
 			Iterator<PojoIndexedTypeManager<?, ? extends T, ?>> iterator = targetedTypeManagers.iterator();
-			IndexSearchTargetBuilder builder = iterator.next().createSearchTarget();
+			MappedIndexSearchTargetBuilder builder = iterator.next().createSearchTarget();
 			while ( iterator.hasNext() ) {
 				iterator.next().addToSearchTarget( builder );
 			}

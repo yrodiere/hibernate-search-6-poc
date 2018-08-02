@@ -12,8 +12,9 @@ import java.util.Optional;
 
 import org.hibernate.search.v6poc.backend.document.DocumentElement;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaRootNodeBuilder;
-import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
 import org.hibernate.search.v6poc.backend.index.spi.IndexManagerBuilder;
+import org.hibernate.search.v6poc.entity.mapping.impl.MappedIndexManagerImpl;
+import org.hibernate.search.v6poc.entity.mapping.spi.MappedIndexManager;
 import org.hibernate.search.v6poc.backend.index.spi.IndexManagerImplementor;
 import org.hibernate.search.v6poc.backend.spi.BackendImplementor;
 import org.hibernate.search.v6poc.backend.spi.BackendFactory;
@@ -82,7 +83,7 @@ class IndexManagerBuildingStateHolder {
 	Map<String, IndexManagerImplementor<?>> getIndexManagersByName() {
 		Map<String, IndexManagerImplementor<?>> indexManagersByName = new HashMap<>();
 		for ( Map.Entry<String, IndexMappingBuildingStateImpl<?>> entry : indexManagerBuildingStateByName.entrySet() ) {
-			indexManagersByName.put( entry.getKey(), entry.getValue().getBuilt() );
+			indexManagersByName.put( entry.getKey(), entry.getValue().getBuiltImplementor() );
 		}
 		return indexManagersByName;
 	}
@@ -140,7 +141,7 @@ class IndexManagerBuildingStateHolder {
 		private final IndexManagerBuilder<D> builder;
 		private final IndexModelBindingContext bindingContext;
 
-		private IndexManagerImplementor<D> built;
+		private IndexManagerImplementor<D> builtImplementor;
 
 		IndexMappingBuildingStateImpl(String indexName,
 				IndexManagerBuilder<D> builder,
@@ -151,8 +152,8 @@ class IndexManagerBuildingStateHolder {
 		}
 
 		void closeOnFailure(SuppressingCloser closer) {
-			if ( built != null ) {
-				closer.push( IndexManagerImplementor::close, built );
+			if ( builtImplementor != null ) {
+				closer.push( IndexManagerImplementor::close, builtImplementor );
 			}
 			else {
 				closer.push( IndexManagerBuilder::closeOnFailure, builder );
@@ -170,25 +171,25 @@ class IndexManagerBuildingStateHolder {
 		}
 
 		@Override
-		public IndexManager<D> build() {
-			if ( built != null ) {
+		public MappedIndexManager<D> build() {
+			if ( builtImplementor != null ) {
 				throw new AssertionFailure(
 						"Trying to build index manager " + indexName + " twice."
 						+ " There is probably a bug in the mapper implementation."
 				);
 			}
-			built = builder.build();
-			return built;
+			builtImplementor = builder.build();
+			return new MappedIndexManagerImpl<>( builtImplementor );
 		}
 
-		public IndexManagerImplementor<D> getBuilt() {
-			if ( built == null ) {
+		public IndexManagerImplementor<D> getBuiltImplementor() {
+			if ( builtImplementor == null ) {
 				throw new AssertionFailure(
 						"Index manager " + indexName + " was not built by the mapper as expected."
 						+ " There is probably a bug in the mapper implementation."
 				);
 			}
-			return built;
+			return builtImplementor;
 		}
 	}
 

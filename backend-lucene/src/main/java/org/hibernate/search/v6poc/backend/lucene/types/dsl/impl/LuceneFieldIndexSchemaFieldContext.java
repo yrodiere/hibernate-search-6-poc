@@ -7,9 +7,8 @@
 package org.hibernate.search.v6poc.backend.lucene.types.dsl.impl;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
-import org.hibernate.search.v6poc.backend.document.converter.FromIndexFieldValueConverter;
-import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTerminalContext;
 import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
+import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTerminalContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
 import org.hibernate.search.v6poc.backend.document.spi.IndexSchemaFieldDefinitionHelper;
 import org.hibernate.search.v6poc.backend.lucene.document.impl.LuceneIndexFieldAccessor;
@@ -70,9 +69,8 @@ public class LuceneFieldIndexSchemaFieldContext<F>
 	}
 
 	@Override
-	public <V, U> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter,
-			FromIndexFieldValueConverter<? super F, U> fromIndexConverter) {
-		return helper.createAccessor( toIndexConverter, fromIndexConverter );
+	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter) {
+		return helper.createAccessor( toIndexConverter );
 	}
 
 	@Override

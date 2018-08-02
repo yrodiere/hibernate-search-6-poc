@@ -9,7 +9,6 @@ package org.hibernate.search.v6poc.backend.document.spi;
 import java.lang.invoke.MethodHandles;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
-import org.hibernate.search.v6poc.backend.document.converter.FromIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.converter.spi.PassThroughToIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
@@ -31,7 +30,6 @@ public final class IndexSchemaFieldDefinitionHelper<F> {
 			new DeferredInitializationIndexFieldAccessor<>();
 
 	private ToIndexFieldValueConverter<?, ? extends F> toIndexConverter;
-	private FromIndexFieldValueConverter<? super F, ?> fromIndexConverter;
 
 	private boolean accessorCreated = false;
 
@@ -44,7 +42,6 @@ public final class IndexSchemaFieldDefinitionHelper<F> {
 			ToIndexFieldValueConverter<F, ? extends F> identityToIndexConverter) {
 		this.schemaContext = schemaContext;
 		this.toIndexConverter = identityToIndexConverter;
-		this.fromIndexConverter = null;
 	}
 
 	public IndexSchemaContext getSchemaContext() {
@@ -65,23 +62,20 @@ public final class IndexSchemaFieldDefinitionHelper<F> {
 	/**
 	 * @return A (potentially un-{@link #initialize(IndexFieldAccessor) initialized}) accessor
 	 */
-	public <V, U> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter,
-			FromIndexFieldValueConverter<? super F, U> fromIndexConverter) {
+	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter) {
 		Contracts.assertNotNull( toIndexConverter, "toIndexConverter" );
 		this.toIndexConverter = toIndexConverter;
-		this.fromIndexConverter = fromIndexConverter;
 		return new ConvertingIndexFieldAccessor<>( createAccessor(), toIndexConverter );
 	}
 
 	/**
 	 * @return The user-configured converter for this field definition.
-	 * @see org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTerminalContext#createAccessor(ToIndexFieldValueConverter, FromIndexFieldValueConverter)
+	 * @see org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTerminalContext#createAccessor(ToIndexFieldValueConverter)
 	 */
 	public UserIndexFieldConverter<F> createUserIndexFieldConverter() {
 		checkAccessorCreated();
 		return new UserIndexFieldConverter<>(
-				toIndexConverter,
-				fromIndexConverter
+				toIndexConverter
 		);
 	}
 

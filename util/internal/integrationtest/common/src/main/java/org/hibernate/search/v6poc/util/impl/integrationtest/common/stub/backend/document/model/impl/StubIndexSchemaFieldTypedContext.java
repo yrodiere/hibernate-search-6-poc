@@ -7,7 +7,6 @@
 package org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend.document.model.impl;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
-import org.hibernate.search.v6poc.backend.document.converter.FromIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTypedContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Sortable;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Store;
@@ -59,9 +58,8 @@ class StubIndexSchemaFieldTypedContext<F> implements IndexSchemaFieldTypedContex
 	}
 
 	@Override
-	public <V, U> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter,
-			FromIndexFieldValueConverter<? super F, U> fromIndexConverter) {
-		IndexFieldAccessor<V> accessor = helper.createAccessor( toIndexConverter, fromIndexConverter );
+	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter) {
+		IndexFieldAccessor<V> accessor = helper.createAccessor( toIndexConverter );
 		initializeAccessor();
 		return accessor;
 	}

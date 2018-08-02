@@ -14,21 +14,47 @@ import org.hibernate.search.v6poc.search.ObjectLoader;
 import org.hibernate.search.v6poc.search.SearchPredicate;
 import org.hibernate.search.v6poc.search.SearchSort;
 import org.hibernate.search.v6poc.search.dsl.predicate.SearchPredicateContainerContext;
+import org.hibernate.search.v6poc.search.dsl.predicate.impl.SearchTargetPredicateRootContext;
 import org.hibernate.search.v6poc.search.dsl.query.SearchQueryResultDefinitionContext;
+import org.hibernate.search.v6poc.search.dsl.query.spi.SearchQueryResultDefinitionContextImpl;
 import org.hibernate.search.v6poc.search.dsl.sort.SearchSortContainerContext;
+import org.hibernate.search.v6poc.search.dsl.sort.impl.SearchTargetSortRootContext;
+import org.hibernate.search.v6poc.search.dsl.spi.SearchTargetContext;
 
-public interface IndexSearchTarget {
+public final class IndexSearchTarget {
 
-	default SearchQueryResultDefinitionContext<DocumentReference, DocumentReference> query(SessionContext context) {
+	private final SearchTargetContext<?> searchTargetContext;
+
+	public IndexSearchTarget(SearchTargetContext<?> searchTargetContext) {
+		this.searchTargetContext = searchTargetContext;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "["
+				+ "context=" + searchTargetContext
+				+ "]";
+	}
+
+	public SearchQueryResultDefinitionContext<DocumentReference, DocumentReference> query(SessionContext context) {
 		return query( context, Function.identity(), ObjectLoader.identity() );
 	}
 
-	<R, O> SearchQueryResultDefinitionContext<R, O> query(SessionContext context,
+	public <R, O> SearchQueryResultDefinitionContext<R, O> query(SessionContext sessionContext,
 			Function<DocumentReference, R> documentReferenceTransformer,
-			ObjectLoader<R, O> objectLoader);
+			ObjectLoader<R, O> objectLoader) {
+		return new SearchQueryResultDefinitionContextImpl<>(
+				searchTargetContext, sessionContext,
+				documentReferenceTransformer, objectLoader
+		);
+	}
 
-	SearchPredicateContainerContext<SearchPredicate> predicate();
+	public SearchPredicateContainerContext<SearchPredicate> predicate() {
+		return new SearchTargetPredicateRootContext<>( searchTargetContext.getSearchPredicateFactory() );
+	}
 
-	SearchSortContainerContext<SearchSort> sort();
+	public SearchSortContainerContext<SearchSort> sort() {
+		return new SearchTargetSortRootContext<>( searchTargetContext.getSearchSortFactory() );
+	}
 
 }

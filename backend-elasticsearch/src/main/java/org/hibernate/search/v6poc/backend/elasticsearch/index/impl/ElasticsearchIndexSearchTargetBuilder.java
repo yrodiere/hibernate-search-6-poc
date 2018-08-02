@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.ElasticsearchIndexModel;
 import org.hibernate.search.v6poc.backend.elasticsearch.logging.impl.Log;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.impl.ElasticsearchSearchTargetModel;
+import org.hibernate.search.v6poc.backend.elasticsearch.search.query.impl.ElasticsearchSearchTargetContext;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.query.impl.SearchBackendContext;
 import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
 import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
@@ -52,7 +53,9 @@ class ElasticsearchIndexSearchTargetBuilder implements IndexSearchTargetBuilder 
 		Set<ElasticsearchIndexModel> indexModels = indexManagers.stream().map( ElasticsearchIndexManager::getModel )
 				.collect( Collectors.toCollection( LinkedHashSet::new ) );
 		ElasticsearchSearchTargetModel searchTargetModel = new ElasticsearchSearchTargetModel( indexModels );
-		return new ElasticsearchIndexSearchTarget( searchBackendContext, searchTargetModel );
+		return new IndexSearchTarget(
+				new ElasticsearchSearchTargetContext( searchBackendContext, searchTargetModel )
+		);
 	}
 
 	@Override

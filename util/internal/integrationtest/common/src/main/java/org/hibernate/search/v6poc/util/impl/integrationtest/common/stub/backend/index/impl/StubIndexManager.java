@@ -67,12 +67,12 @@ public class StubIndexManager implements IndexManagerImplementor<StubDocumentEle
 
 	@Override
 	public IndexSearchTargetBuilder createSearchTarget() {
-		return new StubIndexSearchTarget.Builder( backend, name );
+		return new StubIndexSearchTargetBuilder( backend, name );
 	}
 
 	@Override
 	public void addToSearchTarget(IndexSearchTargetBuilder searchTargetBuilder) {
-		((StubIndexSearchTarget.Builder)searchTargetBuilder).add( backend, name );
+		((StubIndexSearchTargetBuilder)searchTargetBuilder).add( backend, name );
 	}
 
 	void prepare(List<StubIndexWork> works) {

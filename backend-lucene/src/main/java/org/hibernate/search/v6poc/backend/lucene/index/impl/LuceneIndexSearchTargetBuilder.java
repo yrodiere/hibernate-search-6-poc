@@ -16,6 +16,8 @@ import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBuilder;
 import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndexModel;
 import org.hibernate.search.v6poc.backend.lucene.index.spi.ReaderProvider;
 import org.hibernate.search.v6poc.backend.lucene.logging.impl.Log;
+import org.hibernate.search.v6poc.backend.lucene.search.impl.LuceneSearchTargetModel;
+import org.hibernate.search.v6poc.backend.lucene.search.query.impl.LuceneSearchTargetContext;
 import org.hibernate.search.v6poc.backend.lucene.search.query.impl.SearchBackendContext;
 import org.hibernate.search.v6poc.util.impl.common.LoggerFactory;
 
@@ -57,7 +59,11 @@ class LuceneIndexSearchTargetBuilder implements IndexSearchTargetBuilder {
 		Set<ReaderProvider> readerProviders = indexManagers.stream().map( LuceneIndexManager::getReaderProvider )
 				.collect( Collectors.toCollection( LinkedHashSet::new ) );
 
-		return new LuceneIndexSearchTarget( searchBackendContext, indexModels, readerProviders );
+		LuceneSearchTargetModel searchTargetModel = new LuceneSearchTargetModel( indexModels, readerProviders );
+
+		return new IndexSearchTarget(
+				new LuceneSearchTargetContext( searchBackendContext, searchTargetModel )
+		);
 	}
 
 	@Override

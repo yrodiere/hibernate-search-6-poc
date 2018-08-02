@@ -18,14 +18,23 @@ import org.hibernate.search.v6poc.search.dsl.spi.SearchTargetContext;
 public class LuceneSearchTargetContext
 		implements SearchTargetContext<LuceneSearchQueryElementCollector> {
 
+	private final LuceneSearchTargetModel searchTargetModel;
 	private final SearchPredicateFactoryImpl searchPredicateFactory;
 	private final SearchSortFactoryImpl searchSortFactory;
 	private final SearchQueryFactoryImpl searchQueryFactory;
 
 	public LuceneSearchTargetContext(SearchBackendContext searchBackendContext, LuceneSearchTargetModel searchTargetModel) {
+		this.searchTargetModel = searchTargetModel;
 		this.searchPredicateFactory = new SearchPredicateFactoryImpl( searchTargetModel );
 		this.searchSortFactory = new SearchSortFactoryImpl( searchTargetModel );
 		this.searchQueryFactory = new SearchQueryFactoryImpl( searchBackendContext, searchTargetModel );
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "["
+				+ "indexNames=" + searchTargetModel.getIndexNames()
+				+ "]";
 	}
 
 	@Override

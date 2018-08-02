@@ -15,15 +15,24 @@ import org.hibernate.search.v6poc.search.dsl.spi.SearchTargetContext;
 public class ElasticsearchSearchTargetContext
 		implements SearchTargetContext<ElasticsearchSearchQueryElementCollector> {
 
+	private final ElasticsearchSearchTargetModel searchTargetModel;
 	private final SearchPredicateFactoryImpl searchPredicateFactory;
 	private final SearchSortFactoryImpl searchSortFactory;
 	private final SearchQueryFactoryImpl searchQueryFactory;
 
 	public ElasticsearchSearchTargetContext(SearchBackendContext searchBackendContext,
 			ElasticsearchSearchTargetModel searchTargetModel) {
+		this.searchTargetModel = searchTargetModel;
 		this.searchPredicateFactory = new SearchPredicateFactoryImpl( searchTargetModel );
 		this.searchSortFactory = new SearchSortFactoryImpl( searchTargetModel );
 		this.searchQueryFactory = new SearchQueryFactoryImpl( searchBackendContext, searchTargetModel );
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "["
+				+ "indexNames=" + searchTargetModel.getHibernateSearchIndexNames()
+				+ "]";
 	}
 
 	@Override

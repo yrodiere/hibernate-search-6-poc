@@ -186,7 +186,7 @@ public interface Log extends BasicLogger {
 			@FormatWith(ClassFormatter.class) Class<? extends Annotation> annotationType);
 
 	@Message(id = 27, value = "Type '%1$s' is not marked as an entity type, yet it is indexed or targeted"
-			+ " by an association from an indexed type. Please check your configuration.")
+			+ " by an association from an indexed type. Please convert your configuration.")
 	SearchException missingEntityTypeMetadata(@FormatWith(PojoTypeModelFormatter.class) PojoRawTypeModel<?> typeModel);
 
 	@Message(id = 28, value = "There isn't any explicit document ID mapping for indexed type '%1$s',"

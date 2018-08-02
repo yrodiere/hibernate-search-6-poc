@@ -128,7 +128,7 @@ abstract class AbstractPojoImplicitReindexingResolverNodeBuilder<T> {
 			 * or when all of its sibling nodes are triggered by the same paths as the node we are building,
 			 * or on a subset of those paths.
 			 *
-			 * Thus we do not need to add our own dirty check: no filter node wrapping the node we are building
+			 * Thus we do not need to add our own dirty convert: no filter node wrapping the node we are building
 			 * is necessary.
 			 */
 			return doBuild( pathFilterFactory, allPotentialDirtyPaths );

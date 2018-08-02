@@ -58,8 +58,7 @@ class FluidAndLambdaSyntaxDocumentDao extends DocumentDao {
 							}
 						} )
 						.must().nested().onObjectField( "copies" )
-								// Bridged query with value bridge: TODO rely on the bridge to convert to a String
-								.match().onField( "copies.medium" ).matching( medium.name() ).end()
+								.match().onField( "copies.medium" ).matching( medium ).end()
 						.end()
 				.sort().byField( "title_sort" ).end()
 				.build();
@@ -118,8 +117,7 @@ class FluidAndLambdaSyntaxDocumentDao extends DocumentDao {
 											for ( LibraryService service : libraryServices ) {
 												c2.match()
 														.onField( "copies.library.services" )
-														// Bridged query with value bridge: TODO rely on the bridge to convert to a String
-														.matching( service.name() );
+														.matching( service );
 											}
 										} );
 							}

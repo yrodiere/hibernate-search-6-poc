@@ -67,8 +67,7 @@ class ObjectSyntaxDocumentDao extends DocumentDao {
 
 		booleanBuilder.must(
 				target.predicate().nested().onObjectField( "copies" )
-				// Bridged query with value bridge: TODO rely on the bridge to convert to a String
-				.match().onField( "copies.medium" ).matching( medium.name() ).end()
+				.match().onField( "copies.medium" ).matching( medium ).end()
 		);
 
 		FullTextQuery<Book> query = entityManager.search( Book.class ).query()
@@ -135,8 +134,7 @@ class ObjectSyntaxDocumentDao extends DocumentDao {
 				nestedBoolean.must(
 						target.predicate().match()
 						.onField( "copies.library.services" )
-						// Bridged query with value bridge: TODO rely on the bridge to convert to a String
-						.matching( service.name() )
+						.matching( service )
 						.end()
 				);
 			}

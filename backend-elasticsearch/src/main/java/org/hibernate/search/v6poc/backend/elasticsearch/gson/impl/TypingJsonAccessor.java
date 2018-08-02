@@ -13,7 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
- * A {@link JsonAccessor} whose purpose is to check type information
+ * A {@link JsonAccessor} whose purpose is to convert type information
  * on the node being accessed.
  * <p>
  * The node being accessed is provided by the "parent" accessor.

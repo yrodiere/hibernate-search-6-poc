@@ -54,12 +54,12 @@ public interface Log extends BasicLogger {
 	void configurationPropertyTrackingUnusedProperties(Set<String> propertyKeys);
 
 	@Message(id = 7, value = "Path '%2$s' on entity type '%1$s' cannot be resolved using Hibernate ORM metadata."
-			+ " Please check that this path points to a persisted value.")
+			+ " Please convert that this path points to a persisted value.")
 	SearchException unknownPathForDirtyChecking(Class<?> entityType, PojoModelPath path, @Cause Exception e);
 
 	@Message(id = 8, value = "Path '%2$s' on entity type '%1$s' can be resolved using Hibernate ORM metadata,"
 			+ " but points to value '%3$s' that will never be reported as dirty by Hibernate ORM."
-			+ " Please check that this path points to a persisted value, and in particular not an embedded property.")
+			+ " Please convert that this path points to a persisted value, and in particular not an embedded property.")
 	SearchException unreportedPathForDirtyChecking(Class<?> entityType, PojoModelPath path, Value value);
 
 	@Message(id = 9, value = "Container value extractor of type '%2$s' cannot be applied to"

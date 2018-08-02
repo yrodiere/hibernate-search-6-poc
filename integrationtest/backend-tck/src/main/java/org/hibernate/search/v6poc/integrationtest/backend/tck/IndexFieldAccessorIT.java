@@ -39,9 +39,9 @@ import org.junit.Test;
 /**
  * Test the behavior of implementations of index field accessors.
  * <p>
- * This does not check the effects of the model definition on the actual index schema,
+ * This does not convert the effects of the model definition on the actual index schema,
  * since this would require backend-specific code to inspect that schema.
- * However, in search and projection tests, we check that defined fields behave correctly at runtime.
+ * However, in search and projection tests, we convert that defined fields behave correctly at runtime.
  */
 public class IndexFieldAccessorIT {
 

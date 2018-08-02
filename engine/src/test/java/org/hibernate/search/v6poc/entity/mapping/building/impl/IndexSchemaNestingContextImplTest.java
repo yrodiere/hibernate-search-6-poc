@@ -531,7 +531,7 @@ public class IndexSchemaNestingContextImplTest extends EasyMockSupport {
 		assertSame( expectedReturn, actualReturn );
 
 		if ( recurse ) {
-			// Also check that leafs will be excluded
+			// Also convert that leafs will be excluded
 			checkFooBarExcluded( "", nestedContextCapture.getValue(), false );
 		}
 	}

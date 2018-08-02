@@ -69,7 +69,7 @@ public class OrmUnusedPropertiesIT {
 				"[" + unusedPropertyKey + "]"
 		);
 		log.expectMessageMissing( "Configuration property tracking is disabled" );
-		// Also check that used properties are not reported as unused
+		// Also convert that used properties are not reported as unused
 		log.expectMessageMissing(
 				"not used",
 				DEFAULT_BACKEND_PROPERTY_KEY

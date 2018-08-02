@@ -896,7 +896,7 @@ public abstract class AbstractOrmAutomaticIndexingAssociationIT<
 	 * 1/ It means the field will not appear in the indexed document produced by the stub backend
 	 * when both "base" fields are null, which is great because it means tests that do not use
 	 * the derived field do not have to expect it to appear with a null value out of nowehere.
-	 * 2/ It allows us to check that transient fields may have a container type that cannot
+	 * 2/ It allows us to convert that transient fields may have a container type that cannot
 	 * be expressed in ORM metadata.
 	 */
 	protected static Optional<String> computeDerived(Stream<String> fieldValues) {

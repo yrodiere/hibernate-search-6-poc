@@ -7,6 +7,7 @@
 package org.hibernate.search.v6poc.backend.document.model.dsl;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
+import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
 
 /**
  * @param <F> The type of field values.
@@ -14,5 +15,7 @@ import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 public interface IndexSchemaFieldTerminalContext<F> {
 
 	IndexFieldAccessor<F> createAccessor();
+
+	<V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter);
 
 }

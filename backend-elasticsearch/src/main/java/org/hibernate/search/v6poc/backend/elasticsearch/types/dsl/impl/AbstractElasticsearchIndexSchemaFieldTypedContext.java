@@ -6,6 +6,7 @@
  */
 package org.hibernate.search.v6poc.backend.elasticsearch.types.dsl.impl;
 
+import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 import org.hibernate.search.v6poc.backend.document.spi.IndexSchemaFieldDefinitionHelper;
@@ -24,13 +25,18 @@ public abstract class AbstractElasticsearchIndexSchemaFieldTypedContext<F>
 
 	private final IndexSchemaFieldDefinitionHelper<F> helper;
 
-	AbstractElasticsearchIndexSchemaFieldTypedContext(IndexSchemaContext schemaContext) {
-		this.helper = new IndexSchemaFieldDefinitionHelper<>( schemaContext );
+	AbstractElasticsearchIndexSchemaFieldTypedContext(IndexSchemaContext schemaContext, Class<F> fieldType) {
+		this.helper = new IndexSchemaFieldDefinitionHelper<>( schemaContext, fieldType );
 	}
 
 	@Override
 	public IndexFieldAccessor<F> createAccessor() {
 		return helper.createAccessor();
+	}
+
+	@Override
+	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter) {
+		return helper.createAccessor( toIndexConverter );
 	}
 
 	@Override

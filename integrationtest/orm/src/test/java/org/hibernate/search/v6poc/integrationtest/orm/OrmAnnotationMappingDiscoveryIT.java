@@ -117,7 +117,7 @@ public class OrmAnnotationMappingDiscoveryIT {
 						/*
 						 * Annotations should be completely ignored.
 						 * We add some of the annotation mapping programmatically,
-						 * just to check that discovery is disabled for nested types.
+						 * just to convert that discovery is disabled for nested types.
 						 */
 						definition.programmaticMapping()
 								.type( IndexedEntity.class ).indexed( IndexedEntity.INDEX )

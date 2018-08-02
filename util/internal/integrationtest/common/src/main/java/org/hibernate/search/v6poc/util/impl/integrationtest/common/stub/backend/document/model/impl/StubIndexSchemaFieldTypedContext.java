@@ -10,16 +10,18 @@ import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTypedContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Sortable;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Store;
+import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
+import org.hibernate.search.v6poc.backend.document.spi.IndexSchemaFieldDefinitionHelper;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend.document.model.StubIndexSchemaNode;
 
 class StubIndexSchemaFieldTypedContext<F> implements IndexSchemaFieldTypedContext<F> {
 
+	private IndexSchemaFieldDefinitionHelper<F> helper;
 	private final StubIndexSchemaNode.Builder builder;
 	private final boolean included;
 
-	private IndexFieldAccessor<F> accessor;
-
-	StubIndexSchemaFieldTypedContext(StubIndexSchemaNode.Builder builder, boolean included) {
+	StubIndexSchemaFieldTypedContext(StubIndexSchemaNode.Builder builder, Class<F> inputType, boolean included) {
+		this.helper = new IndexSchemaFieldDefinitionHelper<>( builder, inputType );
 		this.builder = builder;
 		this.included = included;
 	}
@@ -50,14 +52,24 @@ class StubIndexSchemaFieldTypedContext<F> implements IndexSchemaFieldTypedContex
 
 	@Override
 	public IndexFieldAccessor<F> createAccessor() {
-		if ( accessor == null ) {
-			if ( included ) {
-				accessor = new StubIncludedIndexFieldAccessor<>( builder.getAbsolutePath(), builder.getRelativeName() );
-			}
-			else {
-				accessor = new StubExcludedIndexFieldAccessor<>( builder.getAbsolutePath(), builder.getRelativeName() );
-			}
-		}
+		IndexFieldAccessor<F> accessor = helper.createAccessor();
+		initializeAccessor();
 		return accessor;
+	}
+
+	@Override
+	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter) {
+		IndexFieldAccessor<V> accessor = helper.createAccessor( toIndexConverter );
+		initializeAccessor();
+		return accessor;
+	}
+
+	private void initializeAccessor() {
+		if ( included ) {
+			helper.initialize( new StubIncludedIndexFieldAccessor<>( builder.getAbsolutePath(), builder.getRelativeName() ) );
+		}
+		else {
+			helper.initialize( new StubExcludedIndexFieldAccessor<>( builder.getAbsolutePath(), builder.getRelativeName() ) );
+		}
 	}
 }

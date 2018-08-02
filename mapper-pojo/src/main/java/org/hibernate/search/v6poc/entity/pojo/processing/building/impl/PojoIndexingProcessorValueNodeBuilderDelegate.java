@@ -41,7 +41,7 @@ class PojoIndexingProcessorValueNodeBuilderDelegate<P, V> extends AbstractPojoPr
 
 	private final BoundPojoModelPathValueNode<?, P, V> modelPath;
 
-	private final Collection<BoundValueBridge<? super V, ?>> boundBridges = new ArrayList<>();
+	private final Collection<BoundValueBridge<V>> boundBridges = new ArrayList<>();
 
 	private final Collection<PojoIndexingProcessorTypeNodeBuilder<V>> typeNodeBuilders = new ArrayList<>();
 
@@ -130,8 +130,12 @@ class PojoIndexingProcessorValueNodeBuilderDelegate<P, V> extends AbstractPojoPr
 						? Collections.emptyList()
 						: new ArrayList<>( boundBridges.size() + typeNodeBuilders.size() );
 		try {
-			for ( BoundValueBridge<? super V, ?> boundBridge : boundBridges ) {
-				immutableNestedNodes.add( createValueBridgeNode( boundBridge ) );
+			for ( BoundValueBridge<V> boundBridge : boundBridges ) {
+				immutableNestedNodes.add(
+						new PojoIndexingProcessorValueBridgeNode<>(
+								boundBridge.getBridge(), boundBridge.getIndexFieldAccessor()
+						)
+				);
 			}
 			typeNodeBuilders.stream()
 					.map( builder -> builder.build( valueDependencyCollector.type() ) )
@@ -150,11 +154,5 @@ class PojoIndexingProcessorValueNodeBuilderDelegate<P, V> extends AbstractPojoPr
 			new SuppressingCloser( e ).pushAll( PojoIndexingProcessor::close, immutableNestedNodes );
 			throw e;
 		}
-	}
-
-	private static <V, F> PojoIndexingProcessor<V> createValueBridgeNode(BoundValueBridge<V, F> boundBridge) {
-		return new PojoIndexingProcessorValueBridgeNode<>(
-				boundBridge.getBridge(), boundBridge.getIndexFieldAccessor()
-		);
 	}
 }

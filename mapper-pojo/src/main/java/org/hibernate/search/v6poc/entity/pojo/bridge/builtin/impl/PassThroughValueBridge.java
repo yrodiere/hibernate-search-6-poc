@@ -40,8 +40,26 @@ public final class PassThroughValueBridge<F> implements ValueBridge<F, F> {
 	}
 
 	@Override
+	public F cast(Object value) {
+		return fieldType.cast( value );
+	}
+
+	@Override
 	public F toIndexedValue(F value) {
 		return value;
 	}
 
+	@Override
+	public Object fromIndexedValue(F indexedValue) {
+		return indexedValue;
+	}
+
+	@Override
+	public boolean isCompatibleWith(ValueBridge<?, ?> other) {
+		if ( !getClass().equals( other.getClass() ) ) {
+			return false;
+		}
+		PassThroughValueBridge<?> castedOther = (PassThroughValueBridge<?>) other;
+		return fieldType.equals( castedOther.fieldType );
+	}
 }

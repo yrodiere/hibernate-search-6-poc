@@ -308,7 +308,7 @@ public class ExtensionIT {
 	public void projection_nativeField_unsupportedProjection() {
 		IndexSearchTarget searchTarget = indexManager.createSearchTarget().build();
 
-		// let's check that it's possible to query the field beforehand
+		// let's convert that it's possible to query the field beforehand
 		SearchQuery<DocumentReference> query = searchTarget.query( sessionContext )
 				.asReferences()
 				.predicate()
@@ -318,7 +318,7 @@ public class ExtensionIT {
 		assertThat( query )
 				.hasReferencesHitsAnyOrder( INDEX_NAME, FIRST_ID );
 
-		// now, let's check that projecting on the field throws an exception
+		// now, let's convert that projecting on the field throws an exception
 		SubTest.expectException(
 				"projection on native field not supporting projections",
 				() -> {

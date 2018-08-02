@@ -12,7 +12,7 @@ import org.hibernate.search.v6poc.backend.elasticsearch.logging.impl.Log;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.predicate.impl.ElasticsearchSearchPredicateBuilder;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.predicate.impl.MatchPredicateBuilderImpl;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.predicate.impl.RangePredicateBuilderImpl;
-import org.hibernate.search.v6poc.backend.elasticsearch.types.codec.impl.ElasticsearchFieldCodec;
+import org.hibernate.search.v6poc.backend.elasticsearch.types.converter.impl.ElasticsearchFieldConverter;
 import org.hibernate.search.v6poc.logging.spi.EventContexts;
 import org.hibernate.search.v6poc.search.predicate.spi.MatchPredicateBuilder;
 import org.hibernate.search.v6poc.search.predicate.spi.RangePredicateBuilder;
@@ -25,22 +25,22 @@ public class StandardFieldPredicateBuilderFactory<F> implements ElasticsearchFie
 
 	private static final Log log = LoggerFactory.make( Log.class, MethodHandles.lookup() );
 
-	private final ElasticsearchFieldCodec<F> codec;
+	private final ElasticsearchFieldConverter converter;
 
-	public StandardFieldPredicateBuilderFactory(ElasticsearchFieldCodec<F> codec) {
-		this.codec = codec;
+	public StandardFieldPredicateBuilderFactory(ElasticsearchFieldConverter converter) {
+		this.converter = converter;
 	}
 
 	@Override
 	public MatchPredicateBuilder<ElasticsearchSearchPredicateBuilder> createMatchPredicateBuilder(
 			String absoluteFieldPath) {
-		return new MatchPredicateBuilderImpl<>( absoluteFieldPath, codec );
+		return new MatchPredicateBuilderImpl<>( absoluteFieldPath, converter );
 	}
 
 	@Override
 	public RangePredicateBuilder<ElasticsearchSearchPredicateBuilder> createRangePredicateBuilder(
 			String absoluteFieldPath) {
-		return new RangePredicateBuilderImpl<>( absoluteFieldPath, codec );
+		return new RangePredicateBuilderImpl<>( absoluteFieldPath, converter );
 	}
 
 	@Override

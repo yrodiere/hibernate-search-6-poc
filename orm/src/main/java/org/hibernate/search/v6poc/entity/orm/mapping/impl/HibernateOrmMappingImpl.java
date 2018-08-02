@@ -49,7 +49,7 @@ public class HibernateOrmMappingImpl extends PojoMappingImpl<HibernateOrmMapping
 
 	private HibernateOrmSearchManagerBuilder createSearchManagerBuilder(EntityManager entityManager) {
 		SessionImplementor sessionImplementor = entityManager.unwrap( SessionImplementor.class );
-		// TODO convert that the session refers to the same session factory used when building the mapping
+		// TODO check that the session refers to the same session factory used when building the mapping
 		return new HibernateOrmSearchManagerImpl.Builder( getDelegate(), sessionImplementor );
 	}
 }

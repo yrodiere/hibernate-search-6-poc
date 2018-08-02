@@ -16,7 +16,6 @@ import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.esna
 import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.esnative.PropertyMapping;
 import org.hibernate.search.v6poc.backend.elasticsearch.gson.impl.JsonAccessor;
 import org.hibernate.search.v6poc.backend.elasticsearch.types.codec.impl.IntegerFieldCodec;
-import org.hibernate.search.v6poc.backend.elasticsearch.types.converter.impl.StandardFieldConverter;
 import org.hibernate.search.v6poc.backend.elasticsearch.types.predicate.impl.StandardFieldPredicateBuilderFactory;
 
 import com.google.gson.JsonElement;
@@ -27,10 +26,13 @@ import com.google.gson.JsonElement;
  */
 public class IntegerIndexSchemaFieldContext extends AbstractScalarFieldTypedContext<Integer> {
 
+	private static final StandardFieldPredicateBuilderFactory<Integer> PREDICATE_BUILDER_FACTORY =
+			new StandardFieldPredicateBuilderFactory<>( IntegerFieldCodec.INSTANCE );
+
 	private final String relativeFieldName;
 
 	public IntegerIndexSchemaFieldContext(IndexSchemaContext schemaContext, String relativeFieldName) {
-		super( schemaContext, relativeFieldName, Integer.class, DataType.INTEGER );
+		super( schemaContext, relativeFieldName, DataType.INTEGER );
 		this.relativeFieldName = relativeFieldName;
 	}
 
@@ -40,14 +42,8 @@ public class IntegerIndexSchemaFieldContext extends AbstractScalarFieldTypedCont
 			ElasticsearchIndexSchemaObjectNode parentNode) {
 		PropertyMapping mapping = super.contribute( helper, collector, parentNode );
 
-		StandardFieldConverter<Integer> converter = new StandardFieldConverter<>(
-				helper.createUserIndexFieldConverter(),
-				IntegerFieldCodec.INSTANCE
-		);
-		StandardFieldPredicateBuilderFactory<Integer> predicateBuilderFactory =
-				new StandardFieldPredicateBuilderFactory<>( converter );
 		ElasticsearchIndexSchemaFieldNode<Integer> node = new ElasticsearchIndexSchemaFieldNode<>(
-				parentNode, converter, IntegerFieldCodec.INSTANCE, predicateBuilderFactory
+				parentNode, IntegerFieldCodec.INSTANCE, PREDICATE_BUILDER_FACTORY
 		);
 
 		JsonAccessor<JsonElement> jsonAccessor = JsonAccessor.root().property( relativeFieldName );

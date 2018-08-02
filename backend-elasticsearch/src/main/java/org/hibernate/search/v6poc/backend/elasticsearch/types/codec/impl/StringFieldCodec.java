@@ -20,10 +20,11 @@ public class StringFieldCodec implements ElasticsearchFieldCodec<String> {
 	}
 
 	@Override
-	public JsonElement encode(String value) {
-		if ( value == null ) {
+	public JsonElement encode(Object object) {
+		if ( object == null ) {
 			return JsonNull.INSTANCE;
 		}
+		String value = (String) object;
 		return new JsonPrimitive( value );
 	}
 

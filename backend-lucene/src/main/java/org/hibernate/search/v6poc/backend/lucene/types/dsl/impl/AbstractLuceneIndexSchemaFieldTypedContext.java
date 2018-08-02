@@ -10,7 +10,6 @@ import java.lang.invoke.MethodHandles;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
-import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTypedContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Store;
@@ -36,20 +35,14 @@ public abstract class AbstractLuceneIndexSchemaFieldTypedContext<F>
 
 	private Store store;
 
-	protected AbstractLuceneIndexSchemaFieldTypedContext(IndexSchemaContext schemaContext, String relativeFieldName,
-			Class<F> fieldType) {
-		this.helper = new IndexSchemaFieldDefinitionHelper<>( schemaContext, fieldType );
+	protected AbstractLuceneIndexSchemaFieldTypedContext(IndexSchemaContext schemaContext, String relativeFieldName) {
+		this.helper = new IndexSchemaFieldDefinitionHelper<>( schemaContext );
 		this.relativeFieldName = relativeFieldName;
 	}
 
 	@Override
 	public IndexFieldAccessor<F> createAccessor() {
 		return helper.createAccessor();
-	}
-
-	@Override
-	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter) {
-		return helper.createAccessor( toIndexConverter );
 	}
 
 	@Override

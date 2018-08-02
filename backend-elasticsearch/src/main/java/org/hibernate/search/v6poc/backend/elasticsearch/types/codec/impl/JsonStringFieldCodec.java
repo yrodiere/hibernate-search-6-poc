@@ -19,11 +19,12 @@ public class JsonStringFieldCodec implements ElasticsearchFieldCodec<String> {
 	}
 
 	@Override
-	public JsonElement encode(String value) {
-		if ( value == null ) {
+	public JsonElement encode(Object object) {
+		if ( object == null ) {
 			return JsonNull.INSTANCE;
 		}
-		return gson.fromJson( value, JsonElement.class );
+		String jsonString = (String) object;
+		return gson.fromJson( jsonString, JsonElement.class );
 	}
 
 	@Override

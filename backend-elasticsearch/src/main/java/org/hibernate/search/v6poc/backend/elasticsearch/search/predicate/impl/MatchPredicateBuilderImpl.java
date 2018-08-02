@@ -8,7 +8,7 @@ package org.hibernate.search.v6poc.backend.elasticsearch.search.predicate.impl;
 
 import org.hibernate.search.v6poc.backend.elasticsearch.gson.impl.JsonAccessor;
 import org.hibernate.search.v6poc.backend.elasticsearch.gson.impl.JsonObjectAccessor;
-import org.hibernate.search.v6poc.backend.elasticsearch.types.converter.impl.ElasticsearchFieldConverter;
+import org.hibernate.search.v6poc.backend.elasticsearch.types.codec.impl.ElasticsearchFieldCodec;
 import org.hibernate.search.v6poc.search.predicate.spi.MatchPredicateBuilder;
 
 import com.google.gson.JsonElement;
@@ -25,16 +25,17 @@ public class MatchPredicateBuilderImpl<F> extends AbstractSearchPredicateBuilder
 	private static final JsonObjectAccessor MATCH = JsonAccessor.root().property( "match" ).asObject();
 
 	private final String absoluteFieldPath;
-	private final ElasticsearchFieldConverter converter;
 
-	public MatchPredicateBuilderImpl(String absoluteFieldPath, ElasticsearchFieldConverter converter) {
+	private final ElasticsearchFieldCodec<F> codec;
+
+	public MatchPredicateBuilderImpl(String absoluteFieldPath, ElasticsearchFieldCodec<F> codec) {
 		this.absoluteFieldPath = absoluteFieldPath;
-		this.converter = converter;
+		this.codec = codec;
 	}
 
 	@Override
 	public void value(Object value) {
-		QUERY.set( getInnerObject(), converter.convertFromDsl( value ) );
+		QUERY.set( getInnerObject(), codec.encode( value ) );
 	}
 
 	@Override

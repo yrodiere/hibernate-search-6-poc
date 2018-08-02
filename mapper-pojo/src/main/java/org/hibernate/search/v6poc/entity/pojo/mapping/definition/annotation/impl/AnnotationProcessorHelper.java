@@ -117,7 +117,7 @@ class AnnotationProcessorHelper {
 								MarkerMapping.class, annotation.annotationType() )
 						);
 
-		// TODO convert generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+		// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
 		AnnotationMarkerBuilder<A> builder =
 				beanProvider.getBean( markerBuilderReference, AnnotationMarkerBuilder.class );
 
@@ -152,7 +152,7 @@ class AnnotationProcessorHelper {
 			return castedBuilder;
 		}
 		else if ( bridgeBuilderReference.isPresent() ) {
-			// TODO convert generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+			// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
 			return beanProvider.getBean( bridgeBuilderReference.get(), BridgeBuilder.class );
 		}
 		else {
@@ -247,7 +247,7 @@ class AnnotationProcessorHelper {
 			return castedBuilder;
 		}
 		else if ( bridgeBuilderReference.isPresent() ) {
-			// TODO convert generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+			// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
 			return beanProvider.getBean( bridgeBuilderReference.get(), BridgeBuilder.class );
 		}
 		else {
@@ -267,7 +267,7 @@ class AnnotationProcessorHelper {
 		}
 		else if ( builderReferenceOptional.isPresent() ) {
 			AnnotationBridgeBuilder builder = beanProvider.getBean( builderReferenceOptional.get(), AnnotationBridgeBuilder.class );
-			// TODO convert generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
+			// TODO check generic parameters of builder.getClass() somehow, maybe in a similar way to what we do in PojoIndexModelBinderImpl#addValueBridge
 			builder.initialize( annotation );
 			return builder;
 		}

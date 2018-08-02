@@ -9,16 +9,12 @@ package org.hibernate.search.v6poc.backend.document.spi;
 import java.lang.invoke.MethodHandles;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
-import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
-import org.hibernate.search.v6poc.backend.document.converter.spi.PassThroughToIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
 import org.hibernate.search.v6poc.logging.impl.Log;
-import org.hibernate.search.v6poc.util.impl.common.Contracts;
 import org.hibernate.search.v6poc.util.impl.common.LoggerFactory;
 
 /**
- * A helper for backends, making it easier to return accessors before they are completely defined,
- * and providing a helper to convert values when executing search queries.
+ * A helper for backends, making it easier to return accessors before they are completely defined.
  */
 public final class IndexSchemaFieldDefinitionHelper<F> {
 
@@ -29,19 +25,10 @@ public final class IndexSchemaFieldDefinitionHelper<F> {
 	private final DeferredInitializationIndexFieldAccessor<F> rawAccessor =
 			new DeferredInitializationIndexFieldAccessor<>();
 
-	private ToIndexFieldValueConverter<?, ? extends F> toIndexConverter;
-
 	private boolean accessorCreated = false;
 
-	public IndexSchemaFieldDefinitionHelper(IndexSchemaContext schemaContext,
-			Class<F> indexFieldType) {
-		this( schemaContext, new PassThroughToIndexFieldValueConverter<>( indexFieldType ) );
-	}
-
-	public IndexSchemaFieldDefinitionHelper(IndexSchemaContext schemaContext,
-			ToIndexFieldValueConverter<F, ? extends F> identityToIndexConverter) {
+	public IndexSchemaFieldDefinitionHelper(IndexSchemaContext schemaContext) {
 		this.schemaContext = schemaContext;
-		this.toIndexConverter = identityToIndexConverter;
 	}
 
 	public IndexSchemaContext getSchemaContext() {
@@ -60,26 +47,6 @@ public final class IndexSchemaFieldDefinitionHelper<F> {
 	}
 
 	/**
-	 * @return A (potentially un-{@link #initialize(IndexFieldAccessor) initialized}) accessor
-	 */
-	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter) {
-		Contracts.assertNotNull( toIndexConverter, "toIndexConverter" );
-		this.toIndexConverter = toIndexConverter;
-		return new ConvertingIndexFieldAccessor<>( createAccessor(), toIndexConverter );
-	}
-
-	/**
-	 * @return The user-configured converter for this field definition.
-	 * @see org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTerminalContext#createAccessor(ToIndexFieldValueConverter)
-	 */
-	public UserIndexFieldConverter<F> createUserIndexFieldConverter() {
-		checkAccessorCreated();
-		return new UserIndexFieldConverter<>(
-				toIndexConverter
-		);
-	}
-
-	/**
 	 * Initialize the field definition, enabling writes to an underlying field.
 	 * <p>
 	 * This method may or may not be called during bootstrap; if it isn't called,
@@ -88,13 +55,9 @@ public final class IndexSchemaFieldDefinitionHelper<F> {
 	 * @param delegate The delegate to use when writing to the accessor returned by {@link #createAccessor()}.
 	 */
 	public void initialize(IndexFieldAccessor<F> delegate) {
-		checkAccessorCreated();
-		rawAccessor.initialize( delegate );
-	}
-
-	private void checkAccessorCreated() {
 		if ( !accessorCreated ) {
 			throw log.incompleteFieldDefinition( schemaContext.getEventContext() );
 		}
+		rawAccessor.initialize( delegate );
 	}
 }

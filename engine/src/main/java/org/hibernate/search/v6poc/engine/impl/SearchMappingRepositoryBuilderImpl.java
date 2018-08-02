@@ -166,14 +166,14 @@ public class SearchMappingRepositoryBuilderImpl implements SearchMappingReposito
 		catch (RuntimeException e) {
 			RuntimeException rethrownException;
 			if ( checkingRootFailures ) {
-				// The exception was thrown by one of the failure checks above. No need for an additional convert.
+				// The exception was thrown by one of the failure checks above. No need for an additional check.
 				rethrownException = e;
 			}
 			else {
 				/*
 				 * The exception was thrown by something other than the failure checks above
 				 * (a mapper, a backend, ...).
-				 * We should convert that no failure was collected before.
+				 * We should check that no failure was collected before.
 				 */
 				try {
 					failureCollector.checkNoFailure();

@@ -8,7 +8,7 @@ package org.hibernate.search.v6poc.backend.elasticsearch.search.predicate.impl;
 
 import org.hibernate.search.v6poc.backend.elasticsearch.gson.impl.JsonAccessor;
 import org.hibernate.search.v6poc.backend.elasticsearch.gson.impl.JsonObjectAccessor;
-import org.hibernate.search.v6poc.backend.elasticsearch.types.converter.impl.ElasticsearchFieldConverter;
+import org.hibernate.search.v6poc.backend.elasticsearch.types.codec.impl.ElasticsearchFieldCodec;
 import org.hibernate.search.v6poc.search.predicate.spi.RangePredicateBuilder;
 
 import com.google.gson.JsonElement;
@@ -28,21 +28,22 @@ public class RangePredicateBuilderImpl<F> extends AbstractSearchPredicateBuilder
 	private static final JsonAccessor<JsonElement> LTE = JsonAccessor.root().property( "lte" );
 
 	private final String absoluteFieldPath;
-	private final ElasticsearchFieldConverter converter;
+
+	private final ElasticsearchFieldCodec<F> codec;
 
 	private JsonElement lowerLimit;
 	private boolean excludeLowerLimit = false;
 	private JsonElement upperLimit;
 	private boolean excludeUpperLimit = false;
 
-	public RangePredicateBuilderImpl(String absoluteFieldPath, ElasticsearchFieldConverter converter) {
+	public RangePredicateBuilderImpl(String absoluteFieldPath, ElasticsearchFieldCodec<F> codec) {
 		this.absoluteFieldPath = absoluteFieldPath;
-		this.converter = converter;
+		this.codec = codec;
 	}
 
 	@Override
 	public void lowerLimit(Object value) {
-		this.lowerLimit = converter.convertFromDsl( value );
+		this.lowerLimit = codec.encode( value );
 	}
 
 	@Override
@@ -52,7 +53,7 @@ public class RangePredicateBuilderImpl<F> extends AbstractSearchPredicateBuilder
 
 	@Override
 	public void upperLimit(Object value) {
-		this.upperLimit = converter.convertFromDsl( value );
+		this.upperLimit = codec.encode( value );
 	}
 
 	@Override

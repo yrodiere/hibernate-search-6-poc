@@ -39,7 +39,7 @@ import org.junit.Test;
  * Test automatic indexing based on Hibernate ORM entity events.
  *
  * This test only checks basic, direct updates to the entity state.
- * Other tests in the same package convert more complex updates involving associations.
+ * Other tests in the same package check more complex updates involving associations.
  */
 public class OrmAutomaticIndexingBasicIT {
 

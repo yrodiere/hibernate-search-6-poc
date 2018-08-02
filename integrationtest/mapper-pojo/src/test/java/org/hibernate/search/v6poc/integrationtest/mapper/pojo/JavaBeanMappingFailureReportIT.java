@@ -46,7 +46,7 @@ public class JavaBeanMappingFailureReportIT {
 
 	/**
 	 * Test mapping with failures in the same context
-	 * and convert that every failure is reported, and that failures are grouped into a single list.
+	 * and check that every failure is reported, and that failures are grouped into a single list.
 	 */
 	@Test
 	public void multipleFailuresSameContext() {
@@ -109,7 +109,7 @@ public class JavaBeanMappingFailureReportIT {
 
 	/**
 	 * Test mapping with failures in multiple properties of the same type
-	 * and convert that every failure is reported.
+	 * and check that every failure is reported.
 	 */
 	@Test
 	public void multipleFailuresMultipleProperties() {
@@ -178,7 +178,7 @@ public class JavaBeanMappingFailureReportIT {
 
 	/**
 	 * Test mapping with failures in multiple types
-	 * and convert that every failure is reported.
+	 * and check that every failure is reported.
 	 */
 	@Test
 	public void multipleFailuresMultipleTypes() {

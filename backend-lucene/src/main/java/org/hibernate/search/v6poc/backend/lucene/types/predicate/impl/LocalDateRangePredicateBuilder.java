@@ -8,7 +8,6 @@ package org.hibernate.search.v6poc.backend.lucene.types.predicate.impl;
 
 import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.search.Query;
-
 import org.hibernate.search.v6poc.backend.lucene.search.predicate.impl.AbstractRangePredicateBuilder;
 import org.hibernate.search.v6poc.backend.lucene.search.predicate.impl.LuceneSearchPredicateContext;
 import org.hibernate.search.v6poc.backend.lucene.types.converter.impl.LocalDateFieldConverter;

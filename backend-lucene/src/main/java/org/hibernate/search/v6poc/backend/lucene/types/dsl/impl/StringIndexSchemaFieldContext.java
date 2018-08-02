@@ -40,7 +40,7 @@ public class StringIndexSchemaFieldContext extends AbstractLuceneIndexSchemaFiel
 	private Analyzer normalizer;
 
 	public StringIndexSchemaFieldContext(IndexSchemaContext schemaContext, String relativeFieldName) {
-		super( schemaContext, relativeFieldName, String.class );
+		super( schemaContext, relativeFieldName );
 	}
 
 	@Override
@@ -61,10 +61,7 @@ public class StringIndexSchemaFieldContext extends AbstractLuceneIndexSchemaFiel
 		Analyzer analyzerOrNormalizer = analyzer != null ? analyzer : normalizer;
 		QueryBuilder queryBuilder = analyzerOrNormalizer != null ? new QueryBuilder( analyzerOrNormalizer ) : null;
 
-		StringFieldConverter converter = new StringFieldConverter(
-				helper.createUserIndexFieldConverter(),
-				analyzerOrNormalizer
-		);
+		StringFieldConverter converter = new StringFieldConverter( analyzerOrNormalizer );
 
 		LuceneIndexSchemaFieldNode<String> schemaNode = new LuceneIndexSchemaFieldNode<>(
 				parentNode,

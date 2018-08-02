@@ -7,7 +7,6 @@
 package org.hibernate.search.v6poc.backend.lucene.types.dsl.impl;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
-import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTerminalContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
 import org.hibernate.search.v6poc.backend.document.spi.IndexSchemaFieldDefinitionHelper;
@@ -19,36 +18,13 @@ import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndex
 import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndexSchemaNodeContributor;
 import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndexSchemaObjectNode;
 import org.hibernate.search.v6poc.backend.lucene.types.codec.impl.LuceneFieldFieldCodec;
-import org.hibernate.search.v6poc.backend.lucene.types.converter.impl.StandardFieldConverter;
-import org.hibernate.search.v6poc.util.AssertionFailure;
+import org.hibernate.search.v6poc.backend.lucene.types.converter.impl.SimpleCastingFieldConverter;
 
 /**
  * @author Guillaume Smet
  */
 public class LuceneFieldIndexSchemaFieldContext<F>
 		implements IndexSchemaFieldTerminalContext<F>, LuceneIndexSchemaNodeContributor {
-
-	private static final ToIndexFieldValueConverter<Object, Object> TO_INDEX_FIELD_VALUE_CONVERTER =
-			new ToIndexFieldValueConverter<Object, Object>() {
-				@Override
-				public Object convert(Object value) {
-					return value;
-				}
-
-				@Override
-				public Object convertUnknown(Object value) {
-					throw new AssertionFailure(
-							"Attempt to perform an unsafe conversion on a field with native type;"
-									+ " this should not have happened since the DSL is disabled for such fields."
-									+ " There is a bug in Hibernate Search, please report it."
-					);
-				}
-			};
-
-	@SuppressWarnings("unchecked") // This instance works for any F
-	private static <F> ToIndexFieldValueConverter<F, F> getToIndexFieldValueConverter() {
-		return (ToIndexFieldValueConverter<F, F>) TO_INDEX_FIELD_VALUE_CONVERTER;
-	}
 
 	private final IndexSchemaFieldDefinitionHelper<F> helper;
 	private final String relativeFieldName;
@@ -57,7 +33,7 @@ public class LuceneFieldIndexSchemaFieldContext<F>
 
 	public LuceneFieldIndexSchemaFieldContext(IndexSchemaContext schemaContext, String relativeFieldName,
 			LuceneFieldContributor<F> fieldContributor, LuceneFieldValueExtractor<F> fieldValueExtractor) {
-		this.helper = new IndexSchemaFieldDefinitionHelper<>( schemaContext, getToIndexFieldValueConverter() );
+		this.helper = new IndexSchemaFieldDefinitionHelper<>( schemaContext );
 		this.relativeFieldName = relativeFieldName;
 		this.fieldContributor = fieldContributor;
 		this.fieldValueExtractor = fieldValueExtractor;
@@ -69,16 +45,11 @@ public class LuceneFieldIndexSchemaFieldContext<F>
 	}
 
 	@Override
-	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends F> toIndexConverter) {
-		return helper.createAccessor( toIndexConverter );
-	}
-
-	@Override
 	public void contribute(LuceneIndexSchemaNodeCollector collector, LuceneIndexSchemaObjectNode parentNode) {
-		LuceneIndexSchemaFieldNode<F> schemaNode = new LuceneIndexSchemaFieldNode<>(
+		LuceneIndexSchemaFieldNode<F> schemaNode = new LuceneIndexSchemaFieldNode<F>(
 				parentNode,
 				relativeFieldName,
-				new StandardFieldConverter<>( helper.createUserIndexFieldConverter() ),
+				new SimpleCastingFieldConverter<>(),
 				new LuceneFieldFieldCodec<>( fieldContributor, fieldValueExtractor ),
 				null,
 				null

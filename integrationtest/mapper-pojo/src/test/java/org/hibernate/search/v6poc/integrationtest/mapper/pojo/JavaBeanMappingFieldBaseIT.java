@@ -193,10 +193,6 @@ public class JavaBeanMappingFieldBaseIT {
 	public static class MyStringBridge implements ValueBridge<String, String> {
 		private static String TOSTRING = "<MyStringBridge toString() result>";
 		@Override
-		public String cast(Object value) {
-			throw new UnsupportedOperationException( "Should not be called" );
-		}
-		@Override
 		public String toIndexedValue(String value) {
 			throw new UnsupportedOperationException( "Should not be called" );
 		}

@@ -10,12 +10,11 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.QueryBuilder;
-
 import org.hibernate.search.v6poc.backend.lucene.search.predicate.impl.AbstractMatchPredicateBuilder;
 import org.hibernate.search.v6poc.backend.lucene.search.predicate.impl.LuceneSearchPredicateContext;
 import org.hibernate.search.v6poc.backend.lucene.types.converter.impl.StringFieldConverter;
 
-class StringMatchPredicateBuilder extends AbstractMatchPredicateBuilder<String, String> {
+class StringMatchPredicateBuilder extends AbstractMatchPredicateBuilder<String> {
 
 	private final StringFieldConverter converter;
 

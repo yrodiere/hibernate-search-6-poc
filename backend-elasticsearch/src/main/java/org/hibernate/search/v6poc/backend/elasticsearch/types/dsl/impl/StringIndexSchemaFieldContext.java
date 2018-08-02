@@ -20,7 +20,6 @@ import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.esna
 import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.esnative.PropertyMapping;
 import org.hibernate.search.v6poc.backend.elasticsearch.gson.impl.JsonAccessor;
 import org.hibernate.search.v6poc.backend.elasticsearch.types.codec.impl.StringFieldCodec;
-import org.hibernate.search.v6poc.backend.elasticsearch.types.converter.impl.StandardFieldConverter;
 import org.hibernate.search.v6poc.backend.elasticsearch.types.predicate.impl.StandardFieldPredicateBuilderFactory;
 
 import com.google.gson.JsonElement;
@@ -31,6 +30,9 @@ import com.google.gson.JsonElement;
  */
 public class StringIndexSchemaFieldContext extends AbstractElasticsearchIndexSchemaFieldTypedContext<String> {
 
+	private static final StandardFieldPredicateBuilderFactory<String> PREDICATE_BUILDER_FACTORY =
+			new StandardFieldPredicateBuilderFactory<>( StringFieldCodec.INSTANCE );
+
 	private final String relativeFieldName;
 	private String analyzerName;
 	private String normalizerName;
@@ -38,7 +40,7 @@ public class StringIndexSchemaFieldContext extends AbstractElasticsearchIndexSch
 	private Sortable sortable = Sortable.DEFAULT;
 
 	public StringIndexSchemaFieldContext(IndexSchemaContext schemaContext, String relativeFieldName) {
-		super( schemaContext, String.class );
+		super( schemaContext );
 		this.relativeFieldName = relativeFieldName;
 	}
 
@@ -72,13 +74,8 @@ public class StringIndexSchemaFieldContext extends AbstractElasticsearchIndexSch
 			ElasticsearchIndexSchemaObjectNode parentNode) {
 		PropertyMapping mapping = new PropertyMapping();
 
-		StandardFieldConverter<String> converter = new StandardFieldConverter<>(
-				helper.createUserIndexFieldConverter(),
-				StringFieldCodec.INSTANCE
-		);
 		ElasticsearchIndexSchemaFieldNode<String> node = new ElasticsearchIndexSchemaFieldNode<>(
-				parentNode, converter, StringFieldCodec.INSTANCE,
-				new StandardFieldPredicateBuilderFactory<>( converter )
+				parentNode, StringFieldCodec.INSTANCE, PREDICATE_BUILDER_FACTORY
 		);
 
 		JsonAccessor<JsonElement> jsonAccessor = JsonAccessor.root().property( relativeFieldName );

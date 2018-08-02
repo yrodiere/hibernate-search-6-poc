@@ -11,9 +11,6 @@ import java.util.function.Consumer;
 import org.hibernate.search.v6poc.backend.document.model.dsl.ObjectFieldStorage;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Sortable;
 import org.hibernate.search.v6poc.backend.document.model.dsl.Store;
-import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
-import org.hibernate.search.v6poc.logging.spi.EventContexts;
-import org.hibernate.search.v6poc.util.EventContext;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.StubTreeNode;
 
 public final class StubIndexSchemaNode extends StubTreeNode<StubIndexSchemaNode> {
@@ -41,16 +38,11 @@ public final class StubIndexSchemaNode extends StubTreeNode<StubIndexSchemaNode>
 		super( builder );
 	}
 
-	public static class Builder extends AbstractBuilder<StubIndexSchemaNode> implements IndexSchemaContext {
+	public static class Builder extends AbstractBuilder<StubIndexSchemaNode> {
 
 		private Builder(Builder parent, String relativeFieldName, Type type) {
 			super( parent, relativeFieldName );
 			attribute( "type", type );
-		}
-
-		@Override
-		public EventContext getEventContext() {
-			return EventContexts.fromIndexFieldAbsolutePath( getAbsolutePath() );
 		}
 
 		public Builder field(String relativeFieldName, Class<?> inputType) {

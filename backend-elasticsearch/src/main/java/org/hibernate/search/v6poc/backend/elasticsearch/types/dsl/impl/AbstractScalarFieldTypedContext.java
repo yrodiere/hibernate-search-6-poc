@@ -33,8 +33,8 @@ abstract class AbstractScalarFieldTypedContext<F> extends AbstractElasticsearchI
 	private Sortable sortable = Sortable.DEFAULT;
 
 	AbstractScalarFieldTypedContext(IndexSchemaContext schemaContext,
-			String relativeFieldName, Class<F> fieldType, DataType dataType) {
-		super( schemaContext, fieldType );
+			String relativeFieldName, DataType dataType) {
+		super( schemaContext );
 		this.relativeFieldName = relativeFieldName;
 		this.dataType = dataType;
 	}

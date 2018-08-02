@@ -9,28 +9,17 @@ package org.hibernate.search.v6poc.backend.lucene.search.query.impl;
 import java.util.Set;
 
 import org.apache.lucene.document.Document;
-
-import org.hibernate.search.v6poc.backend.lucene.document.model.impl.LuceneIndexSchemaFieldNode;
 import org.hibernate.search.v6poc.backend.lucene.types.codec.impl.LuceneFieldCodec;
-import org.hibernate.search.v6poc.backend.lucene.types.converter.impl.LuceneFieldConverter;
 import org.hibernate.search.v6poc.search.query.spi.ProjectionHitCollector;
 
-class FieldProjectionHitExtractor<F> implements HitExtractor<ProjectionHitCollector> {
+class FieldProjectionHitExtractor implements HitExtractor<ProjectionHitCollector> {
 
 	private final String absoluteFieldPath;
 
-	private final LuceneFieldConverter<F, ?> converter;
-	private final LuceneFieldCodec<F> codec;
+	private final LuceneFieldCodec<?> codec;
 
-	FieldProjectionHitExtractor(String absoluteFieldPath,
-			LuceneIndexSchemaFieldNode<F> schemaFieldNode) {
-		this( absoluteFieldPath, schemaFieldNode.getConverter(), schemaFieldNode.getCodec() );
-	}
-
-	private FieldProjectionHitExtractor(String absoluteFieldPath,
-			LuceneFieldConverter<F, ?> converter, LuceneFieldCodec<F> codec) {
+	FieldProjectionHitExtractor(String absoluteFieldPath, LuceneFieldCodec<?> codec) {
 		this.absoluteFieldPath = absoluteFieldPath;
-		this.converter = converter;
 		this.codec = codec;
 	}
 

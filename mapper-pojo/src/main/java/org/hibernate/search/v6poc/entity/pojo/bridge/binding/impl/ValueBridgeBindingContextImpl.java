@@ -29,5 +29,4 @@ public class ValueBridgeBindingContextImpl implements ValueBridgeBindingContext 
 	public IndexSchemaFieldContext getIndexSchemaFieldContext() {
 		return indexSchemaFieldContext;
 	}
-
 }

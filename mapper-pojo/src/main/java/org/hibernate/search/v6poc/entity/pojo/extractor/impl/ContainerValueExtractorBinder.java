@@ -41,7 +41,7 @@ import org.hibernate.search.v6poc.util.impl.common.LoggerFactory;
  * The {@link ContainerValueExtractorPath} is independent from the input type.
  * This means in particular that the path needs to "bound" to an input type before it can be useful:
  * <ul>
- *     <li>First to convert that the path applies correctly: {@link CollectionElementExtractor}
+ *     <li>First to check that the path applies correctly: {@link CollectionElementExtractor}
  *     won't work on a {@link Map}.
  *     <li>Second to determine the resulting value type:
  *     {@code [MapValueExtractor.class, CollectionElementExtractor.class]} applied

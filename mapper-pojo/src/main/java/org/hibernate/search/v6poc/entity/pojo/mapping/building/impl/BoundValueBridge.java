@@ -9,20 +9,20 @@ package org.hibernate.search.v6poc.entity.pojo.mapping.building.impl;
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
 import org.hibernate.search.v6poc.entity.pojo.bridge.ValueBridge;
 
-public final class BoundValueBridge<V> {
-	private final ValueBridge<? super V, ?> bridge;
-	private final IndexFieldAccessor<V> indexFieldAccessor;
+public final class BoundValueBridge<V, F> {
+	private final ValueBridge<V, F> bridge;
+	private final IndexFieldAccessor<? super F> indexFieldAccessor;
 
-	BoundValueBridge(ValueBridge<? super V, ?> bridge, IndexFieldAccessor<V> indexFieldAccessor) {
+	BoundValueBridge(ValueBridge<V, F> bridge, IndexFieldAccessor<? super F> indexFieldAccessor) {
 		this.bridge = bridge;
 		this.indexFieldAccessor = indexFieldAccessor;
 	}
 
-	public ValueBridge<? super V, ?> getBridge() {
+	public ValueBridge<V, F> getBridge() {
 		return bridge;
 	}
 
-	public IndexFieldAccessor<V> getIndexFieldAccessor() {
+	public IndexFieldAccessor<? super F> getIndexFieldAccessor() {
 		return indexFieldAccessor;
 	}
 }

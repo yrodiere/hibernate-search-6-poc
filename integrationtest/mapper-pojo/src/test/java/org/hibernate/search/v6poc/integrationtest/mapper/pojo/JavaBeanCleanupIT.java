@@ -368,7 +368,7 @@ public class JavaBeanCleanupIT {
 											.bridge( new SucceedingBridgeBuilder( PROPERTY_BRIDGE_COUNTER_KEYS ) )
 											/*
 											 * This is important so that there are bridges that only contribute fields that are filtered out.
-											 * These bridges are created to convert what they want to contribute,
+											 * These bridges are created to check what they want to contribute,
 											 * and we test that they are properly closed.
 											 */
 											.indexedEmbedded()

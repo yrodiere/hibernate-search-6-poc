@@ -7,7 +7,6 @@
 package org.hibernate.search.v6poc.backend.elasticsearch.types.dsl.impl;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
-import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTerminalContext;
 import org.hibernate.search.v6poc.backend.document.spi.IndexSchemaFieldDefinitionHelper;
@@ -19,7 +18,6 @@ import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.Elas
 import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.esnative.PropertyMapping;
 import org.hibernate.search.v6poc.backend.elasticsearch.gson.impl.JsonAccessor;
 import org.hibernate.search.v6poc.backend.elasticsearch.types.codec.impl.JsonStringFieldCodec;
-import org.hibernate.search.v6poc.backend.elasticsearch.types.converter.impl.StandardFieldConverter;
 import org.hibernate.search.v6poc.backend.elasticsearch.types.predicate.impl.StandardFieldPredicateBuilderFactory;
 
 import com.google.gson.Gson;
@@ -38,6 +36,9 @@ public class JsonStringIndexSchemaFieldContext implements IndexSchemaFieldTermin
 	// Must be a singleton so that equals() works as required by the interface
 	private static final JsonStringFieldCodec CODEC = new JsonStringFieldCodec( GSON );
 
+	private static final StandardFieldPredicateBuilderFactory<String> PREDICATE_BUILDER_FACTORY =
+			new StandardFieldPredicateBuilderFactory<>( CODEC );
+
 	private final IndexSchemaFieldDefinitionHelper<String> helper;
 
 	private final String relativeFieldName;
@@ -45,7 +46,7 @@ public class JsonStringIndexSchemaFieldContext implements IndexSchemaFieldTermin
 	private final String mappingJsonString;
 
 	public JsonStringIndexSchemaFieldContext(IndexSchemaContext schemaContext, String relativeFieldName, String mappingJsonString) {
-		this.helper = new IndexSchemaFieldDefinitionHelper<>( schemaContext, String.class );
+		this.helper = new IndexSchemaFieldDefinitionHelper<>( schemaContext );
 		this.relativeFieldName = relativeFieldName;
 		this.mappingJsonString = mappingJsonString;
 	}
@@ -56,23 +57,12 @@ public class JsonStringIndexSchemaFieldContext implements IndexSchemaFieldTermin
 	}
 
 	@Override
-	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends String> toIndexConverter) {
-		return helper.createAccessor( toIndexConverter );
-	}
-
-	@Override
 	public PropertyMapping contribute(ElasticsearchIndexSchemaNodeCollector collector,
 			ElasticsearchIndexSchemaObjectNode parentNode) {
 		PropertyMapping mapping = GSON.fromJson( mappingJsonString, PropertyMapping.class );
 
-		StandardFieldConverter<String> converter = new StandardFieldConverter<>(
-				helper.createUserIndexFieldConverter(),
-				CODEC
-		);
-		StandardFieldPredicateBuilderFactory<String> predicateBuilderFactory =
-				new StandardFieldPredicateBuilderFactory<>( converter );
 		ElasticsearchIndexSchemaFieldNode<String> node = new ElasticsearchIndexSchemaFieldNode<>(
-				parentNode, converter, CODEC, predicateBuilderFactory
+				parentNode, CODEC, PREDICATE_BUILDER_FACTORY
 		);
 
 		JsonAccessor<JsonElement> jsonAccessor = JsonAccessor.root().property( relativeFieldName );

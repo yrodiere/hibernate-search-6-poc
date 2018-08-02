@@ -8,20 +8,19 @@ package org.hibernate.search.v6poc.backend.lucene.types.converter.impl;
 
 import java.time.LocalDate;
 
-import org.hibernate.search.v6poc.backend.document.spi.UserIndexFieldConverter;
+public final class LocalDateFieldConverter implements LuceneFieldConverter<Long> {
 
-public final class LocalDateFieldConverter extends AbstractFieldConverter<LocalDate, Long> {
+	public static final LocalDateFieldConverter INSTANCE = new LocalDateFieldConverter();
 
-	public LocalDateFieldConverter(UserIndexFieldConverter<LocalDate> userConverter) {
-		super( userConverter );
+	private LocalDateFieldConverter() {
 	}
 
 	@Override
 	public Long convertFromDsl(Object value) {
-		LocalDate rawValue = userConverter.convertFromDsl( value );
 		if ( value == null ) {
 			return null;
 		}
-		return rawValue.toEpochDay();
+
+		return ((LocalDate) value).toEpochDay();
 	}
 }

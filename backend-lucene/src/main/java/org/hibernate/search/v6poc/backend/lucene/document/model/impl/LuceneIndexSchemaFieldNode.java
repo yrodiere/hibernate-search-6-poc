@@ -31,7 +31,7 @@ public class LuceneIndexSchemaFieldNode<F> {
 
 	private final String absoluteFieldPath;
 
-	private final LuceneFieldConverter<F, ?> converter;
+	private final LuceneFieldConverter<?> converter;
 
 	private final LuceneFieldCodec<F> codec;
 
@@ -39,8 +39,7 @@ public class LuceneIndexSchemaFieldNode<F> {
 
 	private final LuceneFieldSortContributor sortContributor;
 
-	public LuceneIndexSchemaFieldNode(LuceneIndexSchemaObjectNode parent, String relativeFieldName,
-			LuceneFieldConverter<F, ?> converter, LuceneFieldCodec<F> codec,
+	public LuceneIndexSchemaFieldNode(LuceneIndexSchemaObjectNode parent, String relativeFieldName, LuceneFieldConverter<?> converter, LuceneFieldCodec<F> codec,
 			LuceneFieldPredicateBuilderFactory predicateBuilderFactory, LuceneFieldSortContributor sortContributor) {
 		this.parent = parent;
 		this.relativeFieldName = relativeFieldName;
@@ -63,7 +62,7 @@ public class LuceneIndexSchemaFieldNode<F> {
 		return absoluteFieldPath;
 	}
 
-	public LuceneFieldConverter<F, ?> getConverter() {
+	public LuceneFieldConverter<?> getConverter() {
 		return converter;
 	}
 
@@ -86,7 +85,7 @@ public class LuceneIndexSchemaFieldNode<F> {
 	}
 
 	public boolean isCompatibleWith(LuceneIndexSchemaFieldNode<?> other) {
-		return converter.isDslCompatibleWith( other.converter )
+		return Objects.equals( converter, other.converter )
 				&& Objects.equals( codec, other.codec )
 				&& Objects.equals( predicateBuilderFactory, other.predicateBuilderFactory )
 				&& Objects.equals( sortContributor, other.sortContributor );

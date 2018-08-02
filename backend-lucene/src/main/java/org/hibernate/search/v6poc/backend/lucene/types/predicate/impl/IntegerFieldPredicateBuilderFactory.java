@@ -6,22 +6,22 @@
  */
 package org.hibernate.search.v6poc.backend.lucene.types.predicate.impl;
 
-import org.hibernate.search.v6poc.backend.lucene.types.converter.impl.StandardFieldConverter;
+import org.hibernate.search.v6poc.backend.lucene.types.dsl.impl.IntegerIndexSchemaFieldContext;
 
-public final class IntegerFieldPredicateBuilderFactory
-		extends AbstractStandardLuceneFieldPredicateBuilderFactory<StandardFieldConverter<Integer>> {
+public final class IntegerFieldPredicateBuilderFactory extends AbstractStandardLuceneFieldPredicateBuilderFactory {
 
-	public IntegerFieldPredicateBuilderFactory(StandardFieldConverter<Integer> converter) {
-		super( converter );
+	public static final IntegerFieldPredicateBuilderFactory INSTANCE = new IntegerFieldPredicateBuilderFactory();
+
+	private IntegerFieldPredicateBuilderFactory() {
 	}
 
 	@Override
 	public IntegerMatchPredicateBuilder createMatchPredicateBuilder(String absoluteFieldPath) {
-		return new IntegerMatchPredicateBuilder( absoluteFieldPath, converter );
+		return new IntegerMatchPredicateBuilder( absoluteFieldPath, IntegerIndexSchemaFieldContext.CONVERTER );
 	}
 
 	@Override
 	public IntegerRangePredicateBuilder createRangePredicateBuilder(String absoluteFieldPath) {
-		return new IntegerRangePredicateBuilder( absoluteFieldPath, converter );
+		return new IntegerRangePredicateBuilder( absoluteFieldPath, IntegerIndexSchemaFieldContext.CONVERTER );
 	}
 }

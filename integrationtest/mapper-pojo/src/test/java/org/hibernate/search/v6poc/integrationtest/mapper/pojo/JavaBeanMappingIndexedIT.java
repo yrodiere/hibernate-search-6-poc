@@ -58,7 +58,7 @@ public class JavaBeanMappingIndexedIT {
 						.failure(
 								"Type '" + IndexedWithoutEntityMetadata.class.getName()
 										+ "' is not marked as an entity type, yet it is indexed or targeted"
-										+ " by an association from an indexed type. Please convert your configuration."
+										+ " by an association from an indexed type. Please check your configuration."
 						)
 						.build()
 				);

@@ -9,18 +9,18 @@ package org.hibernate.search.v6poc.backend.lucene.types.predicate.impl;
 import java.util.Objects;
 
 import org.apache.lucene.util.QueryBuilder;
-
 import org.hibernate.search.v6poc.backend.lucene.types.converter.impl.StringFieldConverter;
 
-public final class StringFieldPredicateBuilderFactory
-		extends AbstractStandardLuceneFieldPredicateBuilderFactory<StringFieldConverter> {
+public class StringFieldPredicateBuilderFactory extends AbstractStandardLuceneFieldPredicateBuilderFactory {
+
+	private final StringFieldConverter converter;
 
 	private final boolean tokenized;
 
 	private final QueryBuilder queryBuilder;
 
 	public StringFieldPredicateBuilderFactory(StringFieldConverter converter, boolean tokenized, QueryBuilder queryBuilder) {
-		super( converter );
+		this.converter = converter;
 		this.tokenized = tokenized;
 		this.queryBuilder = queryBuilder;
 	}
@@ -37,18 +37,25 @@ public final class StringFieldPredicateBuilderFactory
 
 	@Override
 	public boolean equals(Object obj) {
-		if ( !super.equals( obj ) ) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( obj == null ) {
+			return false;
+		}
+		if ( StringFieldPredicateBuilderFactory.class != obj.getClass() ) {
 			return false;
 		}
 
 		StringFieldPredicateBuilderFactory other = (StringFieldPredicateBuilderFactory) obj;
 
-		return tokenized == other.tokenized &&
+		return Objects.equals( converter, other.converter ) &&
+				tokenized == other.tokenized &&
 				Objects.equals( queryBuilder, other.queryBuilder );
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash( super.hashCode(), tokenized, queryBuilder );
+		return Objects.hash( converter, tokenized, queryBuilder );
 	}
 }

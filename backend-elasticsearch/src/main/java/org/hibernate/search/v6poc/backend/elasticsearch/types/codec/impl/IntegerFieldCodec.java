@@ -20,10 +20,11 @@ public class IntegerFieldCodec implements ElasticsearchFieldCodec<Integer> {
 	}
 
 	@Override
-	public JsonElement encode(Integer value) {
-		if ( value == null ) {
+	public JsonElement encode(Object object) {
+		if ( object == null ) {
 			return JsonNull.INSTANCE;
 		}
+		Integer value = (Integer) object;
 		return new JsonPrimitive( value );
 	}
 

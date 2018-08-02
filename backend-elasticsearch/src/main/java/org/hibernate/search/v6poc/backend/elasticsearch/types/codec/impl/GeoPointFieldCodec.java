@@ -34,10 +34,11 @@ public class GeoPointFieldCodec implements ElasticsearchFieldCodec<GeoPoint> {
 	}
 
 	@Override
-	public JsonElement encode(GeoPoint value) {
-		if ( value == null ) {
+	public JsonElement encode(Object object) {
+		if ( object == null ) {
 			return JsonNull.INSTANCE;
 		}
+		GeoPoint value = (GeoPoint) object;
 		JsonObject result = new JsonObject();
 		LATITUDE_ACCESSOR.set( result, value.getLatitude() );
 		LONGITUDE_ACCESSOR.set( result, value.getLongitude() );

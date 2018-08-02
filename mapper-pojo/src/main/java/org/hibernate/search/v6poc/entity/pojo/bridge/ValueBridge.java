@@ -6,6 +6,7 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.bridge;
 
+import org.hibernate.search.v6poc.backend.document.converter.FromIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTypedContext;
 import org.hibernate.search.v6poc.entity.pojo.bridge.binding.ValueBridgeBindingContext;
 
@@ -33,6 +34,8 @@ public interface ValueBridge<V, F> extends AutoCloseable {
 	 *     using {@link ValueBridgeBindingContext#getIndexSchemaFieldContext()}.
 	 *     <li>Inspect the type of values extracted from the POJO model that will be passed to this bridge
 	 *     using {@link ValueBridgeBindingContext#getBridgedElement()}.
+	 *     <li>Define a reverse function to apply to projections on the field value
+	 *     using {@link ValueBridgeBindingContext#setFromIndexFieldValueConverter(FromIndexFieldValueConverter)}
 	 * </ul>
 	 *
 	 * @param context An entry point allowing to perform the operations listed above.
@@ -40,7 +43,7 @@ public interface ValueBridge<V, F> extends AutoCloseable {
 	 * (for instance {@code return fieldContext.asString()}). {@code null} to let Hibernate Search derive the expectations
 	 * from the {@code ValueBridge}'s generic type parameters.
 	 */
-	default IndexSchemaFieldTypedContext<F> bind(ValueBridgeBindingContext context) {
+	default IndexSchemaFieldTypedContext<F> bind(ValueBridgeBindingContext<F> context) {
 		return null; // Auto-detect the return type and use default encoding
 	}
 
@@ -72,20 +75,6 @@ public interface ValueBridge<V, F> extends AutoCloseable {
 	 */
 	default boolean isCompatibleWith(ValueBridge<?, ?> other) {
 		return equals( other );
-	}
-
-	/**
-	 * Transform the given indexed field value back to the value initially extracted from the POJO,
-	 * or to any implementation-defined value to be returned in projections on the indexed field.
-	 * <p>
-	 * For instance, a {@code ValueBridge} indexing JPA entities by putting their identifier in a field
-	 * might not be able to resolve the identifier back to an entity, so it could just return the identifier as-is.
-	 *
-	 * @param indexedValue The field value to be transformed.
-	 * @return The value returned in projections on the POJO property.
-	 */
-	default Object fromIndexedValue(F indexedValue) {
-		return indexedValue;
 	}
 
 	/**

@@ -6,13 +6,15 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.bridge.binding.impl;
 
+import org.hibernate.search.v6poc.backend.document.converter.FromIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldContext;
 import org.hibernate.search.v6poc.entity.pojo.bridge.binding.ValueBridgeBindingContext;
 import org.hibernate.search.v6poc.entity.pojo.model.PojoModelValue;
 
-public class ValueBridgeBindingContextImpl implements ValueBridgeBindingContext {
+public class ValueBridgeBindingContextImpl<F> implements ValueBridgeBindingContext<F> {
 	private final PojoModelValue bridgedElement;
 	private final IndexSchemaFieldContext indexSchemaFieldContext;
+	private FromIndexFieldValueConverter<F, ?> fromIndexFieldValueConverter;
 
 	public ValueBridgeBindingContextImpl(PojoModelValue bridgedElement,
 			IndexSchemaFieldContext indexSchemaFieldContext) {
@@ -30,4 +32,12 @@ public class ValueBridgeBindingContextImpl implements ValueBridgeBindingContext 
 		return indexSchemaFieldContext;
 	}
 
+	@Override
+	public <V> void setFromIndexFieldValueConverter(FromIndexFieldValueConverter<F, V> fromIndexFieldValueConverter) {
+		this.fromIndexFieldValueConverter = fromIndexFieldValueConverter;
+	}
+
+	public FromIndexFieldValueConverter<F, ?> getFromIndexFieldValueConverter() {
+		return fromIndexFieldValueConverter;
+	}
 }

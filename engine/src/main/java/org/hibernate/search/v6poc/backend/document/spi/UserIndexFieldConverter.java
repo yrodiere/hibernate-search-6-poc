@@ -6,6 +6,7 @@
  */
 package org.hibernate.search.v6poc.backend.document.spi;
 
+import org.hibernate.search.v6poc.backend.document.converter.FromIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
 
 /**
@@ -22,19 +23,33 @@ import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueCo
 public final class UserIndexFieldConverter<F> {
 
 	private final ToIndexFieldValueConverter<?, ? extends F> toIndexConverter;
+	private final FromIndexFieldValueConverter<? super F, ?> fromIndexConverter;
 
-	UserIndexFieldConverter(ToIndexFieldValueConverter<?, ? extends F> toIndexConverter) {
+	UserIndexFieldConverter(ToIndexFieldValueConverter<?,? extends F> toIndexConverter,
+			FromIndexFieldValueConverter<? super F,?> fromIndexConverter) {
 		this.toIndexConverter = toIndexConverter;
+		this.fromIndexConverter = fromIndexConverter;
 	}
 
 	public F convertFromDsl(Object value) {
 		return toIndexConverter.convertUnknown( value );
 	}
 
+	public Object convertFromProjection(F projection) {
+		if ( fromIndexConverter == null ) {
+			// FIXME detect this when the projection is configured and throw an exception with an explicit message instead. A converter set to null means we don't want to enable projections.
+			return projection;
+		}
+		return fromIndexConverter.convert( projection );
+	}
+
 	/**
 	 * Determine whether another converter is DSL-compatible with this one,
 	 * i.e. its {@link #convertFromDsl(Object)} method is guaranteed
 	 * to always return the same value as this converter's when given the same input.
+	 * <p>
+	 * Note: this method is separate from {@link #equals(Object)} because it might return true for two different objects,
+	 * e.g. two objects that implement {@link #convertFromProjection(Object)} differently.
 	 *
 	 * @param other Another {@link UserIndexFieldConverter}.
 	 * @return {@code true} if the given converter is DSL-compatible.

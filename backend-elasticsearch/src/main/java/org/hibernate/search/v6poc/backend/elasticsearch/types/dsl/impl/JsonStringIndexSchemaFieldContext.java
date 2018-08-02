@@ -7,6 +7,7 @@
 package org.hibernate.search.v6poc.backend.elasticsearch.types.dsl.impl;
 
 import org.hibernate.search.v6poc.backend.document.IndexFieldAccessor;
+import org.hibernate.search.v6poc.backend.document.converter.FromIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.converter.ToIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.spi.IndexSchemaContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTerminalContext;
@@ -56,8 +57,9 @@ public class JsonStringIndexSchemaFieldContext implements IndexSchemaFieldTermin
 	}
 
 	@Override
-	public <V> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends String> toIndexConverter) {
-		return helper.createAccessor( toIndexConverter );
+	public <V, U> IndexFieldAccessor<V> createAccessor(ToIndexFieldValueConverter<V, ? extends String> toIndexConverter,
+			FromIndexFieldValueConverter<? super String, U> fromIndexConverter) {
+		return helper.createAccessor( toIndexConverter, fromIndexConverter );
 	}
 
 	@Override

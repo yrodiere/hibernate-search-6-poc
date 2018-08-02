@@ -6,6 +6,7 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.bridge.builtin.impl;
 
+import org.hibernate.search.v6poc.backend.document.converter.spi.PassThroughFromIndexFieldValueConverter;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldContext;
 import org.hibernate.search.v6poc.backend.document.model.dsl.IndexSchemaFieldTypedContext;
 import org.hibernate.search.v6poc.entity.pojo.bridge.ValueBridge;
@@ -35,7 +36,8 @@ public final class PassThroughValueBridge<F> implements ValueBridge<F, F> {
 	}
 
 	@Override
-	public IndexSchemaFieldTypedContext<F> bind(ValueBridgeBindingContext context) {
+	public IndexSchemaFieldTypedContext<F> bind(ValueBridgeBindingContext<F> context) {
+		context.setFromIndexFieldValueConverter( PassThroughFromIndexFieldValueConverter.get() );
 		return context.getIndexSchemaFieldContext().as( fieldType );
 	}
 
@@ -47,11 +49,6 @@ public final class PassThroughValueBridge<F> implements ValueBridge<F, F> {
 	@Override
 	public F toIndexedValue(F value) {
 		return value;
-	}
-
-	@Override
-	public Object fromIndexedValue(F indexedValue) {
-		return indexedValue;
 	}
 
 	@Override

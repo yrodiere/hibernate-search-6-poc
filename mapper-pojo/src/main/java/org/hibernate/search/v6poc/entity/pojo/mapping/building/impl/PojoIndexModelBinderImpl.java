@@ -214,7 +214,7 @@ public class PojoIndexModelBinderImpl implements PojoIndexModelBinder {
 		IndexSchemaFieldContext fieldContext = bindingContext.getSchemaElement( listener ).field( relativeFieldName );
 
 		// First give the bridge a chance to contribute to the model
-		ValueBridgeBindingContextImpl bridgeBindingContext = new ValueBridgeBindingContextImpl(
+		ValueBridgeBindingContextImpl<F> bridgeBindingContext = new ValueBridgeBindingContextImpl<>(
 				new PojoModelValueElement<>( valueTypeModel ),
 				fieldContext
 		);
@@ -232,7 +232,8 @@ public class PojoIndexModelBinderImpl implements PojoIndexModelBinder {
 		contributor.contribute( typedFieldContext );
 
 		IndexFieldAccessor<V> indexFieldAccessor = typedFieldContext.createAccessor(
-				new ValueBridgeToIndexFieldValueConverter<>( bridge )
+				new ValueBridgeToIndexFieldValueConverter<>( bridge ),
+				bridgeBindingContext.getFromIndexFieldValueConverter()
 		);
 
 		// If all fields are filtered out, we should ignore the bridge

@@ -298,7 +298,8 @@ stage('Default build') {
 		Utils.markStageSkippedForConditional(STAGE_NAME)
 		return
 	}
-	node(NODE_PATTERN_BASE) {
+	error("Build failed because of this and that..")
+	/*node(NODE_PATTERN_BASE) {
 		checkout scm
 		withDefaultedMaven {
 			sh """ \\
@@ -310,6 +311,7 @@ stage('Default build') {
 			}
 		}
 	}
+	*/
 }
 
 stage('Non-default environment ITs') {
@@ -435,7 +437,7 @@ stage('Release') {
 catch (any) {
 	// Set the build result right now, to make sure the build won't be considered as
 	// successful just because of the successful notification.
-	currentBuild.result = currentBuild.currentResult
+	//currentBuild.result = currentBuild.currentResult
 	mainScriptException = any
 	throw any
 }

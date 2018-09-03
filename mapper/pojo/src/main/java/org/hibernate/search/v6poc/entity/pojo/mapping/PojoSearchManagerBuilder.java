@@ -6,7 +6,7 @@
  */
 package org.hibernate.search.v6poc.entity.pojo.mapping;
 
-import org.hibernate.search.v6poc.engine.SearchManagerBuilder;
+import org.hibernate.search.v6poc.engine.common.SearchManagerBuilder;
 
 
 /**

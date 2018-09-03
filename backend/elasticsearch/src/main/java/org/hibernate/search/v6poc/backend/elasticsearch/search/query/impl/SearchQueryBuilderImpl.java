@@ -17,7 +17,7 @@ import org.hibernate.search.v6poc.backend.elasticsearch.search.impl.Elasticsearc
 import org.hibernate.search.v6poc.backend.elasticsearch.util.impl.URLEncodedString;
 import org.hibernate.search.v6poc.backend.elasticsearch.work.impl.ElasticsearchWorkFactory;
 import org.hibernate.search.v6poc.backend.elasticsearch.work.impl.SearchResultExtractor;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.search.SearchQuery;
 import org.hibernate.search.v6poc.search.query.spi.HitAggregator;
 import org.hibernate.search.v6poc.search.query.spi.SearchQueryBuilder;

@@ -20,7 +20,7 @@ import org.hibernate.search.v6poc.backend.elasticsearch.document.model.impl.Elas
 import org.hibernate.search.v6poc.backend.elasticsearch.logging.impl.Log;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.impl.ElasticsearchSearchQueryElementCollector;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.impl.ElasticsearchSearchTargetModel;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.search.ProjectionConstants;
 import org.hibernate.search.v6poc.search.query.spi.DocumentReferenceHitCollector;
 import org.hibernate.search.v6poc.search.query.spi.HitAggregator;

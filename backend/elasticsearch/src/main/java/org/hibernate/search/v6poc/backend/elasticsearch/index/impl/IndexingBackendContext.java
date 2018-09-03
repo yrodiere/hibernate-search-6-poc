@@ -19,7 +19,7 @@ import org.hibernate.search.v6poc.backend.elasticsearch.orchestration.impl.StubE
 import org.hibernate.search.v6poc.backend.elasticsearch.work.impl.ElasticsearchWork;
 import org.hibernate.search.v6poc.backend.elasticsearch.work.impl.ElasticsearchWorkFactory;
 import org.hibernate.search.v6poc.backend.index.spi.IndexWorkPlan;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.util.EventContext;
 
 public class IndexingBackendContext {

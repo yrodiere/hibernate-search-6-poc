@@ -6,7 +6,7 @@
  */
 package org.hibernate.search.v6poc.util.impl.integrationtest.common.stub;
 
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 
 public class StubSessionContext implements SessionContext {
 

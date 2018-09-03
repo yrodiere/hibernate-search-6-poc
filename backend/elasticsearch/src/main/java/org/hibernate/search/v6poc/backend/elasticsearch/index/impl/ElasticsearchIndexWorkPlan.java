@@ -19,7 +19,7 @@ import org.hibernate.search.v6poc.backend.elasticsearch.work.impl.ElasticsearchW
 import org.hibernate.search.v6poc.backend.index.spi.IndexWorkPlan;
 import org.hibernate.search.v6poc.backend.index.spi.DocumentContributor;
 import org.hibernate.search.v6poc.backend.index.spi.DocumentReferenceProvider;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 
 import com.google.gson.JsonObject;
 

@@ -8,7 +8,7 @@ package org.hibernate.search.v6poc.entity.javabean.impl;
 
 import java.util.Set;
 
-import org.hibernate.search.v6poc.engine.SearchMappingRepositoryBuilder;
+import org.hibernate.search.v6poc.engine.common.SearchMappingRepositoryBuilder;
 import org.hibernate.search.v6poc.entity.javabean.JavaBeanMapping;
 import org.hibernate.search.v6poc.entity.javabean.JavaBeanMappingInitiator;
 import org.hibernate.search.v6poc.entity.javabean.mapping.impl.JavaBeanMappingFactory;

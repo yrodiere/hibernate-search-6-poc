@@ -7,7 +7,7 @@
 package org.hibernate.search.v6poc.backend.index.spi;
 
 import org.hibernate.search.v6poc.backend.document.DocumentElement;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 
 /**
  * The object responsible for applying works and searches to a full-text index.

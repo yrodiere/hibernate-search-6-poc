@@ -4,7 +4,7 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package org.hibernate.search.v6poc.engine.impl;
+package org.hibernate.search.v6poc.engine.common.impl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ import org.hibernate.search.v6poc.backend.spi.BackendImplementor;
 import org.hibernate.search.v6poc.backend.spi.BackendFactory;
 import org.hibernate.search.v6poc.cfg.ConfigurationPropertySource;
 import org.hibernate.search.v6poc.cfg.spi.ConfigurationProperty;
-import org.hibernate.search.v6poc.engine.spi.BeanProvider;
+import org.hibernate.search.v6poc.engine.common.spi.BeanProvider;
 import org.hibernate.search.v6poc.backend.spi.BackendBuildContext;
 import org.hibernate.search.v6poc.entity.mapping.building.impl.RootIndexModelBindingContext;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexManagerBuildingState;

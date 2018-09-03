@@ -22,7 +22,7 @@ import org.hibernate.search.v6poc.backend.document.model.dsl.StandardIndexSchema
 import org.hibernate.search.v6poc.backend.index.spi.IndexWorkPlan;
 import org.hibernate.search.v6poc.backend.index.spi.IndexManager;
 import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTarget;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.InvalidType;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.StandardFieldMapper;
 import org.hibernate.search.v6poc.integrationtest.backend.tck.util.ValueWrapper;

@@ -13,7 +13,7 @@ import org.hibernate.search.v6poc.backend.lucene.document.impl.LuceneRootDocumen
 import org.hibernate.search.v6poc.backend.lucene.multitenancy.impl.MultiTenancyStrategy;
 import org.hibernate.search.v6poc.backend.lucene.orchestration.impl.LuceneIndexWorkOrchestrator;
 import org.hibernate.search.v6poc.backend.lucene.work.impl.LuceneWorkFactory;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.util.EventContext;
 
 import org.apache.lucene.store.Directory;

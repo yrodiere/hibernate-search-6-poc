@@ -12,7 +12,7 @@ import org.hibernate.search.v6poc.backend.elasticsearch.search.impl.Elasticsearc
 import org.hibernate.search.v6poc.backend.elasticsearch.search.query.impl.ElasticsearchSearchTargetContext;
 import org.hibernate.search.v6poc.backend.elasticsearch.search.query.impl.SearchBackendContext;
 import org.hibernate.search.v6poc.backend.index.spi.IndexSearchTargetBase;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.search.DocumentReference;
 import org.hibernate.search.v6poc.search.ObjectLoader;
 import org.hibernate.search.v6poc.search.dsl.query.SearchQueryResultDefinitionContext;

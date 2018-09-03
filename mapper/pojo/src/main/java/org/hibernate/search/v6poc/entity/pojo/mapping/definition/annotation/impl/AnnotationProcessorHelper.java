@@ -12,9 +12,9 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.hibernate.search.v6poc.engine.spi.BeanProvider;
-import org.hibernate.search.v6poc.engine.spi.BeanReference;
-import org.hibernate.search.v6poc.engine.spi.ImmutableBeanReference;
+import org.hibernate.search.v6poc.engine.common.spi.BeanProvider;
+import org.hibernate.search.v6poc.engine.common.spi.BeanReference;
+import org.hibernate.search.v6poc.engine.common.spi.ImmutableBeanReference;
 import org.hibernate.search.v6poc.entity.pojo.bridge.IdentifierBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.PropertyBridge;
 import org.hibernate.search.v6poc.entity.pojo.bridge.RoutingKeyBridge;

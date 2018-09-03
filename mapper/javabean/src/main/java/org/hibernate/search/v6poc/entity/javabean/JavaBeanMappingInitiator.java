@@ -9,7 +9,7 @@ package org.hibernate.search.v6poc.entity.javabean;
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
 
-import org.hibernate.search.v6poc.engine.SearchMappingRepositoryBuilder;
+import org.hibernate.search.v6poc.engine.common.SearchMappingRepositoryBuilder;
 import org.hibernate.search.v6poc.entity.javabean.impl.JavaBeanMappingInitiatorImpl;
 import org.hibernate.search.v6poc.entity.javabean.model.impl.JavaBeanBootstrapIntrospector;
 import org.hibernate.search.v6poc.entity.pojo.mapping.PojoMappingInitiator;

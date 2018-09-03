@@ -7,7 +7,7 @@
 package org.hibernate.search.v6poc.entity.pojo.mapping.building.impl;
 
 import org.hibernate.search.v6poc.entity.mapping.spi.MappingBuildContext;
-import org.hibernate.search.v6poc.engine.spi.ServiceManager;
+import org.hibernate.search.v6poc.engine.common.spi.ServiceManager;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuildContext;
 
 public class BridgeBuildContextImpl implements BridgeBuildContext {

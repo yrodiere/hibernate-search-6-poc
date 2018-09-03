@@ -9,7 +9,7 @@ package org.hibernate.search.v6poc.entity.pojo.mapping;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.hibernate.search.v6poc.engine.SearchManager;
+import org.hibernate.search.v6poc.engine.common.SearchManager;
 
 
 /**

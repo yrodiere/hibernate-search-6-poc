@@ -4,10 +4,10 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package org.hibernate.search.v6poc.engine.impl;
+package org.hibernate.search.v6poc.engine.common.impl;
 
-import org.hibernate.search.v6poc.engine.spi.BeanProvider;
-import org.hibernate.search.v6poc.engine.spi.ServiceManager;
+import org.hibernate.search.v6poc.engine.common.spi.BeanProvider;
+import org.hibernate.search.v6poc.engine.common.spi.ServiceManager;
 
 
 /**

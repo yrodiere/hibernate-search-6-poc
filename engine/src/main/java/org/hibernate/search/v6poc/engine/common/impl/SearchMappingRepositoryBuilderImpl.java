@@ -4,7 +4,7 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package org.hibernate.search.v6poc.engine.impl;
+package org.hibernate.search.v6poc.engine.common.impl;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -23,12 +23,12 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.hibernate.search.v6poc.cfg.ConfigurationPropertySource;
-import org.hibernate.search.v6poc.engine.SearchMappingRepository;
-import org.hibernate.search.v6poc.engine.SearchMappingRepositoryBuilder;
-import org.hibernate.search.v6poc.engine.spi.BeanProvider;
-import org.hibernate.search.v6poc.engine.spi.BeanResolver;
-import org.hibernate.search.v6poc.engine.spi.ReflectionBeanResolver;
-import org.hibernate.search.v6poc.engine.spi.ServiceManager;
+import org.hibernate.search.v6poc.engine.common.SearchMappingRepository;
+import org.hibernate.search.v6poc.engine.common.SearchMappingRepositoryBuilder;
+import org.hibernate.search.v6poc.engine.common.spi.BeanProvider;
+import org.hibernate.search.v6poc.engine.common.spi.BeanResolver;
+import org.hibernate.search.v6poc.engine.common.spi.ReflectionBeanResolver;
+import org.hibernate.search.v6poc.engine.common.spi.ServiceManager;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.IndexManagerBuildingState;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.Mapper;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.MappingAbortedException;

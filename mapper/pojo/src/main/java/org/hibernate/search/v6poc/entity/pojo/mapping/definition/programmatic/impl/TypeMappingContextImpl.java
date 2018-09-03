@@ -7,8 +7,8 @@
 package org.hibernate.search.v6poc.entity.pojo.mapping.definition.programmatic.impl;
 
 import org.hibernate.search.v6poc.cfg.ConfigurationPropertySource;
-import org.hibernate.search.v6poc.engine.spi.BeanReference;
-import org.hibernate.search.v6poc.engine.spi.ImmutableBeanReference;
+import org.hibernate.search.v6poc.engine.common.spi.BeanReference;
+import org.hibernate.search.v6poc.engine.common.spi.ImmutableBeanReference;
 import org.hibernate.search.v6poc.entity.mapping.spi.MappingBuildContext;
 import org.hibernate.search.v6poc.entity.mapping.building.spi.MappingConfigurationCollector;
 import org.hibernate.search.v6poc.entity.pojo.bridge.RoutingKeyBridge;

@@ -8,7 +8,7 @@ package org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend
 
 import java.util.List;
 
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend.search.StubQueryElementCollector;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend.search.StubSearchQueryBuilder;
 import org.hibernate.search.v6poc.util.impl.integrationtest.common.stub.backend.search.StubSearchWork;

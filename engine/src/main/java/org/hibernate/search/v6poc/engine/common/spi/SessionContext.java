@@ -4,15 +4,15 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package org.hibernate.search.v6poc.engine;
+package org.hibernate.search.v6poc.engine.common.spi;
+
 
 /**
  * @author Yoann Rodiere
  */
-public interface SearchManager extends AutoCloseable {
+// TODO add more in here? We could add default query timeouts, default query hints, etc.
+public interface SessionContext {
 
-	@Override
-	default void close() {
-	}
+	String getTenantIdentifier();
 
 }

@@ -8,7 +8,7 @@ package org.hibernate.search.v6poc.entity.pojo.mapping.spi;
 
 import java.util.Collection;
 
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.entity.pojo.mapping.PojoWorkPlan;
 import org.hibernate.search.v6poc.entity.pojo.mapping.PojoMapping;
 

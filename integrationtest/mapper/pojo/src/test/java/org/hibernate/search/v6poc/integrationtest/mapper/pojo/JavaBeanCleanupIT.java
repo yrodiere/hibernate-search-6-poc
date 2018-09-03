@@ -11,7 +11,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.function.Consumer;
 
-import org.hibernate.search.v6poc.engine.SearchMappingRepository;
+import org.hibernate.search.v6poc.engine.common.SearchMappingRepository;
 import org.hibernate.search.v6poc.entity.javabean.JavaBeanMappingInitiator;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuildContext;
 import org.hibernate.search.v6poc.entity.pojo.bridge.mapping.BridgeBuilder;

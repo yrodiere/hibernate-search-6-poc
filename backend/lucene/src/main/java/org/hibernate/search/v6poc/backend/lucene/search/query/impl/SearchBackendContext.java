@@ -14,7 +14,7 @@ import org.hibernate.search.v6poc.backend.lucene.multitenancy.impl.MultiTenancyS
 import org.hibernate.search.v6poc.backend.lucene.orchestration.impl.LuceneQueryWorkOrchestrator;
 import org.hibernate.search.v6poc.backend.lucene.search.impl.LuceneSearchTargetModel;
 import org.hibernate.search.v6poc.backend.lucene.work.impl.LuceneWorkFactory;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.util.EventContext;
 import org.hibernate.search.v6poc.search.query.spi.HitAggregator;
 

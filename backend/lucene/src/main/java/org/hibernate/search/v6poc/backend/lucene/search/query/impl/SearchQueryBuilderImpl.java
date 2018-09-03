@@ -15,7 +15,7 @@ import org.hibernate.search.v6poc.backend.lucene.search.impl.LuceneQueries;
 import org.hibernate.search.v6poc.backend.lucene.search.impl.LuceneSearchQueryElementCollector;
 import org.hibernate.search.v6poc.backend.lucene.search.impl.LuceneSearchTargetModel;
 import org.hibernate.search.v6poc.backend.lucene.work.impl.LuceneWorkFactory;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 import org.hibernate.search.v6poc.search.SearchQuery;
 import org.hibernate.search.v6poc.search.query.spi.HitAggregator;
 import org.hibernate.search.v6poc.search.query.spi.SearchQueryBuilder;

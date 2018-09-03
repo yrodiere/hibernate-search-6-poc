@@ -19,7 +19,7 @@ import org.hibernate.search.v6poc.backend.lucene.multitenancy.impl.MultiTenancyS
 import org.hibernate.search.v6poc.backend.lucene.orchestration.impl.LuceneIndexWorkOrchestrator;
 import org.hibernate.search.v6poc.backend.lucene.work.impl.LuceneIndexWork;
 import org.hibernate.search.v6poc.backend.lucene.work.impl.LuceneWorkFactory;
-import org.hibernate.search.v6poc.engine.spi.SessionContext;
+import org.hibernate.search.v6poc.engine.common.spi.SessionContext;
 
 
 /**
